@@ -1,5 +1,5 @@
 ---
-name: create-agents
+name: improve-agents-md
 description: Write, audit, and improve AGENTS.md files for AI coding agents. Use when creating or improving agent context for a codebase.
 ---
 
