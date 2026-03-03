@@ -1,5 +1,5 @@
 ---
-name: python-mastery
+name: python-best-practices
 description: >
   Comprehensive Python expertise covering language fundamentals, idiomatic patterns, software design
   principles, and production best practices. Use when writing, reviewing, debugging, or refactoring
