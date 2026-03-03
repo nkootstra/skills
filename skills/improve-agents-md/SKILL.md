@@ -93,6 +93,8 @@ A Reference Docs section is fine — only add a pointer if the agent genuinely n
 
 **Auditing is refactoring, not summarization.** Every piece of correct, useful information must end up somewhere — in the root file, a scoped sub-file, a rules file, or an `@import` target. Never compress or summarize content to reduce line count. If a detail was worth writing, it's worth preserving in the right location.
 
+Read `references/audit-example.md` for a worked before/after example showing the full workflow.
+
 ### Audit Workflow
 
 1. **Measure.** Count total lines, distinct instructions, style rules, overview sections.
@@ -108,6 +110,31 @@ A Reference Docs section is fine — only add a pointer if the agent genuinely n
 ## Maintenance
 
 On significant changes, update affected AGENTS.md files leaf-first. A CI agent that detects changed files and proposes updates is worth building.
+
+### Testing Effectiveness
+
+An AGENTS.md is working if the agent's behavior changes. After writing or auditing:
+
+1. Run a representative task *without* the file and note where the agent deviates from your expectations.
+2. Add/update instructions targeting those deviations.
+3. Re-run the same task and verify the behavior shifts.
+
+If Claude keeps doing something wrong despite having a rule against it, the file is likely too long and the rule is getting lost. If Claude asks questions that are answered in the file, the phrasing may be ambiguous.
+
+### Monorepo Exclusions
+
+In large monorepos, ancestor context files from other teams may load and add irrelevant context. Claude Code supports `claudeMdExcludes` in `.claude/settings.local.json` to skip specific files:
+
+```json
+{
+  "claudeMdExcludes": [
+    "**/other-team/CLAUDE.md",
+    "/repo/root/unrelated-service/.claude/rules/**"
+  ]
+}
+```
+
+This keeps each team's agent context focused without affecting other teams.
 
 ## Anti-Patterns to Flag
 
