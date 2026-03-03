@@ -1,5 +1,5 @@
 ---
-name: improve-agents-md
+name: agents-md
 description: Write, audit, and improve agent context files (AGENTS.md, CLAUDE.md) for AI coding agents. Use when creating or improving agent context for a codebase.
 ---
 

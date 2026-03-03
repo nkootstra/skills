@@ -7,11 +7,19 @@ description: Compact, compress, or minify markdown files to use fewer tokens whi
 
 Reduce token count while preserving every detail. No information loss — only waste removed.
 
+## References
+
+Read on demand — not needed for straightforward compaction tasks.
+
+| When you need... | Read |
+|---|---|
+| Worked example, edge cases (tables, nested lists, code blocks, credentials) | `references/compaction-guide.md` |
+
 ## Output
 
 Infer preference from context (uploaded file → file output; pasted text → inline), or ask.
 
-File output path: `/mnt/user-data/outputs/<original-name>.min.md`.
+Write output to the working directory as `<original-name>.min.md`, or ask the user for a path.
 
 After compacting, report:
 

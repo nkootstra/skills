@@ -7,7 +7,7 @@ description: >
   any Python library.
 ---
 
-# Python Mastery
+# Python Best Practices
 
 ## How to use this skill
 
