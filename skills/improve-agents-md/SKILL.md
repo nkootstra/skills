@@ -7,6 +7,15 @@ This skill covers agent context files — AGENTS.md (OpenCode, multi-agent harne
 
 Include only what genuinely helps, cut what doesn't earn its place — but never delete useful information without relocating it first.
 
+## References
+
+Read on demand — do not load all reference files at once.
+
+| When the user mentions... | Read |
+|---|---|
+| Auditing an existing file | `references/audit-example.md` |
+| Testing, TDD, test conventions | `references/tdd.md` |
+
 ## Core Principles
 
 - **Minimum viable requirements.** Ask of each line: "Does this earn its cost on nearly every session?" If not, cut it. Every line loads on every session — brevity has direct cost benefits.
@@ -92,8 +101,6 @@ A Reference Docs section is fine — only add a pointer if the agent genuinely n
 ## Auditing an Existing AGENTS.md
 
 **Auditing is refactoring, not summarization.** Every piece of correct, useful information must end up somewhere — in the root file, a scoped sub-file, a rules file, or an `@import` target. Never compress or summarize content to reduce line count. If a detail was worth writing, it's worth preserving in the right location.
-
-Read `references/audit-example.md` for a worked before/after example showing the full workflow.
 
 ### Audit Workflow
 
