@@ -186,7 +186,7 @@ paths:
 - Events must be idempotent — consumers may receive duplicates
 ```
 
-## Step 5: Results Summary
+## Step 4: Results Summary
 
 | Metric | Before | After (root) | After (total) |
 |---|---|---|---|

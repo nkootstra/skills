@@ -47,7 +47,7 @@ When a root file grows past ~200 lines, use these mechanisms to relocate content
 # .claude/rules/api-design.md
 ---
 paths:
-  - "src/api/**/*.ts"
+  - "src/api/**"
 ---
 All API endpoints must include input validation and OpenAPI comments.
 ```
@@ -126,7 +126,7 @@ An AGENTS.md is working if the agent's behavior changes. After writing or auditi
 2. Add/update instructions targeting those deviations.
 3. Re-run the same task and verify the behavior shifts.
 
-If Claude keeps doing something wrong despite having a rule against it, the file is likely too long and the rule is getting lost. If Claude asks questions that are answered in the file, the phrasing may be ambiguous.
+If the agent keeps doing something wrong despite having a rule against it, the file is likely too long and the rule is getting lost. If the agent asks questions that are answered in the file, the phrasing may be ambiguous.
 
 ### Monorepo Exclusions
 
