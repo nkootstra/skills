@@ -8,7 +8,7 @@ Testing instructions in agent context files fall into three categories:
 
 **Keep in root file** — universal testing conventions that apply to every task:
 - Which test runner and command to use (if non-obvious)
-- What to run before finishing (`npm run test:int` requires Docker, not just `npm test`)
+- What to run before finishing (e.g. integration tests that need Docker or external services)
 - Critical invariants ("never remove or weaken existing tests")
 
 **Move to scoped rule** — conventions specific to a test directory or file pattern:
@@ -18,19 +18,19 @@ Testing instructions in agent context files fall into three categories:
 - Test naming conventions
 
 **Remove** — things a linter or the framework already enforces:
-- "Use `describe`/`it` blocks" (framework default)
-- "Name test files `*.test.ts`" (configurable in test runner)
-- "Import `expect` from..." (auto-import or framework global)
+- Test block structure (framework default)
+- Test file naming patterns (configurable in test runner)
+- Import conventions (auto-import or framework global)
 
 Example of a good testing section in a root AGENTS.md:
 
 ```markdown
 ## Testing
 
-npm run test:int     # Integration tests — requires Docker
-npm run test:unit    # Fast unit tests, no external deps
+<test:integration>    # Integration tests — requires Docker
+<test:unit>           # Fast unit tests, no external deps
 
-Run test:unit before finishing. Run test:int if you changed API routes or DB queries.
+Run unit tests before finishing. Run integration tests if you changed API routes or DB queries.
 Tests must verify behavior through public interfaces, not implementation details.
 Never remove or weaken existing tests without explicit approval.
 ```
@@ -74,31 +74,28 @@ Start with a tracer bullet: one test that proves the path works end-to-end throu
 
 **Good tests** are integration-style: they exercise real code paths through public APIs and describe *what* the system does, not *how*.
 
-```typescript
+```
 // GOOD: Tests observable behavior through the interface
-test("created user is retrievable by id", async () => {
-  const user = await createUser({ name: "Alice" });
-  const retrieved = await getUser(user.id);
-  expect(retrieved.name).toBe("Alice");
-});
+test "created user is retrievable by id":
+  user = createUser(name: "Alice")
+  retrieved = getUser(user.id)
+  assert retrieved.name == "Alice"
 ```
 
 **Bad tests** are coupled to implementation. The warning sign: the test breaks when you refactor, but behavior hasn't changed.
 
-```typescript
+```
 // BAD: Tests implementation detail (which service gets called)
-test("checkout calls paymentService.process", async () => {
-  const mockPayment = jest.mock(paymentService);
-  await checkout(cart, payment);
-  expect(mockPayment.process).toHaveBeenCalledWith(cart.total);
-});
+test "checkout calls paymentService.process":
+  mockPayment = mock(paymentService)
+  checkout(cart, payment)
+  assert mockPayment.process was called with cart.total
 
 // BAD: Bypasses the interface to verify via database
-test("createUser saves to database", async () => {
-  await createUser({ name: "Alice" });
-  const row = await db.query("SELECT * FROM users WHERE name = ?", ["Alice"]);
-  expect(row).toBeDefined();
-});
+test "createUser saves to database":
+  createUser(name: "Alice")
+  row = db.query("SELECT * FROM users WHERE name = ?", ["Alice"])
+  assert row exists
 ```
 
 Red flags in tests:
@@ -119,17 +116,15 @@ Do not mock your own modules or internal collaborators. If you control the code,
 
 **Design for mockability at boundaries** using dependency injection:
 
-```typescript
+```
 // Testable: dependency passed in
-function processPayment(order, paymentClient) {
-  return paymentClient.charge(order.total);
-}
+function processPayment(order, paymentClient):
+  return paymentClient.charge(order.total)
 
 // Hard to test: dependency created internally
-function processPayment(order) {
-  const client = new StripeClient(process.env.STRIPE_KEY);
-  return client.charge(order.total);
-}
+function processPayment(order):
+  client = new PaymentClient(env.API_KEY)
+  return client.charge(order.total)
 ```
 
 Prefer SDK-style interfaces over generic fetchers — each function is independently mockable with a specific return shape.
