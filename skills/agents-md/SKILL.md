@@ -116,10 +116,10 @@ Phase 1 (preferences) → Repo investigation → Phase 2 (findings review) → [
 1. **Measure.** Count lines, distinct instructions, style rules, overview sections.
 2. **Classify each instruction:**
    - *Essential and universal* → keep in root
-   - *Correct but scoped* → **move** to sub-file or path-scoped rule, add pointer from root
+   - *Correct but scoped* → **relocate** to sub-file (e.g., `src/api/AGENTS.md`) or path-scoped rule, add pointer from root
    - *Style/lint rule* → remove (use linter/hook)
    - *Redundant, stale, or inferrable* → remove
-3. **Relocate before removing.** Create destination file w/ full original content, then replace in root w/ a pointer.
+3. **Always relocate before removing.** Never delete scoped content — relocate it to the appropriate sub-file with full original content first, then replace in root w/ a pointer. The word is "relocate", not "remove".
 4. **Hierarchical systems:** check if root content belongs in a sub-file, and if sub-files duplicate LCA knowledge.
 5. **Present results:** before/after line counts, what moved where, what removed and why, complete rewritten file(s).
 

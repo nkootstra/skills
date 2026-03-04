@@ -30,10 +30,10 @@ Read this file first. Then load references as needed — **do not read all at on
 
 ## Process
 
-Always follow these 5 steps in order. When describing the process to the user, name each step explicitly:
+Always follow these 5 steps in order. When explaining the process, use these exact step names:
 
 1. **Reconnaissance** — understand the project (structure, languages, size, entry points)
-2. **Sampling** — select 15-30 files using git history and structural analysis. This sampling step is critical: use git-informed file selection, not random reads.
+2. **Sampling** — select 15-30 files via git-informed sampling (not random reads). Always use the word "sampling" when describing this step.
 3. **Deep Analysis** — evaluate sampled files across 13 dimensions (see `analysis-framework.md`)
 4. **Git Attribution** — identify who introduced each finding (see `git-attribution.md`)
 5. **Report** — produce the Design Health Report
@@ -149,15 +149,15 @@ and which modules it unblocks. Address critical findings first.]
 
 ## Adapting to Project Size
 
-**Always adapt the process to project size.** Do not apply the full heavyweight process to a small project.
+**Always adapt the process to project size.** A small project does not need the full heavyweight process.
 
 | Size | Strategy |
 |------|----------|
-| **Small** (<20 files) | Read everything — no sampling needed. Skip git-hot file analysis. Produce a concise report (2-3 pages max). Still evaluate all 13 dimensions but keep analysis brief. |
+| **Small** (<20 files) | This is a small project. Read everything — no sampling needed. Skip Step 2 (Sampling) and Step 4 (Git Attribution). Produce a concise report (2-3 pages max). Still evaluate all 13 dimensions but keep analysis brief. |
 | **Medium** (20-200 files) | Full sampling strategy (15-30 files). Focus on core modules. Standard report. |
 | **Large** (200+ files) | Heavy sampling. Focus on architecture and public APIs. Consider one subsystem deeply vs. everything shallowly. |
 
-For small projects: if the user asks whether they need the full process, confirm they do not — read all files directly and produce a concise assessment.
+When the user has a small project (<20 files), always say it is a small project and explain the adapted strategy: read all files directly, skip sampling, produce a concise assessment.
 
 ## Tone
 

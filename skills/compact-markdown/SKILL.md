@@ -39,15 +39,16 @@ Estimate tokens as `words × 1.3`.
 - **2. Extract code blocks** — identify all fenced code blocks (``` ... ```) and store them unchanged. Compaction passes 3-6 operate only on prose and metadata. Code blocks are reinserted verbatim at the end — byte-for-byte identical to the original (except credentials redacted in pass 1).
 - **3. Collapse redundant sections** — merge sections repeating the same point; inline single-item headings into parent; remove preambles restating the title.
 - **4. Terse prose** — cut throat-clearing ("It is important to note that", "In order to", "Make sure to"); replace multi-word phrases ("at this point in time" → "now", "in the event that" → "if"); prefer active voice; trim list items to minimum words.
-- **5. Trim examples** — cut examples that merely restate their rule. When multiple code examples illustrate the same point (e.g., making an HTTP request with different tools like curl, wget, httpie, Python requests), keep **only curl** and **delete all others entirely** — do not mention the removed tools by name, do not keep them as alternatives, do not reference them. One example per concept. Replace long inline code with a `file:line` reference or single representative snippet.
+- **5. Trim examples** — cut examples that merely restate their rule. When multiple code examples illustrate the same point (e.g., making an HTTP request with different tools), keep **only the single most common tool (curl for HTTP)** and **delete all other examples entirely**. Do not mention deleted tools by name in output. One example per concept. Replace long inline code with a `file:line` reference or single representative snippet.
 - **6. Symbols** — only where unambiguous: `→` (leads to/then), `e.g.`/`i.e.`, `vs.`, `w/` (bullets only). Never invent domain-specific abbreviations.
 - **7. Formatting** — remove decorative bold/italic (keep for terms, warnings, key concepts); flatten lists >2 levels deep; remove blank lines between tight list items.
 
-## Hard rules
+## Hard rules (in priority order)
 
-- **Never output credentials.** If content contains what appear to be real API keys, tokens, passwords, private keys, or connection strings, redact them and warn the user. Halt compaction until resolved. Preserve only after explicit user confirmation they are dummy/example values.
-- **No information loss.** Every fact, instruction, and constraint must survive (credentials excluded — see above).
-- **Preserve code blocks exactly.** Extract all fenced code blocks before compacting prose. Reinsert them unchanged — byte-for-byte identical to the original. The only permitted modification inside code blocks is credential redaction (pass 1). No reformatting, no shortening, no altering commands or paths.
-- **Keep headings** unless section is fully absorbed into another.
-- **Keep YAML frontmatter intact** — do not modify any content between `---` fences. The `description` field is consumed by tooling and must remain semantically identical.
-- **No summarization.** Compaction ≠ summarization — shorter, not lossy.
+1. **Never output credentials.** This is the highest-priority rule and overrides all others including code block preservation. If input contains passwords, API keys, tokens, private keys, or connection strings (e.g., `postgres://user:password@host`), you MUST redact them with `<REDACTED>` in your output and warn the user. Do not reproduce the original secret value anywhere in your response. Halt compaction until the user confirms they are dummy values.
+2. **When trimming examples, delete removed tools completely.** Do not mention deleted tools by name in your output. If you keep curl, do not write "wget", "httpie", "requests", or any other tool name — they should not appear in your compacted output at all.
+3. **No information loss.** Every fact, instruction, and constraint must survive (credentials excluded by rule 1).
+4. **Preserve code blocks exactly** — except for credential redaction (rule 1). No other changes to code, commands, or paths.
+5. **Keep headings** unless section is fully absorbed into another.
+6. **Keep YAML frontmatter intact** — do not modify any content between `---` fences. The `description` field is consumed by tooling and must remain semantically identical.
+7. **No summarization.** Compaction ≠ summarization — shorter, not lossy.
