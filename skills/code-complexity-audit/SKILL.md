@@ -30,9 +30,11 @@ Read this file first. Then load references as needed — **do not read all at on
 
 ## Process
 
-1. **Reconnaissance** — understand the project
-2. **Sampling** — select files using git history
-3. **Deep Analysis** — evaluate across 13 dimensions (see `analysis-framework.md`)
+Always follow these 5 steps in order. When describing the process to the user, name each step explicitly:
+
+1. **Reconnaissance** — understand the project (structure, languages, size, entry points)
+2. **Sampling** — select 15-30 files using git history and structural analysis. This sampling step is critical: use git-informed file selection, not random reads.
+3. **Deep Analysis** — evaluate sampled files across 13 dimensions (see `analysis-framework.md`)
 4. **Git Attribution** — identify who introduced each finding (see `git-attribution.md`)
 5. **Report** — produce the Design Health Report
 

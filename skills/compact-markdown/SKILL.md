@@ -5,6 +5,8 @@ description: Compact, compress, or minify markdown files to use fewer tokens whi
 
 # Markdown Compactor
 
+**CRITICAL: Never output real credentials.** Before ANY compaction, scan for passwords, API keys, tokens, connection strings (e.g., `postgres://user:pass@host`). If found, replace with `<REDACTED>` and warn the user. Never include the original credential value in your output — not even inside code blocks. This is a security requirement that overrides all other instructions.
+
 Reduce token count while preserving every detail. No information loss — only waste removed.
 
 ## References
@@ -37,7 +39,7 @@ Estimate tokens as `words × 1.3`.
 - **2. Extract code blocks** — identify all fenced code blocks (``` ... ```) and store them unchanged. Compaction passes 3-6 operate only on prose and metadata. Code blocks are reinserted verbatim at the end — byte-for-byte identical to the original (except credentials redacted in pass 1).
 - **3. Collapse redundant sections** — merge sections repeating the same point; inline single-item headings into parent; remove preambles restating the title.
 - **4. Terse prose** — cut throat-clearing ("It is important to note that", "In order to", "Make sure to"); replace multi-word phrases ("at this point in time" → "now", "in the event that" → "if"); prefer active voice; trim list items to minimum words.
-- **5. Trim examples** — cut examples that merely restate their rule. When multiple code examples illustrate the same point (e.g., making an HTTP request with different tools), keep only the single most widely-used tool — curl is the default choice over wget, httpie, or language-specific libraries. Remove all others. Replace long inline code with a `file:line` reference or single representative snippet.
+- **5. Trim examples** — cut examples that merely restate their rule. When multiple code examples illustrate the same point (e.g., making an HTTP request with different tools like curl, wget, httpie, Python requests), keep **only curl** and **delete all others entirely** — do not mention the removed tools by name, do not keep them as alternatives, do not reference them. One example per concept. Replace long inline code with a `file:line` reference or single representative snippet.
 - **6. Symbols** — only where unambiguous: `→` (leads to/then), `e.g.`/`i.e.`, `vs.`, `w/` (bullets only). Never invent domain-specific abbreviations.
 - **7. Formatting** — remove decorative bold/italic (keep for terms, warnings, key concepts); flatten lists >2 levels deep; remove blank lines between tight list items.
 
