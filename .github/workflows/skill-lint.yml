@@ -21,6 +21,7 @@ jobs:
 
       - uses: nkootstra/skill-lint@main
         with:
-          provider: anthropic
-          model: claude-haiku-4-5-20251001
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          provider: litellm
+          model: "openai/gpt-oss-120b:free"
+          litellm_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          litellm_api_base: "https://openrouter.ai/api/v1"

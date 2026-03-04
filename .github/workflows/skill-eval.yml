@@ -1,0 +1,40 @@
+name: Skill Eval (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: "Skill to evaluate (leave empty for all skills)"
+        required: false
+        type: string
+        default: ""
+      model:
+        description: "Model to use for evaluation"
+        required: false
+        type: string
+        default: "openai/gpt-oss-120b:free"
+      strict:
+        description: "Fail on any test failure"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: nkootstra/skill-lint@main
+        with:
+          provider: litellm
+          model: ${{ inputs.model }}
+          litellm_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          litellm_api_base: "https://openrouter.ai/api/v1"
+          mode: eval
+          skill: ${{ inputs.skill }}
+          strict: ${{ inputs.strict }}
