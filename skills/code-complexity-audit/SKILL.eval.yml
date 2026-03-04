@@ -1,0 +1,99 @@
+skill: code-complexity-audit
+
+tests:
+  # --- Core SKILL.md: process & report structure ---
+
+  - name: Follows the 5-step audit process
+    prompt: |
+      I want you to audit the design quality of my Node.js project.
+      Where do you start?
+    expected: Should describe the 5-step process in order — Reconnaissance (understand the project), Sampling (select files using git history), Deep Analysis (evaluate across 13 dimensions), Git Attribution (identify who introduced findings), and Report (produce the Design Health Report).
+    required_keywords:
+      - "reconnaissance"
+      - "sampling"
+
+  - name: Uses git-informed sampling with three tiers
+    prompt: |
+      My project has 150 TypeScript files. How do you decide which files
+      to analyze? You can't read them all.
+    expected: Should describe the three-tier sampling strategy — always-read files (entry points, core domain, most-imported), git-hot files (most frequently changed in recent commits), and churn+size files (large AND frequently changed). Should mention selecting 15-30 files.
+    required_keywords:
+      - "git"
+
+  - name: Classifies findings by severity correctly
+    prompt: |
+      I found three issues in my codebase:
+      1. A UserService class that 15 other modules import and depend on
+         its internal state through getters
+      2. A utility module using camelCase while the rest uses snake_case
+      3. A shallow wrapper class in the billing module that just forwards
+         calls to another class
+      How would you classify these?
+    expected: Should classify issue 1 as Critical (actively spreading complexity, other code depends on it), issue 2 as Minor (inconsistent style, low impact), and issue 3 as Major (significant design issue but contained to one module). Should reference the severity definitions.
+    required_keywords:
+      - "critical"
+      - "major"
+      - "minor"
+
+  # --- References: analysis-framework dimensions ---
+
+  - name: Identifies shallow module red flag
+    prompt: |
+      I have a UserRepository class with 20 public methods. Each method
+      is 2-3 lines long and mostly just calls the ORM with slightly
+      different parameters. The interface is nearly as complex as the
+      implementation. Is this good design?
+    expected: Should identify this as a shallow module — the interface is nearly as complex as the implementation, providing little abstraction value. Should reference module depth and suggest consolidating into fewer, deeper methods that hide complexity.
+    required_keywords:
+      - "shallow"
+    forbidden_keywords:
+      - "well-designed"
+      - "good pattern"
+
+  - name: Detects information leakage across modules
+    prompt: |
+      In our codebase, both the CSVExporter and CSVImporter classes
+      independently define the CSV column order, delimiter, and encoding.
+      When we changed the delimiter last month, we had to update both
+      classes. Is there a design problem here?
+    expected: Should identify this as information leakage — the same design decision (CSV format details) exists in multiple modules. Should recommend encapsulating the format knowledge in a single place so changes are localized.
+    required_keywords:
+      - "leak"
+
+  - name: Evaluates with weighted dimensions
+    prompt: |
+      When scoring a project, are all 13 dimensions equally important?
+      How do you weight them?
+    expected: Should explain the three weight tiers — Core Design dimensions (Module Depth, Information Hiding, Abstraction Quality, Complexity Indicators) at 1.5x, Structural dimensions (Error Handling, Layering, Design Investment, Comments & Abstractions, Codebase Navigability) at 1.2x, and Surface dimensions (Naming, Consistency, Software Trends, Performance-Design) at 1.0x.
+    required_keywords:
+      - "1.5"
+      - "1.2"
+
+  - name: Always includes design strengths in report
+    prompt: |
+      I ran your audit and my project scored a D (4.2/10). The report
+      only lists problems. Is that the complete output?
+    expected: Should emphasize that the report must ALWAYS include a "Design Strengths" section — what the project does well. The tone should be constructive, helping not tearing down. Context matters — a weekend prototype at D may be fine.
+    required_keywords:
+      - "strength"
+
+  - name: Detects pass-through method anti-pattern
+    prompt: |
+      Our controller calls a service, which calls a repository, which
+      calls the ORM. The service method just forwards the call to the
+      repository with the same parameters and return type. The repository
+      does the same to the ORM. Is this good layering?
+    expected: Should identify this as a pass-through method anti-pattern — methods that forward calls to another method with the same signature add no value. Good layering requires each layer to provide a different abstraction with meaningful transformation.
+    required_keywords:
+      - "pass-through"
+    forbidden_keywords:
+      - "good layering"
+      - "clean architecture"
+
+  - name: Adapts strategy to project size
+    prompt: |
+      I have a tiny CLI tool with 8 Python files. Do I need the full
+      13-dimension analysis with git sampling?
+    expected: Should explain that for small projects (<20 files), the strategy adapts — read everything instead of sampling, and produce a concise report. The full sampling strategy is for medium (20-200 files) and large (200+) projects.
+    required_keywords:
+      - "small"
