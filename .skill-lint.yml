@@ -3,9 +3,10 @@
 
 version: 1
 
-# Provider configuration - using Claude Code with Max/Pro subscription
+# Provider configuration - using Anthropic API directly
 provider:
-  type: claude-code
+  type: anthropic
+  model: claude-haiku-4-5-20241022
 
 # Evaluation settings
 eval:
