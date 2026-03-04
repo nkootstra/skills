@@ -47,6 +47,7 @@ Latency = time delay between a cause and its observed effect. It is a **distribu
 - [ ] **OS overhead** — virtual memory, interrupts, context switching
 - [ ] **Lock contention** — mutex waits serialize concurrent requests
 - [ ] **NUMA effects** — remote memory access costs 2–3× local on multi-socket systems
+- [ ] **TCP Nagle algorithm / delayed ACKs** — batches small packets, adds ~40ms delay on interactive traffic; disable with `TCP_NODELAY`
 - [ ] **Tail-at-scale** — with fanout N, even rare slow calls affect most users
 
 ## Measuring Latency Correctly
