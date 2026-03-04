@@ -6,11 +6,13 @@ description: >-
   user asks to review, audit, scan, or evaluate code quality, design quality,
   architecture, or technical debt. Also trigger for: code review, design review,
   complexity analysis, code health check, module depth analysis, information
-  hiding review, how good is my code, review my project, find design problems,
-  what is wrong with my codebase, rate my code, or anything about evaluating
+  hiding review, information leakage, how good is my code, review my project,
+  find design problems, what is wrong with my codebase, rate my code, audit my
+  small project, quick code review, design check, or anything about evaluating
   software design quality at a structural level. This is not a linter or style
   checker. It evaluates deep design qualities like module depth, abstraction
-  quality, information hiding, and complexity patterns.
+  quality, information hiding, and complexity patterns. Adapts to project size —
+  small projects (<20 files) get a concise review, large projects get sampled.
 ---
 
 # Code Complexity Audit
@@ -49,7 +51,7 @@ Select **15-30 files** across three tiers:
 | Tier | What | How |
 |------|------|-----|
 | **Always read** | Entry points, core domain, most-imported files | Static analysis of imports and project structure |
-| **Git-hot files** | Most frequently changed in last 100 commits | `git log --oneline -100 --name-only \| sort \| uniq -c \| sort -rn \| head -20` |
+| **Git-hot files** | Most frequently changed in recent history | `git log --oneline -100 --name-only \| sort \| uniq -c \| sort -rn \| head -20` |
 | **Churn + size** | Files that are both large AND frequently changed | Cross-reference git-hot list with file size — highest risk for accumulated debt |
 
 Also include: public API surfaces, interfaces, error handling paths, tests.
@@ -59,14 +61,14 @@ Also include: public API surfaces, interfaces, error handling paths, tests.
 Read `references/analysis-framework.md`. Evaluate across **13 dimensions** grouped by weight:
 
 **Core Design (weight 1.5x)**:
-1. Module Depth
-2. Information Hiding
-3. Abstraction Quality
-4. Complexity Indicators
+1. Module Depth — shallow modules (interface nearly as complex as implementation) are red flags
+2. Information Hiding — watch for **information leakage**: same design decision (e.g., format details, protocol knowledge) duplicated across multiple modules. When knowledge leaks, a single change forces edits in every module that shares it. Recommend encapsulating leaked knowledge in one place.
+3. Abstraction Quality — false abstractions, wrong-level abstractions
+4. Complexity Indicators — change amplification, cognitive load, unknown unknowns
 
 **Structural (weight 1.2x)**:
 5. Error Handling
-6. Layering
+6. Layering — pass-through methods that forward calls with the same signature add no value
 7. Design Investment
 8. Comments & Abstractions
 9. Codebase Navigability
@@ -136,7 +138,8 @@ Attribution is for context, not blame.]
 Use the project's own code in before/after examples.]
 
 ## Recommendations
-[Prioritized by severity. Actionable — what to fix first and how.]
+[Prioritized by impact-to-effort ratio. For each: what to fix, estimated effort,
+and which modules it unblocks. Address critical findings first.]
 
 ## Appendix: Files Reviewed
 [All files examined with selection rationale]
@@ -144,11 +147,15 @@ Use the project's own code in before/after examples.]
 
 ## Adapting to Project Size
 
+**Always adapt the process to project size.** Do not apply the full heavyweight process to a small project.
+
 | Size | Strategy |
 |------|----------|
-| **Small** (<20 files) | Read everything. Concise report. |
-| **Medium** (20-200 files) | Full sampling strategy. Focus on core modules. |
+| **Small** (<20 files) | Read everything — no sampling needed. Skip git-hot file analysis. Produce a concise report (2-3 pages max). Still evaluate all 13 dimensions but keep analysis brief. |
+| **Medium** (20-200 files) | Full sampling strategy (15-30 files). Focus on core modules. Standard report. |
 | **Large** (200+ files) | Heavy sampling. Focus on architecture and public APIs. Consider one subsystem deeply vs. everything shallowly. |
+
+For small projects: if the user asks whether they need the full process, confirm they do not — read all files directly and produce a concise assessment.
 
 ## Tone
 

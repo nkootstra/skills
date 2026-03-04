@@ -21,11 +21,12 @@ Read on demand — do not load all reference files at once.
 
 ## Core Principles
 
-- **Minimum viable requirements.** Each line must earn its cost on nearly every session. Every line loads every session — brevity has direct cost benefits.
-- **Two failure modes.** (1) *Length* — compliance degrades uniformly as instruction count grows. (2) *Task-irrelevant requirements* — correct but unneeded instructions still get followed, increasing cost.
+- **Minimum viable requirements.** Each line must earn its cost on nearly every session. Every line loads every session — brevity has direct cost benefits. Root files should target under 200 lines; anything beyond degrades compliance.
+- **Two failure modes.** (1) *Length* — compliance degrades uniformly as instruction count grows. A 500-line AGENTS.md will be partially ignored. (2) *Task-irrelevant requirements* — correct but unneeded instructions still get followed, increasing cost.
 - **Compaction is not summarization.** Relocate content to scoped sub-files or `@import` targets — never paraphrase or drop details. Fewer lines *in root*, not fewer lines total.
 - **Don't send an LLM to do a linter's job.** Use actual linters, wired to hooks if the harness supports it.
-- **Don't ship auto-generated files unedited.** `/init` output is stuffed w/ docs the agent can already read. Rewrite before committing.
+- **Don't ship auto-generated files unedited.** `/init` output (e.g. `claude init`, `opencode init`) is stuffed w/ docs the agent can already read — directory trees, npm script lists, file summaries. Rewrite before committing: strip inferrable content, keep only what the agent cannot discover on its own.
+- **Don't list inferrable commands.** Standard commands like `dev`, `build`, `start`, `lint` are discoverable from package.json / Makefile / pyproject.toml. Only document commands whose names don't reveal purpose (e.g., `cf-typegen`, `db:migrate`). Listing inferrable commands is the "command dump" anti-pattern.
 - **Test through public interfaces.** Mock at system boundaries only (external APIs, databases, time). Never mock internal collaborators — it couples tests to implementation. See `references/tdd.md` for details.
 - **Architecture/overview sections have weak evidence** in root files. Exception: scoped sub-files can carry richer context.
 
@@ -49,7 +50,8 @@ Directory tree only if ownership boundaries aren't obvious. 1-2 levels max.
 
 ## Development
 Verification commands only: typecheck, lint, test. What to run before finishing.
-Skip inferrable commands. Include non-obvious ones whose names don't reveal purpose
+Skip inferrable commands (npm run dev, build, start — agent reads package.json).
+Include only non-obvious commands whose names don't reveal purpose
 (e.g. `cf-typegen`, `db:migrate`, `dotnet ef database update`).
 
 ## Conventions
@@ -61,7 +63,9 @@ Add a Reference Docs section only if the agent genuinely needs it before working
 
 ## Interactive Intake
 
-**Mandatory.** Run a two-phase questionnaire before writing or auditing. Use AskUserQuestion in Claude Code, question in OpenCode. Keep wording identical. Repo-agnostic: do not assume frontend/backend distinctions.
+**Mandatory — always run before writing or auditing.** If the user says "write me an AGENTS.md" without answering Phase 1 questions, ask them immediately before proceeding. Use AskUserQuestion in Claude Code, question in OpenCode. Keep wording identical. Repo-agnostic: do not assume frontend/backend distinctions.
+
+**Skip questions the user already answered.** If the user's request directly signals preferences (e.g., "audit my AGENTS.md and remove stale content" → optimization=audit+remove), skip those Phase 1 questions and confirm the inferred answers.
 
 ### Phase 1: Preferences (before repo investigation)
 
@@ -82,7 +86,7 @@ Then investigate: scan for conventions, configs, linter rules, CI, directory str
 
 ### Phase 2: Findings Review (after repo investigation)
 
-Present discoveries and ask the developer to classify each one dynamically.
+Present the 5-8 highest-impact discoveries and ask the developer to classify each one. Summarize the remainder (e.g., "13 additional lint rules found — handled by tooling; 4 path-scoped conventions moved to sub-files").
 
 **Placement decision (per finding):**
 - Keep in root AGENTS.md
