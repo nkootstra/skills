@@ -34,7 +34,8 @@ jobs:
           provider: litellm
           model: ${{ inputs.model }}
           litellm_api_key: ${{ secrets.GEMINI_API_KEY }}
-          litellm_api_base: "https://generativelanguage.googleapis.com/v1beta/openai/"
+          litellm_api_base: https://generativelanguage.googleapis.com/v1beta/openai
+          parallel_evals: "1"
           mode: eval
           skill: ${{ inputs.skill }}
           strict: ${{ inputs.strict }}
