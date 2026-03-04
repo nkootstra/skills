@@ -1,0 +1,47 @@
+# Skill Lint configuration
+# This file configures how skills are evaluated and benchmarked
+
+version: 1
+
+# Provider configuration - using Claude Code with Max/Pro subscription
+provider:
+  type: claude-code
+
+# Evaluation settings
+eval:
+  # Run test cases defined in SKILL.eval.yml files
+  enabled: true
+  # Fail if test pass rate drops below this threshold
+  min_pass_rate: 0.8
+  # Fail if any required test fails
+  strict_mode: true
+
+# Benchmark settings
+benchmark:
+  # Track token usage and latency
+  enabled: true
+  # Warn if token usage increases significantly
+  warn_threshold: 1.2
+
+# A/B comparison settings
+compare:
+  # Compare head vs base branch
+  enabled: true
+  # Warn if pass rate decreases
+  warn_on_degradation: true
+
+# Skill discovery
+skills:
+  # Directory where skills are located
+  dir: skills
+  # Pattern to find skill files
+  pattern: "**/SKILL.md"
+
+# Lint settings
+lint:
+  # Static analysis rules
+  strict: false
+  # Check for orphaned reference files
+  check_orphaned_refs: true
+  # Validate routing table completeness
+  check_routing: true
