@@ -1,0 +1,101 @@
+skill: latency-engineering
+
+tests:
+  # --- Core SKILL.md: decision framework & fundamentals ---
+
+  - name: Follows measure-first decision framework
+    prompt: |
+      My REST API p99 latency jumped from 50ms to 800ms after a deploy.
+      Where do I start debugging?
+    expected: Should recommend measuring first to identify where time is spent, then route to the appropriate category (data, compute, or hiding latency)
+    required_keywords:
+      - "measure"
+    forbidden_keywords:
+      - "just add a cache"
+
+  - name: Uses latency constants for estimation
+    prompt: |
+      We're designing a system where a user in NYC makes a request that hits
+      our primary database in London, then replicates to Sydney. What's a
+      reasonable back-of-envelope latency estimate for one full round trip?
+    expected: Should reference concrete latency numbers (NYC-London ~60-150ms, London-Sydney ~250ms) from the constants table and reason about geographic distance
+    required_keywords:
+      - "ms"
+
+  - name: Corrects average-only thinking toward percentiles
+    prompt: |
+      Our monitoring shows average API latency of 45ms which is fine.
+      But users are still complaining about slowness. What's going on?
+    expected: Should explain that averages hide tail latency and recommend looking at p95/p99/p99.9 percentiles instead
+    required_keywords:
+      - "percentile"
+    forbidden_keywords:
+      - "average is sufficient"
+      - "averages are fine"
+
+  # --- Data latency ---
+
+  - name: Recommends caching with tradeoff analysis
+    prompt: |
+      We have a product catalog API that hits PostgreSQL on every request.
+      Response time is 120ms. Read-to-write ratio is 1000:1. How can we
+      reduce latency?
+    expected: Should discuss caching strategies (cache-aside, read-through), hit ratio importance, and mention consistency tradeoffs like thundering herd or stale data
+    required_keywords:
+      - "cache"
+    forbidden_keywords:
+      - "no downsides"
+
+  - name: Explains replication consistency tradeoffs
+    prompt: |
+      We need to serve user profile reads from data centers in the US, EU,
+      and Asia. Writes only happen from the US. What replication strategy
+      minimizes read latency while keeping data reasonably fresh?
+    expected: Should discuss single-leader replication with read replicas, and explain the consistency tradeoff between strong and eventual consistency
+    required_keywords:
+      - "replica"
+
+  # --- Compute latency ---
+
+  - name: Identifies N+1 as hidden quadratic complexity
+    prompt: |
+      Our Rails endpoint fetches a list of 200 orders, then for each order
+      loads the customer record individually. Response time scales linearly
+      with order count. What's the latency problem?
+    expected: Should identify this as an N+1 query pattern (hidden O(n²) or O(n) DB calls), a common algorithmic complexity issue, and suggest eager loading or batch queries
+    required_keywords:
+      - "N+1"
+
+  - name: Diagnoses GC as tail latency source
+    prompt: |
+      Our Java service p50 is 5ms but p99 spikes to 200ms every few seconds.
+      The spikes correlate with JVM GC pauses in the logs. How do we fix this?
+    expected: Should identify GC pauses as the tail latency source and suggest GC tuning, reducing heap allocation in hot paths, or using memory pools/arenas
+    required_keywords:
+      - "GC"
+    forbidden_keywords:
+      - "add more servers"
+
+  # --- Hiding latency ---
+
+  - name: Suggests async techniques for irreducible latency
+    prompt: |
+      Our checkout flow calls a third-party payment gateway that takes 2-3
+      seconds to respond. We can't change their API. How do we improve the
+      user experience?
+    expected: Should suggest hiding the latency through async processing, optimistic UI updates, or background jobs rather than trying to speed up the third party
+    required_keywords:
+      - "async"
+
+  # --- Network latency ---
+
+  - name: Identifies Nagle algorithm as small-message delay source
+    prompt: |
+      We have a real-time collaborative editor using TCP. Users report a
+      ~200ms delay on every keystroke even though the server is in the same
+      datacenter (<1ms RTT). What could cause this?
+    expected: Should identify TCP Nagle algorithm or delayed ACKs as the likely cause and recommend TCP_NODELAY
+    required_keywords:
+      - "Nagle"
+    forbidden_keywords:
+      - "geographic distance"
