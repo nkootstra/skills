@@ -6,7 +6,7 @@ version: 1
 # Provider configuration - using Gemini via LiteLLM
 provider:
   type: litellm
-  model: "gemini-3.1-flash-lite-preview"
+  model: "gemini/gemini-2.0-flash-lite"
   api_key_env: GEMINI_API_KEY
   api_base: "https://generativelanguage.googleapis.com/v1beta/openai"
 

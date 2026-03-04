@@ -12,7 +12,7 @@ on:
         description: "Model to use for evaluation"
         required: false
         type: string
-        default: "gemini-3.1-flash-lite-preview"
+        default: "gemini/gemini-2.0-flash-lite"
       strict:
         description: "Fail on any test failure"
         required: false

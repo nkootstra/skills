@@ -22,7 +22,7 @@ jobs:
       - uses: nkootstra/skill-lint@main
         with:
           provider: litellm
-          model: gemini-3.1-flash-lite-preview
+          model: gemini/gemini-2.0-flash-lite
           litellm_api_key: ${{ secrets.GEMINI_API_KEY }}
           litellm_api_base: https://generativelanguage.googleapis.com/v1beta/openai
           parallel_evals: "1"
