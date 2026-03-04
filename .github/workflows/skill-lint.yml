@@ -22,6 +22,6 @@ jobs:
       - uses: nkootstra/skill-lint@main
         with:
           provider: litellm
-          model: "openai/gpt-oss-120b:free"
+          model: "z-ai/glm-4.5-air:free"
           litellm_api_key: ${{ secrets.OPENROUTER_API_KEY }}
           litellm_api_base: "https://openrouter.ai/api/v1"
