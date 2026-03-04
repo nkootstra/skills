@@ -6,9 +6,9 @@ version: 1
 # Provider configuration - using OpenRouter via LiteLLM
 provider:
   type: litellm
-  model: "z-ai/glm-4.5-air:free"
-  api_key_env: OPENROUTER_API_KEY
-  api_base: "https://openrouter.ai/api/v1"
+  model: "gemini-3.1-flash-lite-preview"
+  api_key_env: GEMINI_API_KEY
+  api_base: "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 # Evaluation settings
 eval:
