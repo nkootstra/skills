@@ -22,5 +22,5 @@ jobs:
       - uses: nkootstra/skill-lint@main
         with:
           provider: anthropic
-          model: claude-haiku-4-5-20251001
+          model: claude-sonnet-4-20250514
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}

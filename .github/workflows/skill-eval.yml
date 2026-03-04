@@ -12,7 +12,7 @@ on:
         description: "Model to use for evaluation"
         required: false
         type: string
-        default: "claude-haiku-4-5-20251001"
+        default: "claude-sonnet-4-20250514"
       strict:
         description: "Fail on any test failure"
         required: false

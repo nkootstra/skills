@@ -6,7 +6,7 @@ version: 1
 # Provider configuration - using Anthropic API directly
 provider:
   type: anthropic
-  model: claude-haiku-4-5-20251001
+  model: claude-sonnet-4-20250514
 
 # Evaluation settings
 eval:
