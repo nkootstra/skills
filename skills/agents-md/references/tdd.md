@@ -1,14 +1,12 @@
 # Test-Driven Development
 
-TDD principles for writing better testing guidance in agent context files, and for applying TDD when the agent works on code.
+TDD principles for testing guidance in agent context files and for applying TDD during code tasks.
 
 ## For AGENTS.md Authors
 
-Testing instructions in agent context files fall into three categories:
-
-**Keep in root file** — universal testing conventions that apply to every task:
-- Which test runner and command to use (if non-obvious)
-- What to run before finishing (e.g. integration tests that need Docker or external services)
+**Keep in root file** — universal testing conventions:
+- Test runner and command (if non-obvious)
+- What to run before finishing (e.g. integration tests needing Docker)
 - Critical invariants ("never remove or weaken existing tests")
 
 **Move to scoped rule** — conventions specific to a test directory or file pattern:
@@ -17,12 +15,10 @@ Testing instructions in agent context files fall into three categories:
 - Coverage thresholds per module
 - Test naming conventions
 
-**Remove** — things a linter or the framework already enforces:
-- Test block structure (framework default)
-- Test file naming patterns (configurable in test runner)
-- Import conventions (auto-import or framework global)
+**Remove** — things a linter or framework already enforces:
+- Test block structure, file naming patterns, import conventions
 
-Example of a good testing section in a root AGENTS.md:
+Example root AGENTS.md testing section:
 
 ```markdown
 ## Testing
@@ -39,7 +35,7 @@ Never remove or weaken existing tests without explicit approval.
 
 ### Vertical Slices, Not Horizontal
 
-Write one test, make it pass, repeat. Each cycle responds to what you learned from the previous one.
+One test, make it pass, repeat. Each cycle responds to what you learned from the previous one.
 
 ```
 WRONG (horizontal):
@@ -52,15 +48,15 @@ RIGHT (vertical):
   RED→GREEN: test3→impl3
 ```
 
-Writing all tests first ("horizontal slicing") produces tests that verify imagined behavior rather than actual behavior. Tests written in bulk tend to test the shape of data structures and function signatures rather than user-facing outcomes.
+Writing all tests first produces tests that verify imagined behavior rather than actual behavior.
 
 ### The Loop
 
 1. **RED** — Write one test for one behavior. It must fail.
-2. **GREEN** — Write the minimum code to make it pass.
+2. **GREEN** — Write minimum code to pass.
 3. **REFACTOR** — Clean up while all tests stay green. Never refactor while RED.
 
-Start with a tracer bullet: one test that proves the path works end-to-end through the public interface.
+Start w/ a tracer bullet: one test proving the path works end-to-end through the public interface.
 
 ### Checklist Per Cycle
 
@@ -72,7 +68,7 @@ Start with a tracer bullet: one test that proves the path works end-to-end throu
 
 ## Good vs Bad Tests
 
-**Good tests** are integration-style: they exercise real code paths through public APIs and describe *what* the system does, not *how*.
+**Good tests** exercise real code paths through public APIs and describe *what* the system does, not *how*.
 
 ```
 // GOOD: Tests observable behavior through the interface
@@ -82,7 +78,7 @@ test "created user is retrievable by id":
   assert retrieved.name == "Alice"
 ```
 
-**Bad tests** are coupled to implementation. The warning sign: the test breaks when you refactor, but behavior hasn't changed.
+**Bad tests** are coupled to implementation — they break when you refactor, but behavior hasn't changed.
 
 ```
 // BAD: Tests implementation detail (which service gets called)
@@ -98,23 +94,13 @@ test "createUser saves to database":
   assert row exists
 ```
 
-Red flags in tests:
-- Mocking internal collaborators
-- Testing private methods
-- Asserting on call counts or call order
-- Test name describes HOW rather than WHAT
-- Verifying through external means instead of the interface
+**Red flags:** mocking internal collaborators, testing private methods, asserting on call counts/order, test name describes HOW not WHAT, verifying through external means instead of the interface.
 
 ## Mocking Boundaries
 
-Mock at **system boundaries** only:
-- External APIs (payment, email, third-party services)
-- Databases (prefer a test DB when possible)
-- Time, randomness, file system
+Mock at **system boundaries** only: external APIs, databases (prefer test DB when possible), time, randomness, file system. Do not mock your own modules or internal collaborators.
 
-Do not mock your own modules or internal collaborators. If you control the code, use the real implementation.
-
-**Design for mockability at boundaries** using dependency injection:
+**Design for mockability** via dependency injection:
 
 ```
 // Testable: dependency passed in
@@ -127,25 +113,22 @@ function processPayment(order):
   return client.charge(order.total)
 ```
 
-Prefer SDK-style interfaces over generic fetchers — each function is independently mockable with a specific return shape.
+Prefer SDK-style interfaces over generic fetchers — each function is independently mockable w/ a specific return shape.
 
 ## Interface Design for Testability
 
-Three principles that make code naturally testable:
-
-1. **Accept dependencies, don't create them.** Pass external services in as parameters.
-2. **Return results, don't produce side effects.** A function that returns a value is easier to test than one that mutates state.
-3. **Small surface area.** Fewer public methods = fewer tests needed. Aim for deep modules: small interface hiding complex implementation.
+1. **Accept dependencies, don't create them.** Pass external services as parameters.
+2. **Return results, don't produce side effects.** Returning values is easier to test than mutating state.
+3. **Small surface area.** Fewer public methods = fewer tests. Aim for deep modules: small interface hiding complex implementation.
 
 ## Refactor Phase
 
 After all tests pass, look for:
-
 - **Duplication** — extract shared logic into helpers
-- **Long methods** — break into private helpers (keep tests on the public interface)
+- **Long methods** — break into private helpers (keep tests on public interface)
 - **Shallow modules** — combine or deepen (small interface, rich implementation)
 - **Feature envy** — move logic to where the data lives
 - **Primitive obsession** — introduce value objects
 - **What new code reveals** about problems in existing code
 
-Never refactor while RED. Get to GREEN first, then clean up.
+Never refactor while RED. Get to GREEN first.

@@ -4,11 +4,23 @@ AI agent skills repository. Each skill lives in `skills/<name>/` with a `SKILL.m
 
 ## Development
 
-When renaming, adding, or removing a skill, update the table in `README.md` to match. The table lists each skill's directory name and the `description` field from its YAML frontmatter.
+- When renaming, adding, or removing a skill, update the table in `README.md` to match.
+- No local build, test, or lint commands. CI runs `skill-lint` on PRs touching `skills/**` or `.skill-lint.yml`.
+
+## Skill Structure
+
+- Each `SKILL.md` follows this order: YAML frontmatter → intro → references routing table → core content.
+- YAML frontmatter has exactly two fields: `name` (kebab-case, must match directory name) and `description` (include trigger phrases for skill loader matching).
+- Progressive-disclosure pattern: lean `SKILL.md` as workflow hub, deep content in `references/`.
+- References routing table uses a "When…" / "Read" column pair. Always include "do not load all references at once."
+- Reference files: lowercase kebab-case `.md` in `references/`.
+
+## Naming
+
+- Skill directories are lowercase kebab-case noun-phrases. Avoid verb-object names.
 
 ## Conventions
 
-- Each skill follows the progressive-disclosure pattern: lean `SKILL.md` (workflow hub + routing table) with deep content in `references/`.
-- Skill names are noun-phrases: `code-complexity-audit`, `compact-markdown`, `python-best-practices`. Avoid verb-object names.
-- Reference files are loaded on demand — `SKILL.md` routing tables tell the agent when to read each one.
-- YAML frontmatter `description` fields are consumed by the skill loader for trigger matching. Keep them precise.
+- Skills are instructional markdown only — no executable code.
+- Reference files are loaded on demand — routing tables tell the agent when to read each one.
+- Frontmatter `description` fields are consumed by the skill loader for trigger matching. Keep them precise and include explicit trigger phrases.

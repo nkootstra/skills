@@ -1,8 +1,6 @@
 # Audit Example: Backend API Service
 
-A worked example showing how to audit a bloated AGENTS.md into a clean root file plus scoped sub-files. Read this when performing an audit to understand the expected workflow and output format.
-
-The example uses a generic backend service. The same principles apply regardless of language or framework.
+Worked example: audit a bloated AGENTS.md into a clean root file plus scoped sub-files. Generic backend service; same principles apply regardless of language or framework.
 
 ## Before: Original AGENTS.md (62 lines)
 
@@ -81,23 +79,20 @@ tests/
 
 ## Step 1: Measure
 
-- Total: 62 lines
-- Distinct instructions: ~33
-- Style rules: 6 (indentation, async/await, exports, doc comments, casing, import order)
-- Inferrable commands: 6 (install, dev, build, start, lint, format)
-- Directory tree: 12 lines
+- 62 lines, ~33 distinct instructions
+- 6 style rules, 6 inferrable commands, 12-line directory tree
 
 ## Step 2: Classify
 
 | Instruction | Classification | Action |
 |---|---|---|
 | Project description (lines 1-3) | Essential | Keep |
-| Directory tree (12 lines) | Anti-pattern: Deep tree | Remove, replace with sentence |
-| install, dev, build, start | Inferrable commands | Remove |
-| lint, format | Inferrable commands | Remove |
+| Directory tree (12 lines) | Anti-pattern: Deep tree | Remove, replace w/ sentence |
+| install, dev, build, start | Inferrable | Remove |
+| lint, format | Inferrable | Remove |
 | test, test:unit, test:integration | Partially inferrable | Keep `test:integration` (requires Docker) |
-| db:migrate, db:seed | Non-obvious commands | Keep |
-| All 6 code style rules | Style/lint rules | Remove (enforce via linter config) |
+| db:migrate, db:seed | Non-obvious | Keep |
+| 6 code style rules | Style/lint | Remove (enforce via linter) |
 | API conventions (9 lines) | Correct, scoped to controllers | Move to path-scoped rule |
 | Testing conventions (5 lines) | Correct, scoped to tests | Move to path-scoped rule |
 | Event handling (5 lines) | Correct, scoped to events | Move to path-scoped rule |
@@ -186,14 +181,12 @@ paths:
 - Events must be idempotent — consumers may receive duplicates
 ```
 
-## Step 4: Results Summary
+## Step 4: Results
 
 | Metric | Before | After (root) | After (total) |
 |---|---|---|---|
-| Root file lines | 62 | 20 | — |
-| Total lines across all files | 62 | 20 + 14 + 10 + 10 = 54 | 54 |
+| Root lines | 62 | 20 | — |
+| Total lines | 62 | — | 54 |
 | Style/lint rules | 6 | 0 | 0 |
 | Inferrable commands | 6 | 0 | 0 |
-| Information lost | — | 0 instructions | 0 instructions |
-
-Every correct instruction from the original is present in the output. The 6 style rules were removed (enforce via linter config). The 6 inferrable commands were removed. The directory tree was replaced with a one-line architecture summary. Scoped content was moved to rules that only load when the agent touches relevant files.
+| Information lost | — | 0 | 0 |
