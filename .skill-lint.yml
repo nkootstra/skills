@@ -3,12 +3,10 @@
 
 version: 1
 
-# Provider configuration - using Gemini via LiteLLM
+# Provider configuration - using Anthropic API directly
 provider:
-  type: litellm
-  model: "gemini/gemini-2.0-flash-lite"
-  api_key_env: GEMINI_API_KEY
-  api_base: "https://generativelanguage.googleapis.com/v1beta/openai"
+  type: anthropic
+  model: claude-haiku-4-5-20251001
 
 # Evaluation settings
 eval:

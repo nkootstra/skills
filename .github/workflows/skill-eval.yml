@@ -12,7 +12,7 @@ on:
         description: "Model to use for evaluation"
         required: false
         type: string
-        default: "gemini/gemini-2.0-flash-lite"
+        default: "claude-haiku-4-5-20251001"
       strict:
         description: "Fail on any test failure"
         required: false
@@ -31,11 +31,9 @@ jobs:
 
       - uses: nkootstra/skill-lint@main
         with:
-          provider: litellm
+          provider: anthropic
           model: ${{ inputs.model }}
-          litellm_api_key: ${{ secrets.GEMINI_API_KEY }}
-          litellm_api_base: https://generativelanguage.googleapis.com/v1beta/openai
-          parallel_evals: "1"
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           mode: eval
           skill: ${{ inputs.skill }}
           strict: ${{ inputs.strict }}
