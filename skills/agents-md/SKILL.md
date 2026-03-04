@@ -34,7 +34,13 @@ Read on demand — do not load all reference files at once.
 
 **Single root file** — simple projects (one app, one language, one team). Target under 200 lines.
 
-**Hierarchical system** — monorepos, large codebases, multiple apps/packages/services. The harness auto-loads context files as the agent navigates. Shared facts belong in the shallowest file covering all relevant paths (Least Common Ancestor). Never duplicate across siblings. See `references/hierarchical.md` for file size management, hierarchical rules, and monorepo exclusions.
+**Hierarchical system** — monorepos, large codebases, multiple apps/packages/services. **When the user mentions monorepo, multiple teams, multiple apps/packages, or a large codebase, immediately recommend the hierarchical system and explain these key advantages before running intake:**
+
+1. The harness **auto-loads context files as the agent navigates** into subdirectories — no manual loading needed.
+2. **Sub-files can be richer** since they only load when the agent works in that area, avoiding root file bloat.
+3. Shared facts belong in the **shallowest file covering all relevant paths** (Least Common Ancestor). Never duplicate across siblings.
+
+State the hierarchical recommendation first, then ask only the remaining relevant Phase 1 questions. See `references/hierarchical.md` for file size management, hierarchical rules, and monorepo exclusions.
 
 ## Writing a New AGENTS.md
 
@@ -65,7 +71,7 @@ Add a Reference Docs section only if the agent genuinely needs it before working
 
 **Mandatory — always run before writing or auditing.** If the user says "write me an AGENTS.md" without answering Phase 1 questions, ask them immediately before proceeding. Use AskUserQuestion in Claude Code, question in OpenCode. Keep wording identical. Repo-agnostic: do not assume frontend/backend distinctions.
 
-**Skip questions the user already answered.** If the user's request directly signals preferences (e.g., "audit my AGENTS.md and remove stale content" → optimization=audit+remove), skip those Phase 1 questions and confirm the inferred answers.
+**Skip questions the user already answered.** If the user's request directly signals preferences (e.g., "audit my AGENTS.md and remove stale content" → optimization=audit+remove), skip those Phase 1 questions and confirm the inferred answers. **If the architectural decision is clear** (e.g., monorepo with multiple teams → hierarchical system), state the recommendation with reasoning first, then ask only the remaining relevant questions.
 
 ### Phase 1: Preferences (before repo investigation)
 

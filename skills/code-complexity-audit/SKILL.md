@@ -83,6 +83,13 @@ Read `references/analysis-framework.md`. Evaluate across **13 dimensions** group
 
 Score each dimension 1-10. See `analysis-framework.md` for detailed rubrics.
 
+**Classify every finding by severity** using these exact labels:
+- **Critical** — actively spreading complexity; blocks safe change; other code depends on it being wrong. Fix first.
+- **Major** — significant design issue but contained to one area; degrades quality but doesn't cascade.
+- **Minor** — suboptimal but low impact; fix opportunistically.
+
+When asked to classify issues, always use these three severity terms explicitly. The litmus test: "If unfixed for 6 months, does it get worse on its own?" Critical = yes (complexity spreads). Major = stays the same. Minor = nobody notices.
+
 ### Step 4: Git Attribution
 
 Read `references/git-attribution.md`. For each finding:
