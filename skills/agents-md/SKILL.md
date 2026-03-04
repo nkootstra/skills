@@ -21,7 +21,7 @@ Read on demand — do not load all reference files at once.
 
 ## Core Principles
 
-- **Minimum viable requirements.** Each line must earn its cost on nearly every session. Every line loads every session — brevity has direct cost benefits. Root files should target under 200 lines; anything beyond degrades compliance.
+- **Minimum viable requirements.** Each line must earn its cost on nearly every session. Every line loads every session — brevity has direct cost benefits. **Target under 200 lines for root files.** Files exceeding 200 lines show measurable compliance degradation. When reviewing a file that exceeds this threshold, always cite the 200-line target and recommend restructuring.
 - **Two failure modes.** (1) *Length* — compliance degrades uniformly as instruction count grows. A 500-line AGENTS.md will be partially ignored. (2) *Task-irrelevant requirements* — correct but unneeded instructions still get followed, increasing cost.
 - **Compaction is not summarization.** Relocate content to scoped sub-files or `@import` targets — never paraphrase or drop details. Fewer lines *in root*, not fewer lines total.
 - **Don't send an LLM to do a linter's job.** Use actual linters, wired to hooks if the harness supports it.

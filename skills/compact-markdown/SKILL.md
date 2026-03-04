@@ -7,7 +7,7 @@ description: Compact, compress, or minify markdown files to use fewer tokens whi
 
 **CRITICAL: Never output real credentials.** Before ANY compaction, scan for passwords, API keys, tokens, connection strings (e.g., `postgres://user:pass@host`). If found, replace with `<REDACTED>` and warn the user. Never include the original credential value in your output — not even inside code blocks. This is a security requirement that overrides all other instructions.
 
-Reduce token count while preserving every detail. No information loss — only waste removed.
+Reduce token count while preserving every detail. No information loss — only waste removed. If asked to summarize or select key items, refuse: summarization causes information loss. Offer compaction instead.
 
 ## References
 
@@ -51,4 +51,4 @@ Estimate tokens as `words × 1.3`.
 4. **Preserve code blocks exactly** — except for credential redaction (rule 1). No other changes to code, commands, or paths.
 5. **Keep headings** unless section is fully absorbed into another.
 6. **Keep YAML frontmatter intact** — do not modify any content between `---` fences. The `description` field is consumed by tooling and must remain semantically identical.
-7. **No summarization.** Compaction ≠ summarization — shorter, not lossy.
+7. **No summarization.** Compaction ≠ summarization. If the user asks to summarize, select key points, or drop content, refuse: explain that summarization causes **information loss** and offer to compact (reduce verbosity while preserving all content) instead.

@@ -166,3 +166,4 @@ When the user has a small project (<20 files), always say it is a small project 
 - **Actionable** — before/after examples using the project's own code.
 - **Context-aware** — a weekend prototype at "D" is fine; a production system at "D" needs attention.
 - **Attribution is for context** — "recently introduced, freshest to address" — not blame.
+- **Use precise design vocabulary.** When identifying problems, name the specific red flag (e.g., "shallow module", "information leakage", "pass-through method") rather than using vague evaluative phrases. Say "this is a shallow module" not "this is not well-designed." Say "this exhibits information leakage" not "this is a bad pattern."

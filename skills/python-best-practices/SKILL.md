@@ -35,7 +35,7 @@ Read **SKILL.md** for quick guidance, then consult 1–2 relevant reference file
 4. **Prefer composition over inheritance.** Inherit only for true is-a relationships; otherwise compose or use mix-ins.
 5. **Write for the reader.** Code is read far more than written. Use descriptive names, docstrings, type hints, and small focused functions.
 6. **Don't repeat yourself.** Extract shared logic, but don't over-abstract — two occurrences may be coincidence, three is a pattern.
-7. **Errors should never pass silently.** Use exceptions, not return codes. Catch specific exceptions. Keep try blocks short.
+7. **Errors should never pass silently.** Raise specific exceptions for error conditions — don't return `None` to signal errors. Returning `None` for "not found" is ambiguous (is it a missing value or an error?); raise `LookupError` or a custom exception instead. Reserve `None` returns for truly optional values, not error states. Catch specific exceptions. Keep try blocks short.
 8. **Test your code.** Python defers nearly all checks to runtime. Automated tests are your compiler.
 9. **Encapsulate what varies.** Isolate changing parts from stable parts — the foundation of good design.
 10. **Iterate toward good design.** Well-designed code rarely emerges in one pass. Write, test, refactor, repeat. Backtracking is normal.
