@@ -102,6 +102,6 @@ tests:
       good guidance for the agent?
     expected: Should push back — mocking internal collaborators leads to implementation-coupled tests. Should recommend testing through public interfaces and mocking only at system boundaries (external APIs, databases, time, etc.).
     required_keywords:
-      - "interface"
+      - "boundar"
     forbidden_keywords:
       - "this is good advice"

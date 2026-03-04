@@ -26,13 +26,14 @@ Read on demand — do not load all reference files at once.
 - **Compaction is not summarization.** Relocate content to scoped sub-files or `@import` targets — never paraphrase or drop details. Fewer lines *in root*, not fewer lines total.
 - **Don't send an LLM to do a linter's job.** Use actual linters, wired to hooks if the harness supports it.
 - **Don't ship auto-generated files unedited.** `/init` output is stuffed w/ docs the agent can already read. Rewrite before committing.
+- **Test through public interfaces.** Mock at system boundaries only (external APIs, databases, time). Never mock internal collaborators — it couples tests to implementation. See `references/tdd.md` for details.
 - **Architecture/overview sections have weak evidence** in root files. Exception: scoped sub-files can carry richer context.
 
 ## Single File vs. Hierarchical System
 
 **Single root file** — simple projects (one app, one language, one team). Target under 200 lines.
 
-**Hierarchical system** — monorepos, large codebases, multiple apps/packages/services. The harness auto-loads context files as the agent navigates. See `references/hierarchical.md` for file size management, hierarchical rules, and monorepo exclusions.
+**Hierarchical system** — monorepos, large codebases, multiple apps/packages/services. The harness auto-loads context files as the agent navigates. Shared facts belong in the shallowest file covering all relevant paths (Least Common Ancestor). Never duplicate across siblings. See `references/hierarchical.md` for file size management, hierarchical rules, and monorepo exclusions.
 
 ## Writing a New AGENTS.md
 

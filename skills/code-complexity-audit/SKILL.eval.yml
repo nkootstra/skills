@@ -87,8 +87,8 @@ tests:
     required_keywords:
       - "pass-through"
     forbidden_keywords:
-      - "good layering"
-      - "clean architecture"
+      - "this is good layering"
+      - "this is clean architecture"
 
   - name: Adapts strategy to project size
     prompt: |

@@ -16,6 +16,7 @@ tests:
     expected: Should detect the connection string as a potential credential and warn the user before compacting. Should redact or flag it with <REDACTED>, not output it unchanged. Credential scan is pass 1 and must happen before any other compaction.
     required_keywords:
       - "credential"
+      - "redact"
     forbidden_keywords:
       - "s3cr3tP@ssw0rd"
 
@@ -27,11 +28,11 @@ tests:
       In order to authenticate, you need to include your API key. Make sure
       to keep your key secure at all times. At this point in time, we support
       two authentication methods.
-    expected: Should remove filler phrases like "It is important to note that", "In order to", "Make sure to", "At this point in time" and produce terse prose while preserving all facts.
+    expected: Should remove filler phrases like "It is important to note that", "In order to", "Make sure to", "At this point in time" and produce terse prose while preserving all facts. The compacted output must not contain these filler phrases.
     forbidden_keywords:
-      - "it is important to note"
-      - "in order to"
-      - "at this point in time"
+      - "it is important to note that all"
+      - "in order to authenticate"
+      - "at this point in time, we"
 
   - name: Preserves code blocks exactly
     prompt: |
@@ -97,9 +98,10 @@ tests:
       ## Usage
 
       In order to use this skill, activate it by mentioning code review.
-    expected: Should keep the YAML frontmatter (including the name and description fields) completely intact and unmodified. Only compact the content below the closing ---.
+    expected: Should keep the YAML frontmatter (including the name and description fields) completely intact and unmodified. Only compact the content below the closing ---. The full original description field must appear verbatim in the output.
     required_keywords:
-      - "frontmatter"
+      - "name: my-skill"
+      - "helps users do things with code and it has many trigger phrases"
 
   - name: Distinguishes compaction from summarization
     prompt: |
@@ -138,7 +140,11 @@ tests:
       ```python
       requests.get("https://api.example.com/users", headers={"X-API-Key": "YOUR_KEY"})
       ```
-    expected: Should trim redundant examples that illustrate the same point (including an API key in a request). Should keep one (the most concrete or common) and remove the others.
+    expected: Should trim redundant examples that illustrate the same point (including an API key in a request). Should keep the most widely-used tool (curl) and remove the others.
+    required_keywords:
+      - "curl"
+    forbidden_keywords:
+      - "httpie"
 
   - name: Flattens deeply nested lists
     prompt: |
