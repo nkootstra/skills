@@ -19,6 +19,7 @@ Browse and install available skills into your project.
 | **compact-markdown** | Compact/minify markdown to fewer tokens w/ zero information loss. Five ordered passes: collapse, terse, trim, symbols, formatting. |
 | **latency-engineering** | Diagnose and reduce latency in software systems. Use when dealing with slow APIs, tail latency, p99 spikes, caching, replication, partitioning, concurrency, async I/O, or any question about making systems faster. |
 | **python-best-practices** | Comprehensive Python expertise covering language fundamentals, idiomatic patterns, software design principles, and production best practices. |
+| **zig-best-practices** | Comprehensive guide for writing, reviewing, and improving Zig code following idiomatic patterns and best practices. Covers allocators, comptime, error handling, build system, C interop, and performance. |
 
 ## License
 
