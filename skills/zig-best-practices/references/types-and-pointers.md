@@ -523,3 +523,191 @@ const gpio_registers: *volatile [16]u32 = @ptrFromInt(0x4002_0000);
 gpio_registers[0] = 0x01;
 const status = gpio_registers[4];
 ```
+
+## Complete Worked Example: Color Type
+
+A complete module composing custom formatting, HashMap key support, blending, saturating arithmetic, doc comments, and comprehensive tests:
+
+```zig
+const std = @import("std");
+
+/// RGBA color with 8-bit components.
+/// Supports custom formatting, HashMap key usage, and safe arithmetic blending.
+pub const Color = struct {
+    r: u8,
+    g: u8,
+    b: u8,
+    a: u8,
+
+    /// Create a Color from RGBA components.
+    pub fn rgba(r: u8, g: u8, b: u8, a: u8) Color {
+        return .{ .r = r, .g = g, .b = b, .a = a };
+    }
+
+    // --- Custom formatting ---
+    // Default format: rgba(255, 128, 0, 255)
+    // Hex format:     #ff8000ff
+    // Unknown format: compile error
+
+    pub fn format(
+        self: Color,
+        comptime fmt: []const u8,
+        options: std.fmt.FormatOptions,
+        writer: anytype,
+    ) !void {
+        _ = options;
+        if (comptime std.mem.eql(u8, fmt, "hex")) {
+            try writer.print("#{x:0>2}{x:0>2}{x:0>2}{x:0>2}", .{ self.r, self.g, self.b, self.a });
+        } else if (comptime std.mem.eql(u8, fmt, "")) {
+            try writer.print("rgba({}, {}, {}, {})", .{ self.r, self.g, self.b, self.a });
+        } else {
+            @compileError("unknown format string for Color: '" ++ fmt ++ "'");
+        }
+    }
+
+    // --- HashMap key support ---
+    // Implements eql() and hash() via a HashContext for use with std.HashMap.
+
+    pub const HashContext = struct {
+        pub fn hash(_: @This(), key: Color) u64 {
+            const packed: u32 = @bitCast([4]u8{ key.r, key.g, key.b, key.a });
+            return std.hash.Wyhash.hash(0, std.mem.asBytes(&packed));
+        }
+
+        pub fn eql(_: @This(), a: Color, b: Color) bool {
+            return a.r == b.r and a.g == b.g and a.b == b.b and a.a == b.a;
+        }
+    };
+
+    /// Check equality between two colors.
+    pub fn eql(self: Color, other: Color) bool {
+        return self.r == other.r and self.g == other.g and self.b == other.b and self.a == other.a;
+    }
+
+    // --- Blending with safe arithmetic ---
+    // Uses widening to u16 to avoid overflow — gives exact results.
+    // Saturating operators (|+, |-) are used for additive/subtractive blending.
+
+    /// Linear interpolation between two colors.
+    /// t is 0-255 where 0 = full self, 255 = full other.
+    pub fn lerp(self: Color, other: Color, t: u8) Color {
+        return Color{
+            .r = lerpChannel(self.r, other.r, t),
+            .g = lerpChannel(self.g, other.g, t),
+            .b = lerpChannel(self.b, other.b, t),
+            .a = lerpChannel(self.a, other.a, t),
+        };
+    }
+
+    fn lerpChannel(a: u8, b: u8, t: u8) u8 {
+        // Widen to u16 to prevent overflow during intermediate calculation
+        const a16: u16 = a;
+        const b16: u16 = b;
+        const t16: u16 = t;
+        return @intCast((a16 * (255 - t16) + b16 * t16) / 255);
+    }
+
+    /// Additive blend using saturating arithmetic — clamps at 255.
+    pub fn add(self: Color, other: Color) Color {
+        return .{
+            .r = self.r |+ other.r,
+            .g = self.g |+ other.g,
+            .b = self.b |+ other.b,
+            .a = self.a |+ other.a,
+        };
+    }
+
+    /// Subtractive blend using saturating arithmetic — clamps at 0.
+    pub fn sub(self: Color, other: Color) Color {
+        return .{
+            .r = self.r |- other.r,
+            .g = self.g |- other.g,
+            .b = self.b |- other.b,
+            .a = self.a |- other.a,
+        };
+    }
+};
+
+// --- Comprehensive inline tests ---
+
+test "Color default format shows rgba()" {
+    const c = Color.rgba(255, 128, 0, 255);
+    var buf: [64]u8 = undefined;
+    const result = try std.fmt.bufPrint(&buf, "{}", .{c});
+    try std.testing.expectEqualStrings("rgba(255, 128, 0, 255)", result);
+}
+
+test "Color hex format shows #rrggbbaa" {
+    const c = Color.rgba(255, 128, 0, 255);
+    var buf: [64]u8 = undefined;
+    const result = try std.fmt.bufPrint(&buf, "{hex}", .{c});
+    try std.testing.expectEqualStrings("#ff8000ff", result);
+}
+
+test "Color as HashMap key" {
+    const ColorMap = std.HashMap(Color, []const u8, Color.HashContext, std.hash_map.default_max_load_percentage);
+    var map = ColorMap.init(std.testing.allocator);
+    defer map.deinit();
+
+    const red = Color.rgba(255, 0, 0, 255);
+    const blue = Color.rgba(0, 0, 255, 255);
+    try map.put(red, "red");
+    try map.put(blue, "blue");
+
+    try std.testing.expectEqualStrings("red", map.get(red).?);
+    try std.testing.expectEqualStrings("blue", map.get(blue).?);
+    // Same value, different instance — still finds it
+    try std.testing.expectEqualStrings("red", map.get(Color.rgba(255, 0, 0, 255)).?);
+}
+
+test "Color lerp blends between two colors" {
+    const black = Color.rgba(0, 0, 0, 255);
+    const white = Color.rgba(255, 255, 255, 255);
+
+    const mid = black.lerp(white, 128);
+    // ~128 due to integer rounding: (0 * 127 + 255 * 128) / 255 ≈ 128
+    try std.testing.expect(mid.r >= 127 and mid.r <= 129);
+
+    // t=0 returns self, t=255 returns other
+    const self_result = black.lerp(white, 0);
+    try std.testing.expectEqual(@as(u8, 0), self_result.r);
+    const other_result = black.lerp(white, 255);
+    try std.testing.expectEqual(@as(u8, 255), other_result.r);
+}
+
+test "Color saturating add clamps at 255" {
+    const c1 = Color.rgba(200, 100, 50, 255);
+    const c2 = Color.rgba(100, 200, 250, 10);
+    const result = c1.add(c2);
+    try std.testing.expectEqual(@as(u8, 255), result.r); // 200+100 saturates
+    try std.testing.expectEqual(@as(u8, 255), result.g); // 100+200 saturates
+    try std.testing.expectEqual(@as(u8, 255), result.b); // 50+250 saturates
+    try std.testing.expectEqual(@as(u8, 255), result.a); // 255+10 saturates
+}
+
+test "Color saturating sub clamps at 0" {
+    const c1 = Color.rgba(50, 100, 200, 255);
+    const c2 = Color.rgba(100, 50, 250, 10);
+    const result = c1.sub(c2);
+    try std.testing.expectEqual(@as(u8, 0), result.r); // 50-100 saturates at 0
+    try std.testing.expectEqual(@as(u8, 50), result.g);
+    try std.testing.expectEqual(@as(u8, 0), result.b); // 200-250 saturates at 0
+    try std.testing.expectEqual(@as(u8, 245), result.a);
+}
+
+test "Color eql compares all components" {
+    const a = Color.rgba(1, 2, 3, 4);
+    const b = Color.rgba(1, 2, 3, 4);
+    const c = Color.rgba(1, 2, 3, 5);
+    try std.testing.expect(a.eql(b));
+    try std.testing.expect(!a.eql(c));
+}
+```
+
+**Requirements covered:**
+1. RGBA as u8 components — `Color` struct with `r`, `g`, `b`, `a: u8`
+2. Custom formatting — `format()` with comptime `fmt` checking, `@compileError` on unknown strings
+3. Arithmetic blending — `lerp()` with widening to u16, `add()`/`sub()` with saturating operators
+4. Integer overflow safety — explicit widening for lerp, `|+`/`|-` for saturating blend
+5. HashMap key — `HashContext` with `eql()` and `hash()` using `@bitCast` + `Wyhash`
+6. Comprehensive tests — format strings, HashMap usage, lerp edge cases (t=0, t=128, t=255), overflow, equality

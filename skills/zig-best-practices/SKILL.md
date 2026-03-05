@@ -18,9 +18,9 @@ Read **SKILL.md** for quick guidance, then consult 1-2 relevant reference files 
 |-----------|-------------|
 | `references/memory-management.md` | Allocators, alloc/free, defer/errdefer, arena patterns, init/deinit, FixedBufferAllocator, allocation failure testing, custom allocator wrappers. |
 | `references/error-handling.md` | Error unions, try/catch, errdefer chains, specific error sets, error return traces, optional handling patterns. |
-| `references/comptime-and-generics.md` | Comptime parameters, `@typeInfo`, generic structs, compile-time validation, lookup tables, state machines, `anytype`, fat pointer interfaces, type-level metaprogramming, event emitter pattern, callback storage with comptime dispatch. |
-| `references/types-and-pointers.md` | Pointer types (`*T`, `[*]T`, `[]T`, sentinels), type casting (`@ptrCast`, `@alignCast`, `@bitCast`, `@intCast`), packed structs, zero-sized types, integer overflow, saturating arithmetic, type coercion, anonymous structs/tuples, custom formatting with comptime fmt, HashMap key types (`eql`/`hash`), volatile/hardware MMIO, `std.atomic.Value`, alignment rules. |
-| `references/testing-and-build.md` | Inline tests, table-driven tests, `std.testing.allocator`, coverage, `build.zig`, `build.zig.zon`, dependencies, cross-compilation, custom build steps, docs generation, project structure, library setup with reusable packages. |
+| `references/comptime-and-generics.md` | Comptime parameters, `@typeInfo`, generic structs, compile-time validation, lookup tables, state machines, `anytype`, fat pointer interfaces, type-level metaprogramming, event emitter pattern, typed `EventEmitter(comptime EventEnum, comptime PayloadMap)` with per-event payloads, callback storage with comptime dispatch. |
+| `references/types-and-pointers.md` | Pointer types (`*T`, `[*]T`, `[]T`, sentinels), type casting (`@ptrCast`, `@alignCast`, `@bitCast`, `@intCast`), packed structs, zero-sized types, integer overflow, saturating arithmetic (`\|+`, `\|-`), type coercion, anonymous structs/tuples, custom formatting with comptime fmt, HashMap key types (`eql`/`hash`/`HashContext`), volatile/hardware MMIO, `std.atomic.Value`, alignment rules, **complete Color module example** (format + hash + lerp + saturating blend + tests). |
+| `references/testing-and-build.md` | Inline tests, table-driven tests, `std.testing.allocator`, coverage, `build.zig`, `build.zig.zon`, dependencies, cross-compilation, WASM target (`.cpu_arch = .wasm32, .os_tag = .freestanding`), custom build steps, `b.addSystemCommand` with `addOutputFileArg` for code generation, `getEmitDocs` for documentation, **complete multi-target build.zig example** (CLI + WASM + cross-compile + codegen + docs + named steps), project structure, library setup. |
 | `references/stdlib-recipes.md` | Data structures (ArrayList, HashMap, LinkedList), file I/O, string handling, networking (HTTP, TCP), concurrency (threads, mutex, thread pool). |
 | `references/performance.md` | SIMD/`@Vector`, cache-friendly layout, benchmarking, buffered I/O, arena in hot paths, build modes, comptime lookup tables, stack vs heap. |
 | `references/c-interop.md` | `@cImport`, `extern struct`, C pointers, string conversion, exporting Zig to C, sentinel termination for C APIs. |
@@ -73,6 +73,33 @@ Before outputting complex comptime or low-level pointer code, mentally trace thr
 2. Are `@setEvalBranchQuota` calls needed for large iterations?
 3. Do all pointer casts maintain alignment? (`@ptrCast` + `@alignCast` together)
 4. Are packed struct fields accessed correctly? (Cannot take address of non-byte-aligned fields)
+
+### Compile-check step for comptime type-safety
+
+When writing generic comptime code (event emitters, serializers, type-safe builders):
+
+1. **Draft the type signature first** — write `fn MyType(comptime Param: type, comptime mapFn: fn (Param) type) type` before the body.
+2. **Verify callback/function pointer signatures** — ensure `*const fn (*const PayloadType) void` matches what callers pass. Never use `anytype` for stored callbacks.
+3. **Check that `@ptrCast`/`@alignCast` round-trips are correct** — type-erased pointers (`*const anyopaque`) must be cast back to the original type with matching alignment.
+4. **Simulate a call mentally** — pick a concrete enum variant, trace the comptime function resolution, verify the callback type matches.
+
+### Constraint checklist against `anytype` misuse
+
+Before using `anytype` in a function signature, verify:
+
+- [ ] The function genuinely works with multiple unrelated types (not just one)
+- [ ] You cannot express the constraint with a concrete type or comptime parameter
+- [ ] Stored function pointers use concrete types, not `anytype` (you cannot store `anytype`)
+- [ ] The doc comment documents what interface the `anytype` parameter must satisfy
+
+### When responding to multi-requirement prompts: requirement verification
+
+When the prompt lists multiple requirements (numbered or bulleted), verify completeness before finalizing:
+
+1. **Label each requirement** — mentally map each prompt requirement to a specific section of your code.
+2. **Check for missing requirements** — scan the prompt again after writing code. Each requirement must have corresponding code.
+3. **Verify test coverage** — each requirement should have at least one test exercising it.
+4. **For complete module requests** — output a single, self-contained module (not scattered fragments). Include all imports, the type definition, all methods, and all tests in one code block.
 
 ## Quick principles
 

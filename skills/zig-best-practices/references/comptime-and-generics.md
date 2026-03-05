@@ -350,36 +350,135 @@ test "event emitter" {
 
 For typed payloads per event, use a comptime map from enum value to payload type and generate separate callback signatures per event. This is an advanced pattern — start with the `?*anyopaque` version above.
 
-## Comptime Callback Storage Pattern
+## Typed EventEmitter with Comptime Payload Map
 
-When you need to store callbacks with different signatures at compile time:
+For compile-time type-safe event payloads, use `EventEmitter(comptime EventEnum, comptime PayloadMap)`. Each event variant maps to a specific payload type via a comptime function, so callbacks are type-safe per event:
 
 ```zig
-fn TypedEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) type) type {
-    const fields = @typeInfo(EventEnum).@"enum".fields;
+fn EventEmitter(comptime EventEnum: type, comptime payloadType: fn (EventEnum) type) type {
+    const event_fields = @typeInfo(EventEnum).@"enum".fields;
+    const event_count = event_fields.len;
 
     return struct {
-        // Storage is a tuple of ArrayLists, one per event
-        // Each has a different callback signature based on PayloadMap
+        /// One type-erased listener list per event kind.
+        listeners: [event_count]std.ArrayList(ErasedCallback),
         allocator: std.mem.Allocator,
 
         const Self = @This();
+        const ErasedCallback = *const fn (ptr: *const anyopaque) void;
 
         pub fn init(allocator: std.mem.Allocator) Self {
-            return .{ .allocator = allocator };
+            var self: Self = .{
+                .listeners = undefined,
+                .allocator = allocator,
+            };
+            for (&self.listeners) |*list| {
+                list.* = std.ArrayList(ErasedCallback).init(allocator);
+            }
+            return self;
         }
 
-        /// Emit by calling all listeners for a specific event with typed payload
-        pub fn emitSimple(event: EventEnum, payload_ptr: *const anyopaque) void {
-            // In practice, dispatch through stored function pointers
-            _ = event;
-            _ = payload_ptr;
+        pub fn deinit(self: *Self) void {
+            for (&self.listeners) |*list| {
+                list.deinit();
+            }
+        }
+
+        /// Register a typed callback for `event`.
+        /// The callback receives a pointer to the event's payload type.
+        pub fn on(
+            self: *Self,
+            comptime event: EventEnum,
+            comptime callback: *const fn (*const payloadType(event)) void,
+        ) !void {
+            const erased: ErasedCallback = @ptrCast(callback);
+            try self.listeners[@intFromEnum(event)].append(erased);
+        }
+
+        /// Remove a previously registered listener.
+        pub fn off(
+            self: *Self,
+            comptime event: EventEnum,
+            comptime callback: *const fn (*const payloadType(event)) void,
+        ) void {
+            const erased: ErasedCallback = @ptrCast(callback);
+            const list = &self.listeners[@intFromEnum(event)];
+            for (list.items, 0..) |cb, i| {
+                if (cb == erased) {
+                    _ = list.swapRemove(i);
+                    return;
+                }
+            }
+        }
+
+        /// Emit an event with its typed payload. All registered listeners are called.
+        pub fn emit(self: *Self, comptime event: EventEnum, payload: *const payloadType(event)) void {
+            for (self.listeners[@intFromEnum(event)].items) |cb| {
+                cb(@ptrCast(payload));
+            }
         }
     };
 }
+
+// --- Usage example ---
+
+const MyEvents = enum { on_connect, on_message, on_close };
+
+// Comptime function mapping each event to its payload type
+fn MyPayloads(event: MyEvents) type {
+    return switch (event) {
+        .on_connect => struct { address: []const u8, port: u16 },
+        .on_message => struct { data: []const u8, sender_id: u32 },
+        .on_close => struct { reason: []const u8 },
+    };
+}
+
+const MyEmitter = EventEmitter(MyEvents, MyPayloads);
+
+test "typed event emitter" {
+    var em = MyEmitter.init(std.testing.allocator);
+    defer em.deinit();
+
+    // Track whether handler was called with correct payload
+    const State = struct {
+        var received_port: u16 = 0;
+        var message_count: u32 = 0;
+
+        fn onConnect(payload: *const MyPayloads(.on_connect)) void {
+            received_port = payload.port;
+        }
+        fn onMessage(_: *const MyPayloads(.on_message)) void {
+            message_count += 1;
+        }
+    };
+
+    try em.on(.on_connect, State.onConnect);
+    try em.on(.on_message, State.onMessage);
+
+    // Emit with typed payload — wrong payload type would be a compile error
+    em.emit(.on_connect, &.{ .address = "127.0.0.1", .port = 8080 });
+    em.emit(.on_message, &.{ .data = "hello", .sender_id = 1 });
+    em.emit(.on_message, &.{ .data = "world", .sender_id = 2 });
+
+    try std.testing.expectEqual(@as(u16, 8080), State.received_port);
+    try std.testing.expectEqual(@as(u32, 2), State.message_count);
+
+    // Remove listener and verify it stops receiving
+    em.off(.on_message, State.onMessage);
+    em.emit(.on_message, &.{ .data = "ignored", .sender_id = 3 });
+    try std.testing.expectEqual(@as(u32, 2), State.message_count);
+}
 ```
 
-The simpler `?*anyopaque` callback approach is preferred for most use cases. Only use typed payloads when you need compile-time safety on payload types.
+**Key patterns used:**
+- `EventEmitter(comptime EventEnum, comptime PayloadMap)` — event enum + comptime function mapping events to payload types
+- Callback signature is `*const fn (*const PayloadType) void` — type-safe per event variant
+- Type erasure via `@ptrCast` to store heterogeneous callbacks in a single `ArrayList`
+- `@intFromEnum` for O(1) dispatch to the correct listener list
+- init/deinit pair with `std.testing.allocator` in tests
+- `on`/`off`/`emit` form the complete listener lifecycle
+
+The simpler `?*anyopaque` callback approach (shown above in "Comptime Event Emitter Pattern") is preferred when you don't need per-event payload type safety.
 
 ## Common Comptime Mistakes
 

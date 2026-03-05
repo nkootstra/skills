@@ -251,6 +251,180 @@ zig build -Dtarget=x86_64-windows-msvc  # Windows x86_64
 zig build -Dtarget=x86_64-macos         # macOS
 ```
 
+### WASM Target
+
+Build a freestanding WASM module by setting the target explicitly:
+
+```zig
+const wasm = b.addSharedLibrary(.{
+    .name = "mylib",
+    .root_source_file = b.path("src/wasm/lib.zig"),
+    .target = b.resolveTargetQuery(.{
+        .cpu_arch = .wasm32,
+        .os_tag = .freestanding,
+    }),
+    .optimize = optimize,
+});
+b.installArtifact(wasm);
+```
+
+Use `.cpu_arch = .wasm32` with `.os_tag = .freestanding` for browser or standalone WASM. For WASI, use `.os_tag = .wasi`.
+
+### Complete Multi-Target build.zig Example
+
+A comprehensive example combining: shared core module, CLI executable, WASM library, external dependency, Python code generation, tests, documentation, cross-compilation targets, and named steps:
+
+```zig
+const std = @import("std");
+
+pub fn build(b: *std.Build) void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+
+    // --- External dependency ---
+    const zap = b.dependency("zap", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    // --- Code generation: Python script produces a .zig file from JSON schema ---
+    const codegen = b.addSystemCommand(&.{ "python3", "scripts/generate_types.py" });
+    codegen.addFileArg(b.path("schema/types.json"));
+    const generated_file = codegen.addOutputFileArg("generated_types.zig");
+
+    // --- Shared core module (used by CLI, WASM, and tests) ---
+    const core_mod = b.addModule("core", .{
+        .root_source_file = b.path("src/core/root.zig"),
+    });
+    core_mod.addImport("zap", zap.module("zap"));
+    core_mod.addAnonymousImport("generated", .{
+        .root_source_file = generated_file,
+    });
+
+    // --- CLI executable ---
+    const cli = b.addExecutable(.{
+        .name = "myapp",
+        .root_source_file = b.path("src/cli/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    cli.root_module.addImport("core", core_mod);
+    b.installArtifact(cli);
+
+    const run_cmd = b.addRunArtifact(cli);
+    if (b.args) |args| run_cmd.addArgs(args);
+    const run_step = b.step("run", "Run the CLI application");
+    run_step.dependOn(&run_cmd.step);
+
+    // --- WASM library target ---
+    const wasm = b.addSharedLibrary(.{
+        .name = "myapp-wasm",
+        .root_source_file = b.path("src/wasm/lib.zig"),
+        .target = b.resolveTargetQuery(.{
+            .cpu_arch = .wasm32,
+            .os_tag = .freestanding,
+        }),
+        .optimize = optimize,
+    });
+    wasm.root_module.addImport("core", core_mod);
+    b.installArtifact(wasm);
+
+    const wasm_step = b.step("wasm", "Build the WASM library");
+    wasm_step.dependOn(&wasm.step);
+
+    // --- Cross-compilation targets ---
+    const linux_arm64 = b.addExecutable(.{
+        .name = "myapp",
+        .root_source_file = b.path("src/cli/main.zig"),
+        .target = b.resolveTargetQuery(.{
+            .cpu_arch = .aarch64,
+            .os_tag = .linux,
+            .abi = .gnu,
+        }),
+        .optimize = optimize,
+    });
+    linux_arm64.root_module.addImport("core", core_mod);
+    b.installArtifact(linux_arm64);
+
+    const windows_x64 = b.addExecutable(.{
+        .name = "myapp",
+        .root_source_file = b.path("src/cli/main.zig"),
+        .target = b.resolveTargetQuery(.{
+            .cpu_arch = .x86_64,
+            .os_tag = .windows,
+            .abi = .msvc,
+        }),
+        .optimize = optimize,
+    });
+    windows_x64.root_module.addImport("core", core_mod);
+    b.installArtifact(windows_x64);
+
+    const cross_step = b.step("cross", "Build for all cross-compilation targets");
+    cross_step.dependOn(&linux_arm64.step);
+    cross_step.dependOn(&windows_x64.step);
+
+    // --- Unit tests ---
+    const tests = b.addTest(.{
+        .root_source_file = b.path("src/core/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    tests.root_module.addImport("zap", zap.module("zap"));
+    tests.root_module.addAnonymousImport("generated", .{
+        .root_source_file = generated_file,
+    });
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&b.addRunArtifact(tests).step);
+
+    // --- Documentation generation ---
+    const docs_step = b.step("docs", "Generate documentation");
+    const docs_lib = b.addStaticLibrary(.{
+        .name = "myapp-docs",
+        .root_source_file = b.path("src/core/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const install_docs = b.addInstallDirectory(.{
+        .source = docs_lib.getEmitDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs",
+    });
+    docs_step.dependOn(&install_docs.step);
+}
+```
+
+### Matching build.zig.zon
+
+```zon
+.{
+    .name = "myapp",
+    .version = "0.1.0",
+    .minimum_zig_version = "0.13.0",
+    .dependencies = .{
+        .zap = .{
+            .url = "https://github.com/zigzap/zap/archive/refs/tags/v0.2.0.tar.gz",
+            .hash = "1220abc123def456...",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "schema",
+        "scripts",
+    },
+}
+```
+
+**Key patterns used:**
+- `b.addModule("core", ...)` — shared module imported by CLI, WASM, and tests
+- `.cpu_arch = .wasm32, .os_tag = .freestanding` — freestanding WASM target
+- `b.addSystemCommand` + `addOutputFileArg` — Python codegen producing a .zig source file
+- `addFileArg(b.path(...))` — tracked input dependency (rebuilds when schema changes)
+- `getEmitDocs()` — documentation generation from `///` doc comments
+- Named steps: `run`, `wasm`, `cross`, `test`, `docs` — each accessible via `zig build <step>`
+- `build.zig.zon` includes `.paths`, `.minimum_zig_version`, and dependency with `.url` + `.hash`
+
 ---
 
 ## Dependencies and Package Management
