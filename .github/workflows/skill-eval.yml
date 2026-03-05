@@ -1,0 +1,40 @@
+name: Skill Eval (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: "Skill to evaluate (leave empty for all skills)"
+        required: false
+        type: string
+        default: ""
+      model:
+        description: "Model to use for evaluation"
+        required: false
+        type: string
+        default: "gemini-3.1-flash-lite-preview"
+      strict:
+        description: "Fail on any test failure"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: nkootstra/skill-lint@main
+        with:
+          provider: litellm
+          model: ${{ inputs.model }}
+          litellm_api_key: ${{ secrets.GEMINI_API_KEY }}
+          litellm_api_base: "https://generativelanguage.googleapis.com/v1beta/openai/"
+          mode: eval
+          skill: ${{ inputs.skill }}
+          strict: ${{ inputs.strict }}

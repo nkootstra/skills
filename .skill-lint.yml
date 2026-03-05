@@ -3,17 +3,21 @@
 
 version: 1
 
-# Provider configuration - using Anthropic API directly
+# Provider configuration - using Gemini via LiteLLM
 provider:
-  type: anthropic
-  model: claude-haiku-4-5-20251001
+  type: litellm
+  model: "gemini-3.1-flash-lite-preview"
+  api_key_env: GEMINI_API_KEY
+  api_base: "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 # Evaluation settings
 eval:
   # Run test cases defined in SKILL.eval.yml files
   enabled: true
   # Fail if test pass rate drops below this threshold
-  min_pass_rate: 0.8
+  # 85% tolerates 1 failure per 8+ test suite (natural LLM variance)
+  # while catching 2+ failures (meaningful regressions)
+  min_pass_rate: 0.85
   # Fail if any required test fails
   strict_mode: true
 

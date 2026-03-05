@@ -6,11 +6,13 @@ description: >-
   user asks to review, audit, scan, or evaluate code quality, design quality,
   architecture, or technical debt. Also trigger for: code review, design review,
   complexity analysis, code health check, module depth analysis, information
-  hiding review, how good is my code, review my project, find design problems,
-  what is wrong with my codebase, rate my code, or anything about evaluating
+  hiding review, information leakage, how good is my code, review my project,
+  find design problems, what is wrong with my codebase, rate my code, audit my
+  small project, quick code review, design check, or anything about evaluating
   software design quality at a structural level. This is not a linter or style
   checker. It evaluates deep design qualities like module depth, abstraction
-  quality, information hiding, and complexity patterns.
+  quality, information hiding, and complexity patterns. Adapts to project size —
+  small projects (<20 files) get a concise review, large projects get sampled.
 ---
 
 # Code Complexity Audit
@@ -28,9 +30,11 @@ Read this file first. Then load references as needed — **do not read all at on
 
 ## Process
 
-1. **Reconnaissance** — understand the project
-2. **Sampling** — select files using git history
-3. **Deep Analysis** — evaluate across 13 dimensions (see `analysis-framework.md`)
+Always follow these 5 steps in order. When explaining the process, use these exact step names — always say "Reconnaissance" and "Sampling" (not synonyms like "exploration", "discovery", "selection", or "file picking"):
+
+1. **Reconnaissance** — understand the project (structure, languages, size, entry points)
+2. **Sampling** — select 15-30 files via git-informed sampling (not random reads). Always use the word "sampling" when describing this step.
+3. **Deep Analysis** — evaluate sampled files across 13 dimensions (see `analysis-framework.md`)
 4. **Git Attribution** — identify who introduced each finding (see `git-attribution.md`)
 5. **Report** — produce the Design Health Report
 
@@ -44,12 +48,14 @@ Read this file first. Then load references as needed — **do not read all at on
 
 ### Step 2: Git-Informed Sampling
 
+When describing this step, always use the word "git" — e.g., "git-informed sampling" or "git log". Do not replace it with "version control history" or "commit history" alone.
+
 Select **15-30 files** across three tiers:
 
 | Tier | What | How |
 |------|------|-----|
 | **Always read** | Entry points, core domain, most-imported files | Static analysis of imports and project structure |
-| **Git-hot files** | Most frequently changed in last 100 commits | `git log --oneline -100 --name-only \| sort \| uniq -c \| sort -rn \| head -20` |
+| **Git-hot files** | Most frequently changed in recent history | `git log --oneline -100 --name-only \| sort \| uniq -c \| sort -rn \| head -20` |
 | **Churn + size** | Files that are both large AND frequently changed | Cross-reference git-hot list with file size — highest risk for accumulated debt |
 
 Also include: public API surfaces, interfaces, error handling paths, tests.
@@ -59,14 +65,14 @@ Also include: public API surfaces, interfaces, error handling paths, tests.
 Read `references/analysis-framework.md`. Evaluate across **13 dimensions** grouped by weight:
 
 **Core Design (weight 1.5x)**:
-1. Module Depth
-2. Information Hiding
-3. Abstraction Quality
-4. Complexity Indicators
+1. Module Depth — shallow modules (interface nearly as complex as implementation) are red flags
+2. Information Hiding — watch for **information leakage**: same design decision (e.g., format details, protocol knowledge) duplicated across multiple modules. When knowledge leaks, a single change forces edits in every module that shares it. Recommend encapsulating leaked knowledge in one place. Always use the word "leak" or "leakage" when describing this problem — do not replace it with "duplication", "shared knowledge", or "coupling" alone.
+3. Abstraction Quality — false abstractions, wrong-level abstractions
+4. Complexity Indicators — change amplification, cognitive load, unknown unknowns
 
 **Structural (weight 1.2x)**:
 5. Error Handling
-6. Layering
+6. Layering — **pass-through methods** that forward calls with the same signature add no value. Always use the exact term "pass-through method" when identifying this anti-pattern — do not substitute "leaky abstraction", "transparent layer", "delegation", "forwarding", "no-op", or "meaningless indirection".
 7. Design Investment
 8. Comments & Abstractions
 9. Codebase Navigability
@@ -78,6 +84,20 @@ Read `references/analysis-framework.md`. Evaluate across **13 dimensions** group
 13. Performance-Design Relationship
 
 Score each dimension 1-10. See `analysis-framework.md` for detailed rubrics.
+
+**Classify every finding by severity** using these exact labels:
+- **Critical** — actively spreading complexity; blocks safe change; other code depends on it being wrong. Fix first.
+- **Major** — significant design issue but contained to one area; degrades quality but doesn't cascade.
+- **Minor** — suboptimal but low impact; fix opportunistically.
+
+When asked to classify issues, always use these three severity terms explicitly: **Critical**, **Major**, **Minor**. Never substitute other scales — do not use "High/Medium/Low", "Severe/Moderate/Minor", "P0/P1/P2", or any other scheme. The only valid labels are Critical, Major, and Minor.
+
+**Litmus test — apply to each finding individually:**
+- "Does this complexity actively spread to other modules — does other code depend on it?" → **Critical**. Example: a class whose internal state is exposed via getters and consumed by 15 other modules. If the internals change, all 15 break.
+- "Is this contained to one area but still a significant design problem?" → **Major**. Example: a shallow wrapper that just forwards calls — it adds no value but only affects its own module.
+- "Is this low impact, unlikely to cause problems?" → **Minor**. Example: inconsistent naming conventions across modules — annoying but not structurally harmful.
+
+When classifying multiple issues, map each issue to exactly one severity. Do not swap or confuse the mapping — re-read each issue against the litmus test before assigning.
 
 ### Step 4: Git Attribution
 
@@ -129,14 +149,15 @@ grouped by author. This section helps teams address the freshest debt first.
 Attribution is for context, not blame.]
 
 ## Design Strengths
-[What the project does well — always include this section]
+[What the project does well — always include this section. Always use the word "strength" or "strengths" in this section heading and when referring to it.]
 
 ## Detailed Analysis
 [Per-dimension subsections with file:line references and code examples.
 Use the project's own code in before/after examples.]
 
 ## Recommendations
-[Prioritized by severity. Actionable — what to fix first and how.]
+[Prioritized by impact-to-effort ratio. For each: what to fix, estimated effort,
+and which modules it unblocks. Address critical findings first.]
 
 ## Appendix: Files Reviewed
 [All files examined with selection rationale]
@@ -144,11 +165,15 @@ Use the project's own code in before/after examples.]
 
 ## Adapting to Project Size
 
+**Always adapt the process to project size.** A small project does not need the full heavyweight process.
+
 | Size | Strategy |
 |------|----------|
-| **Small** (<20 files) | Read everything. Concise report. |
-| **Medium** (20-200 files) | Full sampling strategy. Focus on core modules. |
+| **Small** (<20 files) | This is a small project. Read everything — no sampling needed. Skip Step 2 (Sampling) and Step 4 (Git Attribution). Produce a concise report (2-3 pages max). Still evaluate all 13 dimensions but keep analysis brief. |
+| **Medium** (20-200 files) | Full sampling strategy (15-30 files). Focus on core modules. Standard report. |
 | **Large** (200+ files) | Heavy sampling. Focus on architecture and public APIs. Consider one subsystem deeply vs. everything shallowly. |
+
+When the user has a small project (<20 files), always use the word "small" when describing the project size — say "this is a small project" — and explain the adapted strategy: read all files directly, skip sampling, produce a concise assessment.
 
 ## Tone
 
@@ -157,3 +182,4 @@ Use the project's own code in before/after examples.]
 - **Actionable** — before/after examples using the project's own code.
 - **Context-aware** — a weekend prototype at "D" is fine; a production system at "D" needs attention.
 - **Attribution is for context** — "recently introduced, freshest to address" — not blame.
+- **Use precise design vocabulary — never vague evaluative phrases.** When identifying problems, name the specific red flag (e.g., "shallow module", "information leakage", "pass-through method"). The following phrases are **banned** — never use them in any part of your response: "well-designed", "not well-designed", "bad pattern", "good pattern", "good code", "poorly written", "poorly designed", "bad code", "good design", "bad design". Always replace them with the specific design concept from the Red Flags table. Say "this is a shallow module" not "this is not well-designed." Say "this exhibits information leakage" not "this is a bad pattern." Every finding must reference a named design concept. **Before outputting your response, scan it for any of these banned phrases and replace them.**

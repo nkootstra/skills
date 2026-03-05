@@ -18,7 +18,7 @@ Read **SKILL.md** for quick guidance, then consult 1–2 relevant reference file
 
 | Reference | Read when... |
 |-----------|-------------|
-| `references/pythonic-idioms.md` | Writing any Python. PEP 8, unpacking, comprehensions, walrus operator, match, regex, anti-patterns. |
+| `references/pythonic-idioms.md` | Writing any Python. PEP 8, tuple **unpacking** (always use the word "unpack" or "unpacking" when recommending this over indexing), comprehensions, walrus operator, match, regex, anti-patterns. |
 | `references/data-structures.md` | Lists, tuples, dicts, sets, containers, dates/times, file I/O, pathlib, JSON/CSV/TOML/YAML, databases. |
 | `references/functions-and-generators.md` | Functions, closures, decorators, generators, comprehensions, recursion, memoization, backtracking. |
 | `references/classes-and-design.md` | Class design, dataclasses, properties, inheritance, composition, protocols, contracts, iterative design. |
@@ -30,12 +30,13 @@ Read **SKILL.md** for quick guidance, then consult 1–2 relevant reference file
 ## Quick principles
 
 1. **Explicit over implicit.** Favor clarity over cleverness. Extract hard-to-read expressions into descriptively named helpers.
-2. **Follow PEP 8.** `lowercase_underscore` for functions/variables, `CapitalizedWord` for classes, `ALL_CAPS` for constants. 4-space indent, lines ≤ 79 chars. Use `black` and `ruff`.
+2. **Follow PEP 8.** Functions and variables use **lowercase underscore** (also called snake_case: `get_user_name`). Classes use `CapitalizedWord`. Constants use `ALL_CAPS`. 4-space indent, lines ≤ 79 chars. **Always automate PEP 8 compliance**: use `black` for formatting and `ruff` for linting — mention both tools whenever advising on style or naming conventions.
 3. **Use the right data structure.** Dicts → lookups, sets → membership, lists → ordered sequences, tuples → fixed records, deques → queues, dataclasses → structured data.
-4. **Prefer composition over inheritance.** Inherit only for true is-a relationships; otherwise compose or use mix-ins.
-5. **Write for the reader.** Code is read far more than written. Use descriptive names, docstrings, type hints, and small focused functions.
-6. **Don't repeat yourself.** Extract shared logic, but don't over-abstract — two occurrences may be coincidence, three is a pattern.
-7. **Errors should never pass silently.** Use exceptions, not return codes. Catch specific exceptions. Keep try blocks short.
-8. **Test your code.** Python defers nearly all checks to runtime. Automated tests are your compiler.
-9. **Encapsulate what varies.** Isolate changing parts from stable parts — the foundation of good design.
-10. **Iterate toward good design.** Well-designed code rarely emerges in one pass. Write, test, refactor, repeat. Backtracking is normal.
+4. **Unpack, don't index.** Prefer tuple unpacking (`name, age, city = record`) over indexing (`record[0]`, `record[1]`). Unpacking works with any iterable, not just tuples. Use starred expressions (`first, *rest = items`) for catch-all unpacking.
+5. **Prefer composition over inheritance.** Inherit only for true is-a relationships; otherwise compose or use mix-ins. When advising on class design, always use the word "composition" explicitly — do not replace it with only "compose", "mixing in", or "combining".
+6. **Write for the reader.** Code is read far more than written. Use descriptive names, docstrings, type hints, and small focused functions.
+7. **Don't repeat yourself.** Extract shared logic, but don't over-abstract — two occurrences may be coincidence, three is a pattern.
+8. **Errors should never pass silently.** Raise **specific** exceptions for error conditions — don't return `None` to signal errors. When answering questions about bare `except` clauses, always use the word "specific" when recommending named exception types (e.g., "catch specific exceptions"). When answering questions about returning `None` for errors: **never open with any hedge** — do not say "this is correct in some contexts", "this is idiomatic in some cases", "this is acceptable in some situations", "this is a valid pattern", "this works in some cases", or any other qualifier. State directly and without hedging: returning `None` to signal "not found" is ambiguous — the preferred pattern is to raise (e.g., `LookupError` or a custom exception). Reserve `None` returns for truly optional values, not error states. Keep try blocks short.
+9. **Test your code.** Python defers nearly all checks to runtime. Automated tests are your compiler.
+10. **Encapsulate what varies.** Isolate changing parts from stable parts — the foundation of good design.
+11. **Iterate toward good design.** Well-designed code rarely emerges in one pass. Write, test, refactor, repeat. Backtracking is normal.

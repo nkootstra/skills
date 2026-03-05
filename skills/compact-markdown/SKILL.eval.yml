@@ -1,0 +1,169 @@
+skill: compact-markdown
+
+tests:
+  # --- Core SKILL.md: compaction passes & hard rules ---
+
+  - name: Scans for credentials before compacting
+    prompt: |
+      Compact this markdown for me:
+
+      # Database Setup
+      Connect to the production database using:
+      ```
+      postgres://admin:s3cr3tP@ssw0rd@prod-db.example.com:5432/myapp
+      ```
+      Run migrations with `npm run db:migrate`.
+    expected: Should detect the connection string as a potential credential and warn the user before compacting. Should redact or flag it with <REDACTED>, not output it unchanged. Credential scan is pass 1 and must happen before any other compaction.
+    required_keywords:
+      - "credential"
+      - "redact"
+    forbidden_keywords:
+      - "s3cr3tP@ssw0rd"
+
+  - name: Cuts throat-clearing phrases
+    prompt: |
+      Compact this text:
+
+      It is important to note that all API requests must be authenticated.
+      In order to authenticate, you need to include your API key. Make sure
+      to keep your key secure at all times. At this point in time, we support
+      two authentication methods.
+    expected: Should remove filler phrases like "It is important to note that", "In order to", "Make sure to", "At this point in time" and produce terse prose while preserving all facts. The compacted output must not contain these filler phrases.
+    forbidden_keywords:
+      - "it is important to note that all"
+      - "in order to authenticate"
+      - "at this point in time, we"
+
+  - name: Preserves code blocks exactly
+    prompt: |
+      Compact this markdown. The code block should remain unchanged:
+
+      ## Installation
+
+      It is important to note that you need to install the dependencies
+      first. In order to install them, run the following command in your
+      terminal:
+
+      ```bash
+      npm install --save-dev @testing-library/react @testing-library/jest-dom
+      ```
+
+      After installation, you can import the library in your test files.
+    expected: Should compact the prose around the code block but preserve the code block contents exactly as-is. The npm install command must not be modified.
+    required_keywords:
+      - "npm install --save-dev @testing-library/react @testing-library/jest-dom"
+
+  - name: Reports token reduction metrics
+    prompt: |
+      Compact this markdown:
+
+      # Getting Started Guide
+
+      ## Introduction
+
+      This guide provides a comprehensive overview of how to get started
+      with our platform. It is designed to help new users understand the
+      basics and get up and running quickly.
+
+      ## Step 1: Create an Account
+
+      In order to use our platform, you first need to create an account.
+      Visit our website and click the "Sign Up" button.
+
+      ## Step 2: Configure Your Project
+
+      After creating your account, you need to configure your project
+      by setting up the required environment variables.
+    expected: Should compact the content AND report metrics showing original vs compacted token/line counts and percentage reduction.
+    required_keywords:
+      - "reduction"
+
+  - name: Keeps YAML frontmatter intact
+    prompt: |
+      Compact this SKILL.md file:
+
+      ---
+      name: my-skill
+      description: This is a description of my skill that helps users do things with code and it has many trigger phrases for matching
+      ---
+
+      # My Skill
+
+      ## Introduction
+
+      This skill provides a comprehensive set of instructions for working
+      with code. It is important to note that all instructions should be
+      followed carefully.
+
+      ## Usage
+
+      In order to use this skill, activate it by mentioning code review.
+    expected: Should keep the YAML frontmatter (including the name and description fields) completely intact and unmodified. Only compact the content below the closing ---. The full original description field must appear verbatim in the output.
+    required_keywords:
+      - "name: my-skill"
+      - "helps users do things with code and it has many trigger phrases"
+
+  - name: Distinguishes compaction from summarization
+    prompt: |
+      I have a 200-line README with 15 distinct configuration options
+      documented. Can you summarize it down to the 5 most important ones?
+    expected: Should refuse to summarize or at minimum clearly explain that compaction is NOT summarization. Every fact, instruction, and constraint must survive. Should offer to compact (reduce verbosity) instead of summarize (drop content).
+    required_keywords:
+      - "information loss"
+    forbidden_keywords:
+      - "here are the 5 most important"
+
+  - name: Trims redundant examples keeping the most concrete
+    prompt: |
+      Compact this section:
+
+      ## Authentication
+
+      Include an API key header in your request.
+
+      **Example with curl:**
+      ```
+      curl -H "X-API-Key: YOUR_KEY" https://api.example.com/users
+      ```
+
+      **Example with wget:**
+      ```
+      wget --header="X-API-Key: YOUR_KEY" https://api.example.com/users
+      ```
+
+      **Example with httpie:**
+      ```
+      http https://api.example.com/users X-API-Key:YOUR_KEY
+      ```
+
+      **Example with Python requests:**
+      ```python
+      requests.get("https://api.example.com/users", headers={"X-API-Key": "YOUR_KEY"})
+      ```
+    expected: Should trim redundant examples that illustrate the same point (including an API key in a request). Should keep the most widely-used tool (curl) and remove the others.
+    required_keywords:
+      - "curl"
+    forbidden_keywords:
+      - "httpie"
+
+  - name: Flattens deeply nested lists
+    prompt: |
+      Compact this markdown:
+
+      ## Features
+      - Authentication
+        - OAuth 2.0
+          - Authorization Code
+          - Client Credentials
+          - Implicit Grant
+        - API Key
+          - Header-based
+          - Query parameter
+      - Authorization
+        - Role-based
+          - Admin
+          - Editor
+          - Viewer
+    expected: Should flatten lists deeper than 2 levels. Third-level items should be converted to parentheticals or inline within their parent items.
+    required_keywords:
+      - "flatten"
