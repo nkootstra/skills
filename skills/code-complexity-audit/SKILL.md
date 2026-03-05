@@ -30,7 +30,7 @@ Read this file first. Then load references as needed — **do not read all at on
 
 ## Process
 
-Always follow these 5 steps in order. When explaining the process, use these exact step names:
+Always follow these 5 steps in order. When explaining the process, use these exact step names — always say "Reconnaissance" and "Sampling" (not synonyms like "exploration", "discovery", "selection", or "file picking"):
 
 1. **Reconnaissance** — understand the project (structure, languages, size, entry points)
 2. **Sampling** — select 15-30 files via git-informed sampling (not random reads). Always use the word "sampling" when describing this step.
