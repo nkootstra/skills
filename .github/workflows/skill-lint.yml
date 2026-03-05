@@ -22,6 +22,6 @@ jobs:
       - uses: nkootstra/skill-lint@main
         with:
           provider: litellm
-          model: "gemini-3.1-flash-lite-preview"
+          model: "gemini-2.5-flash-preview-05-20"
           litellm_api_key: ${{ secrets.GEMINI_API_KEY }}
           litellm_api_base: "https://generativelanguage.googleapis.com/v1beta/openai/"
