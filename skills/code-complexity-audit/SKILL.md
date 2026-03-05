@@ -90,7 +90,14 @@ Score each dimension 1-10. See `analysis-framework.md` for detailed rubrics.
 - **Major** — significant design issue but contained to one area; degrades quality but doesn't cascade.
 - **Minor** — suboptimal but low impact; fix opportunistically.
 
-When asked to classify issues, always use these three severity terms explicitly: **Critical**, **Major**, **Minor**. Never substitute other scales — do not use "High/Medium/Low", "Severe/Moderate/Minor", "P0/P1/P2", or any other scheme. The only valid labels are Critical, Major, and Minor. The litmus test: "If unfixed for 6 months, does it get worse on its own?" Critical = yes (complexity spreads). Major = stays the same. Minor = nobody notices.
+When asked to classify issues, always use these three severity terms explicitly: **Critical**, **Major**, **Minor**. Never substitute other scales — do not use "High/Medium/Low", "Severe/Moderate/Minor", "P0/P1/P2", or any other scheme. The only valid labels are Critical, Major, and Minor.
+
+**Litmus test — apply to each finding individually:**
+- "Does this complexity actively spread to other modules — does other code depend on it?" → **Critical**. Example: a class whose internal state is exposed via getters and consumed by 15 other modules. If the internals change, all 15 break.
+- "Is this contained to one area but still a significant design problem?" → **Major**. Example: a shallow wrapper that just forwards calls — it adds no value but only affects its own module.
+- "Is this low impact, unlikely to cause problems?" → **Minor**. Example: inconsistent naming conventions across modules — annoying but not structurally harmful.
+
+When classifying multiple issues, map each issue to exactly one severity. Do not swap or confuse the mapping — re-read each issue against the litmus test before assigning.
 
 ### Step 4: Git Attribution
 
