@@ -265,6 +265,8 @@ fn processUser(user: User) void { ... }
 
 ## Comptime Event Emitter Pattern
 
+**CRITICAL: Stored callback types MUST use concrete function pointer signatures (`*const fn (ctx: ?*anyopaque) void` or `*const fn (*const SpecificType) void`). NEVER use `anytype` in a function pointer type — it will not compile.**
+
 A complete example of using comptime to build a type-safe event system with per-event payloads and dynamic listener management:
 
 ```zig
