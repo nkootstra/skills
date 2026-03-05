@@ -38,6 +38,7 @@ Before finalizing any code response, verify it includes **all** of the following
 4. **Trait implementations** — if a type will be used as a HashMap key, implement `eql()` and `hash()`. If it should be printable, implement `format()`.
 5. **Doc comments** — all `pub` functions and types must have `///` doc comments.
 6. **Inline tests** — include at minimum one test per public function using `std.testing.allocator`.
+7. **Integer overflow safety** — any arithmetic on bounded integers (`u8`, `u16`, etc.) must use widening, saturating operators, or explicit overflow checks. State which approach and why.
 
 ### When reviewing code: structured analysis
 
@@ -65,6 +66,15 @@ Review code in three mandatory passes. Do NOT skip any pass.
 - Public API has doc comments
 - Null/optional handling is safe (no unguarded `.?` unwrap)
 
+### When doing arithmetic on bounded integers: overflow verification
+
+Before finalizing code that does arithmetic on `u8`, `u16`, or any bounded integer type:
+
+1. **Write the range** — what is the maximum value of each intermediate expression? (e.g., `u8 * u8` max = 65025, which overflows `u8` and `u16` alike — needs `u32`.)
+2. **Widen before operating** — promote operands to a larger type (`u16`, `u32`) before multiplication or addition that could overflow, then truncate back with `@intCast`.
+3. **Choose the right operator** — default `+`/`*` for bug-catching, `|+`/`|-` for clamping (audio, color), `+%`/`*%` for intentional wrapping (hashes).
+4. **Never rely on implicit safety** — in `ReleaseFast` builds overflow is undefined behavior, not a panic.
+
 ### When writing comptime/pointer-heavy code: verification step
 
 Before outputting complex comptime or low-level pointer code, mentally trace through:
@@ -73,6 +83,8 @@ Before outputting complex comptime or low-level pointer code, mentally trace thr
 2. Are `@setEvalBranchQuota` calls needed for large iterations?
 3. Do all pointer casts maintain alignment? (`@ptrCast` + `@alignCast` together)
 4. Are packed struct fields accessed correctly? (Cannot take address of non-byte-aligned fields)
+5. For `@typeInfo(.@"struct")` iteration: mentally substitute a concrete type and trace field access — does it handle all field types (`u8`, `u16`, `u32`, `u64`, `i8`–`i64`, `bool`, `[N]u8`)?
+6. For serialization/deserialization: use `std.mem.readInt`/`std.mem.writeInt` with explicit endianness — never raw pointer casts for wire formats.
 
 ### Compile-check step for comptime type-safety
 
