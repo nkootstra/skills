@@ -165,3 +165,5 @@ tests:
           - Editor
           - Viewer
     expected: Should flatten lists deeper than 2 levels. Third-level items should be converted to parentheticals or inline within their parent items.
+    required_keywords:
+      - "flatten"

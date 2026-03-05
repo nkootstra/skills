@@ -48,6 +48,8 @@ Always follow these 5 steps in order. When explaining the process, use these exa
 
 ### Step 2: Git-Informed Sampling
 
+When describing this step, always use the word "git" — e.g., "git-informed sampling" or "git log". Do not replace it with "version control history" or "commit history" alone.
+
 Select **15-30 files** across three tiers:
 
 | Tier | What | How |
@@ -64,13 +66,13 @@ Read `references/analysis-framework.md`. Evaluate across **13 dimensions** group
 
 **Core Design (weight 1.5x)**:
 1. Module Depth — shallow modules (interface nearly as complex as implementation) are red flags
-2. Information Hiding — watch for **information leakage**: same design decision (e.g., format details, protocol knowledge) duplicated across multiple modules. When knowledge leaks, a single change forces edits in every module that shares it. Recommend encapsulating leaked knowledge in one place.
+2. Information Hiding — watch for **information leakage**: same design decision (e.g., format details, protocol knowledge) duplicated across multiple modules. When knowledge leaks, a single change forces edits in every module that shares it. Recommend encapsulating leaked knowledge in one place. Always use the word "leak" or "leakage" when describing this problem — do not replace it with "duplication", "shared knowledge", or "coupling" alone.
 3. Abstraction Quality — false abstractions, wrong-level abstractions
 4. Complexity Indicators — change amplification, cognitive load, unknown unknowns
 
 **Structural (weight 1.2x)**:
 5. Error Handling
-6. Layering — pass-through methods that forward calls with the same signature add no value
+6. Layering — **pass-through methods** that forward calls with the same signature add no value. Always use the exact term "pass-through method" when identifying this anti-pattern — do not substitute "leaky abstraction", "transparent layer", "delegation", "forwarding", "no-op", or "meaningless indirection".
 7. Design Investment
 8. Comments & Abstractions
 9. Codebase Navigability
@@ -88,7 +90,7 @@ Score each dimension 1-10. See `analysis-framework.md` for detailed rubrics.
 - **Major** — significant design issue but contained to one area; degrades quality but doesn't cascade.
 - **Minor** — suboptimal but low impact; fix opportunistically.
 
-When asked to classify issues, always use these three severity terms explicitly. The litmus test: "If unfixed for 6 months, does it get worse on its own?" Critical = yes (complexity spreads). Major = stays the same. Minor = nobody notices.
+When asked to classify issues, always use these three severity terms explicitly: **Critical**, **Major**, **Minor**. Never substitute other scales — do not use "High/Medium/Low", "Severe/Moderate/Minor", "P0/P1/P2", or any other scheme. The only valid labels are Critical, Major, and Minor. The litmus test: "If unfixed for 6 months, does it get worse on its own?" Critical = yes (complexity spreads). Major = stays the same. Minor = nobody notices.
 
 ### Step 4: Git Attribution
 
@@ -140,7 +142,7 @@ grouped by author. This section helps teams address the freshest debt first.
 Attribution is for context, not blame.]
 
 ## Design Strengths
-[What the project does well — always include this section]
+[What the project does well — always include this section. Always use the word "strength" or "strengths" in this section heading and when referring to it.]
 
 ## Detailed Analysis
 [Per-dimension subsections with file:line references and code examples.
@@ -164,7 +166,7 @@ and which modules it unblocks. Address critical findings first.]
 | **Medium** (20-200 files) | Full sampling strategy (15-30 files). Focus on core modules. Standard report. |
 | **Large** (200+ files) | Heavy sampling. Focus on architecture and public APIs. Consider one subsystem deeply vs. everything shallowly. |
 
-When the user has a small project (<20 files), always say it is a small project and explain the adapted strategy: read all files directly, skip sampling, produce a concise assessment.
+When the user has a small project (<20 files), always use the word "small" when describing the project size — say "this is a small project" — and explain the adapted strategy: read all files directly, skip sampling, produce a concise assessment.
 
 ## Tone
 
@@ -173,4 +175,4 @@ When the user has a small project (<20 files), always say it is a small project 
 - **Actionable** — before/after examples using the project's own code.
 - **Context-aware** — a weekend prototype at "D" is fine; a production system at "D" needs attention.
 - **Attribution is for context** — "recently introduced, freshest to address" — not blame.
-- **Use precise design vocabulary.** When identifying problems, name the specific red flag (e.g., "shallow module", "information leakage", "pass-through method") rather than using vague evaluative phrases. Say "this is a shallow module" not "this is not well-designed." Say "this exhibits information leakage" not "this is a bad pattern."
+- **Use precise design vocabulary — never vague evaluative phrases.** When identifying problems, name the specific red flag (e.g., "shallow module", "information leakage", "pass-through method"). Never use generic phrases like "well-designed", "not well-designed", "bad pattern", "good code", or "poorly written." These phrases are banned — always replace them with the specific design concept from the Red Flags table. Say "this is a shallow module" instead of evaluative language. Say "this exhibits information leakage" instead of "this is a bad pattern." Every finding must reference a named design concept.

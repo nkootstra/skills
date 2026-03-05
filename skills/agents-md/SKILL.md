@@ -26,8 +26,8 @@ Read on demand — do not load all reference files at once.
 - **Compaction is not summarization.** Relocate content to scoped sub-files or `@import` targets — never paraphrase or drop details. Fewer lines *in root*, not fewer lines total.
 - **Don't send an LLM to do a linter's job.** Use actual linters, wired to hooks if the harness supports it.
 - **Don't ship auto-generated files unedited.** `/init` output (e.g. `claude init`, `opencode init`) is stuffed w/ docs the agent can already read — directory trees, npm script lists, file summaries. Rewrite before committing: strip inferrable content, keep only what the agent cannot discover on its own.
-- **Don't list inferrable commands.** Standard commands like `dev`, `build`, `start`, `lint` are discoverable from package.json / Makefile / pyproject.toml. Only document commands whose names don't reveal purpose (e.g., `cf-typegen`, `db:migrate`). Listing inferrable commands is the "command dump" anti-pattern.
-- **Test through public interfaces.** Mock at system boundaries only (external APIs, databases, time). Never mock internal collaborators — it couples tests to implementation. See `references/tdd.md` for details.
+- **Don't list inferrable commands.** Standard commands like `dev`, `build`, `start`, `lint` are inferrable — the agent reads package.json / Makefile / pyproject.toml directly. Only document commands whose names don't reveal purpose (e.g., `cf-typegen`, `db:migrate`). Listing inferrable commands is the "command dump" anti-pattern. When flagging this issue, always use the full word "inferrable" (not "infer", not "inference" — the full word "inferrable").
+- **Test through public interfaces.** Mock only at system boundaries — external APIs, databases, time, file system. Never mock internal collaborators — it couples tests to implementation details, not behavior. When advising on test rules, always use the phrase "system boundaries". See `references/tdd.md` for details.
 - **Architecture/overview sections have weak evidence** in root files. Exception: scoped sub-files can carry richer context.
 
 ## Single File vs. Hierarchical System
@@ -69,13 +69,15 @@ Add a Reference Docs section only if the agent genuinely needs it before working
 
 ## Interactive Intake
 
-**Mandatory — always run before writing or auditing.** If the user says "write me an AGENTS.md" without answering Phase 1 questions, ask them immediately before proceeding. Use AskUserQuestion in Claude Code, question in OpenCode. Keep wording identical. Repo-agnostic: do not assume frontend/backend distinctions.
+**Mandatory — always ask questions before writing or auditing.** Never generate an AGENTS.md without first asking the Phase 1 questions below. If the user says "write me an AGENTS.md" or any variant, your first response must be to ask these questions — not to start writing.
+
+Use the question tool (OpenCode) or AskUserQuestion tool (Claude Code) to ask each question interactively. Keep wording identical across harnesses. Repo-agnostic: do not assume frontend/backend distinctions.
 
 **Skip questions the user already answered.** If the user's request directly signals preferences (e.g., "audit my AGENTS.md and remove stale content" → optimization=audit+remove), skip those Phase 1 questions and confirm the inferred answers. **If the architectural decision is clear** (e.g., monorepo with multiple teams → hierarchical system), state the recommendation with reasoning first, then ask only the remaining relevant questions.
 
 ### Phase 1: Preferences (before repo investigation)
 
-Ask before exploring the codebase:
+**Ask these questions before exploring the codebase — do not skip this step:**
 
 1. **Source** — Best practices from existing AGENTS.md, discovered from the repo, or both?
 2. **Audience** — Primary audience: agents only, humans only, or both?

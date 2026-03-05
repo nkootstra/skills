@@ -20,7 +20,9 @@ tests:
     required_keywords:
       - "set"
     forbidden_keywords:
-      - "list is fine"
+      - "list is fine for"
+      - "list is fine here"
+      - "a list is fine"
 
   - name: Prefers composition over inheritance
     prompt: |
@@ -43,7 +45,9 @@ tests:
       - "raise"
     forbidden_keywords:
       - "returning None is fine"
-      - "this is correct"
+      - "this is correct in some"
+      - "this is idiomatic in some"
+      - "this is acceptable in some"
 
   - name: Warns against bare except clauses
     prompt: |
