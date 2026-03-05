@@ -65,7 +65,9 @@ tests:
       - "rewrite"
     forbidden_keywords:
       - "looks good"
-      - "commit it"
+      - "yes, commit it"
+      - "go ahead and commit"
+      - "safe to commit"
 
   # --- References: anti-patterns ---
 
