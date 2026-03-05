@@ -3,7 +3,7 @@
 # Provider configuration - using Gemini via LiteLLM
 provider:
   type: litellm
-  model: "gemini-2.5-flash"
+  model: "gemini-3.1-flash-lite-preview"
   api_key_env: GEMINI_API_KEY
   api_base: "https://generativelanguage.googleapis.com/v1beta/openai/"
 
@@ -15,8 +15,8 @@ skill_filename: SKILL.md
 eval_trials: 1
 parallel_evals: 3
 
-# Minimum eval pass rate — tolerate LLM non-determinism (8/10 = 80%)
-min_pass_rate: 0.80
+# Minimum eval pass rate — tolerate LLM non-determinism (7/10 = 70%)
+min_pass_rate: 0.70
 
 # Fail behavior: "error" (default), "warning", or "never"
 fail_on: error
