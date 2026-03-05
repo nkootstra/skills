@@ -1,0 +1,65 @@
+{
+  "skill_name": "zig-best-practices",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Write a Zig HTTP server that listens on port 8080 and responds with JSON. It should handle GET /health returning {\"status\":\"ok\"} and GET /echo?msg=hello returning {\"message\":\"hello\"}. Structure the project properly with build.zig.",
+      "expected_output": "A well-structured Zig project with build.zig, idiomatic error handling, proper allocator usage, defer for cleanup, buffered I/O, and clear module separation.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Review this Zig code and identify all issues:\n\n```zig\nconst std = @import(\"std\");\n\nvar global_allocator = std.heap.page_allocator;\nvar cache: ?std.StringHashMap([]u8) = null;\n\npub fn init() void {\n    cache = std.StringHashMap([]u8).init(global_allocator);\n}\n\npub fn getData(key: []const u8) anyerror![]u8 {\n    if (cache.?.get(key)) |val| return val;\n    var buf = try global_allocator.alloc(u8, 1024);\n    var file = try std.fs.cwd().openFile(key, .{});\n    var bytes_read = try file.read(buf);\n    _ = bytes_read;\n    try cache.?.put(key, buf);\n    return buf;\n}\n\npub fn main() !void {\n    init();\n    var result = try getData(\"config.txt\");\n    std.debug.print(\"{s}\\n\", .{result});\n}\n```",
+      "expected_output": "Identifies: global mutable allocator, missing defer for file.close(), missing errdefer for buf, using anyerror instead of specific error set, var where const suffices (result, bytes_read), no deinit for cache, potential null unwrap crash if init not called, missing buffered reader.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I'm building a CSV parser library in Zig. Help me set up the project structure and write the core parsing module. It should handle quoted fields, custom delimiters, and streaming line-by-line parsing. I want this to be a reusable library other Zig projects can depend on.",
+      "expected_output": "Proper project layout with build.zig, build.zig.zon, src/root.zig as library entry, separate parser module, streaming design with allocator parameter, comprehensive error set, inline tests, doc comments on public API.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I have a Zig program that processes a large file (500MB+) of newline-delimited JSON records. Each record needs to be parsed, validated, and written to an output file. It's currently too slow. Here's the core loop:\n\n```zig\nfn processFile(path: []const u8) !void {\n    const allocator = std.heap.page_allocator;\n    const file = try std.fs.cwd().openFile(path, .{});\n    defer file.close();\n    const out = try std.fs.cwd().createFile(\"output.json\", .{});\n    defer out.close();\n\n    var buf: [65536]u8 = undefined;\n    while (try file.reader().readUntilDelimiterOrEof(&buf, '\\n')) |line| {\n        const parsed = try std.json.parseFromSlice(std.json.Value, allocator, line, .{});\n        defer parsed.deinit();\n        if (isValid(parsed.value)) {\n            try std.json.stringify(parsed.value, .{}, out.writer());\n            try out.writer().writeByte('\\n');\n        }\n    }\n}\n```\n\nHow can I make this significantly faster?",
+      "expected_output": "Recommends: buffered reader AND writer, arena allocator with reset per iteration instead of page_allocator, avoiding repeated .reader()/.writer() calls in the loop, ReleaseFast build mode, possibly SIMD for newline scanning, and explains why each change helps.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Write a generic, reusable event emitter in Zig using comptime. It should take an enum type as a comptime parameter to define the supported events, use `?*anyopaque` for type-erased callback context, and provide three methods: `on` (register a listener), `emit` (fire all listeners for an event), and `off` (remove a listener). Show how to use it with a concrete example including inline tests.",
+      "expected_output": "Uses comptime to define event types, implements EventEmitter(comptime events: type) that takes an enum, uses ?*anyopaque for type-erased callback context with concrete function pointer type (*const fn (ctx: ?*anyopaque) void), uses @intFromEnum for O(1) dispatch to per-event ArrayList of callbacks, handles listener storage with proper allocator usage, demonstrates the init/deinit pattern, includes on/off/emit methods, and provides a working usage example with inline tests.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Write a Zig module that parses a binary network protocol header. The header format is:\n- bytes 0-1: magic number (0xCAFE, big-endian)\n- byte 2: version (u8)\n- byte 3: flags (packed struct with 8 single-bit flags: encrypted, compressed, fragmented, priority, ack, syn, fin, reserved)\n- bytes 4-7: payload_length (u32, big-endian)\n- bytes 8-11: sequence_number (u32, big-endian)\n- bytes 12-15: checksum (u32, big-endian)\n\nThe module should parse raw bytes into a structured type, validate the magic number and checksum, and serialize back to bytes. Include inline tests.",
+      "expected_output": "Uses packed struct for the flags byte, handles big-endian with std.mem.bigToNative/nativeToBig, uses @bitCast for packed struct to/from u8, validates alignment and magic, includes proper error set (InvalidMagic, ChecksumMismatch), uses @intCast safely, includes inline tests with std.testing.allocator or testing assertions, handles the binary layout without unnecessary heap allocation.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Review this Zig code that accesses hardware registers and identify all the issues:\n\n```zig\nconst std = @import(\"std\");\n\nconst PERIPHERAL_BASE: usize = 0x4000_0000;\n\nvar status_flag: bool = false;\n\nconst GPIORegisters = struct {\n    mode: u32,\n    output: u32,\n    input: u32,\n    speed: u32,\n};\n\nfn readGPIO() GPIORegisters {\n    const regs: *GPIORegisters = @ptrFromInt(PERIPHERAL_BASE);\n    return regs.*;\n}\n\nfn waitForReady() void {\n    const status: *u32 = @ptrFromInt(PERIPHERAL_BASE + 0x10);\n    while (status.* & 0x01 == 0) {}\n}\n\nfn processData(raw: [*]u8, len: usize) u32 {\n    var sum: u32 = 0;\n    var i: usize = 0;\n    while (i < len) : (i += 4) {\n        const val: *u32 = @ptrCast(raw + i);\n        sum += val.*;\n    }\n    return sum;\n}\n\nfn setFlag() void {\n    status_flag = true;\n}\n\npub fn main() void {\n    waitForReady();\n    const gpio = readGPIO();\n    std.debug.print(\"mode: {}\\n\", .{gpio.mode});\n\n    var buf: [256]u8 = undefined;\n    const total = processData(&buf, 256);\n    std.debug.print(\"total: {}\\n\", .{total});\n}\n```",
+      "expected_output": "Identifies: (1) missing volatile on hardware register pointers — compiler may optimize away reads/writes, (2) GPIORegisters should be extern or packed for guaranteed layout, (3) waitForReady uses non-volatile pointer — busy loop may be optimized away entirely, (4) status_flag used as if volatile for cross-thread signaling — should use std.atomic.Value instead, (5) processData missing @alignCast with @ptrCast — u32 requires 4-byte alignment but raw bytes may not be aligned, (6) should use std.mem.readInt for safe unaligned reads, (7) processData doesn't handle case where len is not multiple of 4, (8) reading undefined buffer without initializing it first.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "I'm writing a Zig library that implements a color type. I want it to:\n1. Store RGBA as u8 components\n2. Support custom formatting: default format shows `rgba(255, 128, 0, 255)`, hex format shows `#ff8000ff`\n3. Support arithmetic blending (lerp between two colors)\n4. Handle integer overflow safely when blending\n5. Be usable as a HashMap key\n6. Include comprehensive inline tests\n\nWrite the complete module.",
+      "expected_output": "Implements custom format() method with comptime fmt string checking, uses saturating arithmetic (|+, |-) or explicit overflow prevention for blending, implements eql() and hash() for HashMap compatibility, uses std.testing.allocator in tests, has proper doc comments, demonstrates wrapping vs saturating operator choice, includes tests for edge cases (overflow, format strings, hash collisions).",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Write a Zig build.zig for a project with the following requirements:\n- A core library module (src/core/) used by everything else\n- A CLI executable (src/cli/main.zig) that depends on core\n- A WASM library target (src/wasm/lib.zig) that depends on core\n- An external dependency fetched from a URL\n- A code generation step that runs a Python script to generate a Zig source file from a JSON schema\n- Unit tests for the core library\n- A documentation generation step\n- Cross-compilation support for Linux ARM64 and Windows x86_64\n\nAlso write the build.zig.zon.",
+      "expected_output": "Uses b.addModule for shared core module, multi-target build with standardTargetOptions, WASM target with .{ .cpu_arch = .wasm32, .os_tag = .freestanding }, b.addSystemCommand for Python codegen step with addOutputFileArg, dependency declared in build.zig.zon with hash, proper test step, docs step with getEmitDocs, named steps for each target. The build.zig.zon should include .paths, .minimum_zig_version, and dependency with .url and .hash.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Write a Zig function that takes a slice of bytes and interprets them as a heterogeneous record using comptime type information. The function should:\n1. Accept a comptime struct type describing the record layout\n2. Parse fields from the byte slice respecting alignment and endianness (big-endian wire format)\n3. Support field types: u8, u16, u32, u64, i8, i16, i32, i64, bool (1 byte), and fixed-size arrays [N]u8\n4. Validate that the byte slice is long enough for the struct\n5. Return the parsed struct or a specific error\n6. Include inline tests covering edge cases: empty struct, single field, all field types, truncated input, zero-sized input\n\nAlso write the reverse: a function that serializes the struct back to bytes.",
+      "expected_output": "Uses @typeInfo(.@\"struct\") with inline for over fields for comptime iteration, uses std.mem.readInt with .big endian for multi-byte integers, computes field offsets at comptime, validates input length against comptime-known struct size, returns specific error set (BufferTooShort), handles bool as u8 with != 0, handles [N]u8 with @memcpy, writes with std.mem.writeInt for serialization, includes comprehensive inline tests with std.testing.allocator where needed.",
+      "files": []
+    }
+  ]
+}
