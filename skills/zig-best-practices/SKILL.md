@@ -1,6 +1,6 @@
 ---
 name: zig-best-practices
-description: "Comprehensive Zig expertise covering allocators, comptime, error handling, build system, C interop, and performance. Use when writing, reviewing, debugging, or refactoring Zig code. Triggers: Zig, .zig files, build.zig, build.zig.zon, zig test, zig build, allocators, comptime, or any Zig-specific concept."
+description: "Comprehensive Zig expertise covering allocators, comptime, error handling, build system, C interop, SIMD, volatile, atomic, align, and performance. Use when writing, reviewing, debugging, or refactoring Zig code. Triggers: Zig, .zig files, build.zig, build.zig.zon, zig test, zig build, allocators, comptime, SIMD, volatile, atomic, align, or any Zig-specific concept."
 ---
 
 # Zig Best Practices
@@ -18,13 +18,61 @@ Read **SKILL.md** for quick guidance, then consult 1-2 relevant reference files 
 |-----------|-------------|
 | `references/memory-management.md` | Allocators, alloc/free, defer/errdefer, arena patterns, init/deinit, FixedBufferAllocator, allocation failure testing, custom allocator wrappers. |
 | `references/error-handling.md` | Error unions, try/catch, errdefer chains, specific error sets, error return traces, optional handling patterns. |
-| `references/comptime-and-generics.md` | Comptime parameters, `@typeInfo`, generic structs, compile-time validation, lookup tables, state machines, `anytype`, fat pointer interfaces, type-level metaprogramming. |
-| `references/types-and-pointers.md` | Pointer types (`*T`, `[*]T`, `[]T`, sentinels), type casting (`@ptrCast`, `@alignCast`, `@bitCast`, `@intCast`), packed structs, zero-sized types, integer overflow, type coercion, anonymous structs/tuples, custom formatting, volatile/hardware access. |
-| `references/testing-and-build.md` | Inline tests, table-driven tests, `std.testing.allocator`, coverage, `build.zig`, `build.zig.zon`, dependencies, cross-compilation, custom build steps, docs generation, project structure. |
+| `references/comptime-and-generics.md` | Comptime parameters, `@typeInfo`, generic structs, compile-time validation, lookup tables, state machines, `anytype`, fat pointer interfaces, type-level metaprogramming, event emitter pattern, callback storage with comptime dispatch. |
+| `references/types-and-pointers.md` | Pointer types (`*T`, `[*]T`, `[]T`, sentinels), type casting (`@ptrCast`, `@alignCast`, `@bitCast`, `@intCast`), packed structs, zero-sized types, integer overflow, saturating arithmetic, type coercion, anonymous structs/tuples, custom formatting with comptime fmt, HashMap key types (`eql`/`hash`), volatile/hardware MMIO, `std.atomic.Value`, alignment rules. |
+| `references/testing-and-build.md` | Inline tests, table-driven tests, `std.testing.allocator`, coverage, `build.zig`, `build.zig.zon`, dependencies, cross-compilation, custom build steps, docs generation, project structure, library setup with reusable packages. |
 | `references/stdlib-recipes.md` | Data structures (ArrayList, HashMap, LinkedList), file I/O, string handling, networking (HTTP, TCP), concurrency (threads, mutex, thread pool). |
 | `references/performance.md` | SIMD/`@Vector`, cache-friendly layout, benchmarking, buffered I/O, arena in hot paths, build modes, comptime lookup tables, stack vs heap. |
 | `references/c-interop.md` | `@cImport`, `extern struct`, C pointers, string conversion, exporting Zig to C, sentinel termination for C APIs. |
-| `references/code-review-checklist.md` | Reviewing Zig code, code review, PR review, common mistakes to check for, formatting/style rules. |
+| `references/code-review-checklist.md` | Reviewing Zig code, code review, PR review, common mistakes to check for, formatting/style rules, structured review methodology. |
+
+## Mandatory workflows
+
+### When writing code: completeness checklist
+
+Before finalizing any code response, verify it includes **all** of the following that apply:
+
+1. **Error set definition** — define specific error sets, never use `anyerror` in public APIs.
+2. **Build boilerplate** — if a project is requested, include both `build.zig` AND `build.zig.zon`.
+3. **init/deinit pair** — every struct that owns resources must have both.
+4. **Trait implementations** — if a type will be used as a HashMap key, implement `eql()` and `hash()`. If it should be printable, implement `format()`.
+5. **Doc comments** — all `pub` functions and types must have `///` doc comments.
+6. **Inline tests** — include at minimum one test per public function using `std.testing.allocator`.
+
+### When reviewing code: structured analysis
+
+Review code in three mandatory passes. Do NOT skip any pass.
+
+**Pass 1 — Memory Safety:**
+- Every `alloc` has a matching `free` via `defer`
+- Every fallible path after allocation has `errdefer`
+- No global mutable allocators — allocators passed as parameters
+- No dangling pointers from slices into freed memory
+- No reading from `undefined` memory without initialization first
+
+**Pass 2 — Concurrency, Hardware, and Low-Level Safety:**
+- Hardware register pointers use `volatile` (not regular pointers)
+- Thread-shared state uses `std.atomic.Value` or `std.Thread.Mutex` (NOT volatile)
+- `@ptrCast` is always paired with `@alignCast` — or use `std.mem.readInt` for unaligned access
+- Structs for hardware/binary protocols use `extern struct` or `packed struct` for guaranteed layout
+- Integer overflow operators (`+%`, `|+`) are used intentionally
+- `undefined` buffers are not read before being written
+
+**Pass 3 — API Design and Completeness:**
+- `anyerror` replaced with specific error sets
+- `var` replaced with `const` wherever mutation isn't needed
+- File/network I/O uses buffered readers/writers
+- Public API has doc comments
+- Null/optional handling is safe (no unguarded `.?` unwrap)
+
+### When writing comptime/pointer-heavy code: verification step
+
+Before outputting complex comptime or low-level pointer code, mentally trace through:
+
+1. Does every comptime block actually run at comptime? (No runtime variables in comptime context)
+2. Are `@setEvalBranchQuota` calls needed for large iterations?
+3. Do all pointer casts maintain alignment? (`@ptrCast` + `@alignCast` together)
+4. Are packed struct fields accessed correctly? (Cannot take address of non-byte-aligned fields)
 
 ## Quick principles
 

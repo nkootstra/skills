@@ -328,6 +328,100 @@ my-project/
     └── basic_usage.zig
 ```
 
+### Library Project Checklist
+
+When setting up a reusable library that other Zig projects can depend on, **all** of these are required:
+
+1. **`build.zig`** — with library artifact, test step, and docs step
+2. **`build.zig.zon`** — with `.name`, `.version`, `.minimum_zig_version`, `.paths`, and dependencies
+3. **`src/root.zig`** — library entry point, re-exports public API
+4. **Specific error sets** — `const ParseError = error{ InvalidField, UnexpectedEof };` not `anyerror`
+5. **`///` doc comments** on every `pub` function and type
+6. **Inline tests** using `std.testing.allocator` in every module
+7. **Streaming/allocator-based design** — accept `Allocator` parameter, never use global allocators
+
+### Complete Library build.zig.zon Example
+
+```zon
+.{
+    .name = "csv-parser",
+    .version = "0.1.0",
+    .minimum_zig_version = "0.13.0",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
+```
+
+### Complete Library build.zig Example
+
+```zig
+const std = @import("std");
+
+pub fn build(b: *std.Build) void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+
+    // Library module (for consumers to import)
+    _ = b.addModule("csv", .{
+        .root_source_file = b.path("src/root.zig"),
+    });
+
+    // Library artifact
+    const lib = b.addStaticLibrary(.{
+        .name = "csv",
+        .root_source_file = b.path("src/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    b.installArtifact(lib);
+
+    // Tests
+    const tests = b.addTest(.{
+        .root_source_file = b.path("src/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&b.addRunArtifact(tests).step);
+
+    // Documentation
+    const docs_step = b.step("docs", "Generate documentation");
+    const docs = b.addStaticLibrary(.{
+        .name = "csv",
+        .root_source_file = b.path("src/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const install_docs = b.addInstallDirectory(.{
+        .source = docs.getEmitDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs",
+    });
+    docs_step.dependOn(&install_docs.step);
+}
+```
+
+### Library root.zig Pattern
+
+```zig
+//! CSV parsing library with streaming support.
+//! Handles quoted fields, custom delimiters, and RFC 4180 compliance.
+
+pub const Parser = @import("parser.zig").Parser;
+pub const ParseError = @import("parser.zig").ParseError;
+pub const Config = @import("config.zig").Config;
+
+test {
+    // Pull in tests from all submodules
+    _ = @import("parser.zig");
+    _ = @import("config.zig");
+}
+```
+
 ### Module Organization
 
 Each `.zig` file is a module. Expose a clean public surface through a root file:

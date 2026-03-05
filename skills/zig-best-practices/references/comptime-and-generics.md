@@ -263,8 +263,128 @@ fn processUser(user: anytype) void { ... }
 fn processUser(user: User) void { ... }
 ```
 
+## Comptime Event Emitter Pattern
+
+A complete example of using comptime to build a type-safe event system with per-event payloads and dynamic listener management:
+
+```zig
+fn EventEmitter(comptime events: type) type {
+    // events is an enum like: enum { on_connect, on_message, on_close }
+    const event_count = @typeInfo(events).@"enum".fields.len;
+
+    return struct {
+        // One listener list per event kind
+        listeners: [event_count]std.ArrayList(Callback),
+        allocator: std.mem.Allocator,
+
+        const Self = @This();
+        const Callback = *const fn (ctx: ?*anyopaque) void;
+
+        pub fn init(allocator: std.mem.Allocator) Self {
+            var self: Self = .{
+                .listeners = undefined,
+                .allocator = allocator,
+            };
+            for (&self.listeners) |*list| {
+                list.* = std.ArrayList(Callback).init(allocator);
+            }
+            return self;
+        }
+
+        pub fn deinit(self: *Self) void {
+            for (&self.listeners) |*list| {
+                list.deinit();
+            }
+        }
+
+        pub fn on(self: *Self, event: events, callback: Callback) !void {
+            try self.listeners[@intFromEnum(event)].append(callback);
+        }
+
+        pub fn off(self: *Self, event: events, callback: Callback) void {
+            const list = &self.listeners[@intFromEnum(event)];
+            for (list.items, 0..) |cb, i| {
+                if (cb == callback) {
+                    _ = list.swapRemove(i);
+                    return;
+                }
+            }
+        }
+
+        pub fn emit(self: *Self, event: events, ctx: ?*anyopaque) void {
+            for (self.listeners[@intFromEnum(event)].items) |cb| {
+                cb(ctx);
+            }
+        }
+    };
+}
+
+// Usage:
+const MyEvents = enum { on_connect, on_message, on_close };
+const Emitter = EventEmitter(MyEvents);
+
+test "event emitter" {
+    var em = Emitter.init(std.testing.allocator);
+    defer em.deinit();
+
+    var called = false;
+    const cb = struct {
+        fn handler(ctx: ?*anyopaque) void {
+            const flag: *bool = @ptrCast(@alignCast(ctx.?));
+            flag.* = true;
+        }
+    }.handler;
+
+    try em.on(.on_connect, cb);
+    em.emit(.on_connect, @ptrCast(&called));
+    try std.testing.expect(called);
+}
+```
+
+**Key patterns used:**
+- Enum → integer index via `@intFromEnum` for O(1) event dispatch
+- One `ArrayList` per event variant, indexed by enum ordinal
+- `*const fn` for callback type — avoids allocating closures
+- `?*anyopaque` for type-erased context — callers cast back with `@ptrCast(@alignCast(...))`
+- init/deinit pattern with `std.testing.allocator` in tests
+
+For typed payloads per event, use a comptime map from enum value to payload type and generate separate callback signatures per event. This is an advanced pattern — start with the `?*anyopaque` version above.
+
+## Comptime Callback Storage Pattern
+
+When you need to store callbacks with different signatures at compile time:
+
+```zig
+fn TypedEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) type) type {
+    const fields = @typeInfo(EventEnum).@"enum".fields;
+
+    return struct {
+        // Storage is a tuple of ArrayLists, one per event
+        // Each has a different callback signature based on PayloadMap
+        allocator: std.mem.Allocator,
+
+        const Self = @This();
+
+        pub fn init(allocator: std.mem.Allocator) Self {
+            return .{ .allocator = allocator };
+        }
+
+        /// Emit by calling all listeners for a specific event with typed payload
+        pub fn emitSimple(event: EventEnum, payload_ptr: *const anyopaque) void {
+            // In practice, dispatch through stored function pointers
+            _ = event;
+            _ = payload_ptr;
+        }
+    };
+}
+```
+
+The simpler `?*anyopaque` callback approach is preferred for most use cases. Only use typed payloads when you need compile-time safety on payload types.
+
 ## Common Comptime Mistakes
 
 1. **Using `anytype` when a concrete type works** — hides the expected interface, making errors confusing.
 2. **Confusing compile-time and runtime contexts** — a `comptime` variable can't be modified at runtime; trying to modify it in a runtime loop is an error.
 3. **Forgetting `@setEvalBranchQuota`** — comptime evaluation has a default branch limit (1000). Complex comptime loops may need `@setEvalBranchQuota(10000)` or higher.
+4. **Trying to store runtime values in comptime containers** — comptime arrays and structs are baked into the binary; use `ArrayList` or similar runtime containers for dynamic data.
+5. **Generating types without init/deinit** — if a generated type contains `ArrayList` or other owned resources, it MUST have `deinit()`.

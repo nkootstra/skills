@@ -257,3 +257,39 @@ defer releaseB(b);         // runs first
 ### Ignoring Allocator Failures
 
 Every allocation can fail with `OutOfMemory`. Always handle or propagate allocation errors with `try`.
+
+## Anti-Patterns Quick Reference
+
+These are the most common memory mistakes in Zig code reviews:
+
+```zig
+// 1. ANTI-PATTERN: global mutable allocator
+var global_alloc = std.heap.page_allocator;
+pub fn getData() ![]u8 { return try global_alloc.alloc(u8, 100); }
+// FIX: fn getData(allocator: std.mem.Allocator) ![]u8 { ... }
+
+// 2. ANTI-PATTERN: missing defer for file.close()
+var file = try std.fs.cwd().openFile(path, .{});
+const data = try file.readToEndAlloc(allocator, max_size);
+// file is never closed!
+// FIX: add `defer file.close();` immediately after openFile
+
+// 3. ANTI-PATTERN: missing errdefer after allocation
+const buf = try allocator.alloc(u8, 1024);
+const result = try riskyOperation(buf); // if this fails, buf leaks
+// FIX: add `errdefer allocator.free(buf);` after alloc
+
+// 4. ANTI-PATTERN: no deinit for HashMap/ArrayList
+var cache = std.StringHashMap([]u8).init(allocator);
+// ... used but never deinited
+// FIX: defer cache.deinit();
+
+// 5. ANTI-PATTERN: using anyerror instead of specific error set
+fn process(data: []const u8) anyerror!Result { ... }
+// FIX: const ProcessError = error{ InvalidFormat, TooLarge };
+// fn process(data: []const u8) ProcessError!Result { ... }
+
+// 6. ANTI-PATTERN: var where const suffices
+var result = try compute(); // never mutated
+// FIX: const result = try compute();
+```
