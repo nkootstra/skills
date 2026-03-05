@@ -28,7 +28,7 @@
     {
       "id": 4,
       "prompt": "Write a generic, reusable event emitter in Zig using comptime. It should support registering multiple listeners for named events, emitting events with payload data, and removing listeners. Show how to use it with a concrete example.",
-      "expected_output": "Uses comptime to define event types and payloads, implements a generic EventEmitter(comptime EventEnum, comptime PayloadMap) pattern, handles listener storage with proper allocator usage, demonstrates the init/deinit pattern, and provides a working usage example with inline tests.",
+      "expected_output": "Uses comptime to define event types, implements a generic EventEmitter using either (a) EventEmitter(comptime EventEnum) with ?*anyopaque context-passing callbacks or (b) EventEmitter(comptime EventEnum, comptime PayloadMap) with typed per-event callbacks. Must use concrete function pointer types (*const fn) for callback storage — never anytype. Handles listener storage with ArrayList and proper allocator usage, demonstrates the init/deinit pattern, includes on/off/emit methods, and provides a working usage example with inline tests.",
       "files": []
     },
     {

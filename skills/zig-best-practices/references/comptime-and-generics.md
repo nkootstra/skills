@@ -482,7 +482,7 @@ The simpler `?*anyopaque` callback approach (shown above in "Comptime Event Emit
 
 ## Common Comptime Mistakes
 
-1. **Using `anytype` when a concrete type works** — hides the expected interface, making errors confusing.
+1. **Using `anytype` in stored function pointers** — `anytype` is a comptime-only concept; you CANNOT store it in a function pointer type. Use a concrete signature like `*const fn (*const PayloadType) void` or type-erase with `*const fn (*const anyopaque) void`.
 2. **Confusing compile-time and runtime contexts** — a `comptime` variable can't be modified at runtime; trying to modify it in a runtime loop is an error.
 3. **Forgetting `@setEvalBranchQuota`** — comptime evaluation has a default branch limit (1000). Complex comptime loops may need `@setEvalBranchQuota(10000)` or higher.
 4. **Trying to store runtime values in comptime containers** — comptime arrays and structs are baked into the binary; use `ArrayList` or similar runtime containers for dynamic data.
