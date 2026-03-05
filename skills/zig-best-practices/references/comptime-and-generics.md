@@ -355,10 +355,9 @@ For typed payloads per event, use a comptime map from enum value to payload type
 For compile-time type-safe event payloads, use `EventEmitter(comptime EventEnum, comptime PayloadMap)`. Each event variant maps to a specific payload type via a comptime function, so callbacks are type-safe per event:
 
 ```zig
-const std = @import("std");
-
-fn EventEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) type) type {
-    const event_count = @typeInfo(EventEnum).@"enum".fields.len;
+fn EventEmitter(comptime EventEnum: type, comptime payloadType: fn (EventEnum) type) type {
+    const event_fields = @typeInfo(EventEnum).@"enum".fields;
+    const event_count = event_fields.len;
 
     return struct {
         /// One type-erased listener list per event kind.
@@ -390,7 +389,7 @@ fn EventEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) ty
         pub fn on(
             self: *Self,
             comptime event: EventEnum,
-            comptime callback: *const fn (*const PayloadMap(event)) void,
+            comptime callback: *const fn (*const payloadType(event)) void,
         ) !void {
             const erased: ErasedCallback = @ptrCast(callback);
             try self.listeners[@intFromEnum(event)].append(erased);
@@ -400,7 +399,7 @@ fn EventEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) ty
         pub fn off(
             self: *Self,
             comptime event: EventEnum,
-            comptime callback: *const fn (*const PayloadMap(event)) void,
+            comptime callback: *const fn (*const payloadType(event)) void,
         ) void {
             const erased: ErasedCallback = @ptrCast(callback);
             const list = &self.listeners[@intFromEnum(event)];
@@ -413,7 +412,7 @@ fn EventEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) ty
         }
 
         /// Emit an event with its typed payload. All registered listeners are called.
-        pub fn emit(self: *Self, comptime event: EventEnum, payload: *const PayloadMap(event)) void {
+        pub fn emit(self: *Self, comptime event: EventEnum, payload: *const payloadType(event)) void {
             for (self.listeners[@intFromEnum(event)].items) |cb| {
                 cb(@ptrCast(payload));
             }
@@ -426,7 +425,7 @@ fn EventEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) ty
 const MyEvents = enum { on_connect, on_message, on_close };
 
 // Comptime function mapping each event to its payload type
-fn MyPayloadMap(event: MyEvents) type {
+fn MyPayloads(event: MyEvents) type {
     return switch (event) {
         .on_connect => struct { address: []const u8, port: u16 },
         .on_message => struct { data: []const u8, sender_id: u32 },
@@ -434,7 +433,7 @@ fn MyPayloadMap(event: MyEvents) type {
     };
 }
 
-const MyEmitter = EventEmitter(MyEvents, MyPayloadMap);
+const MyEmitter = EventEmitter(MyEvents, MyPayloads);
 
 test "typed event emitter" {
     var em = MyEmitter.init(std.testing.allocator);
@@ -445,10 +444,10 @@ test "typed event emitter" {
         var received_port: u16 = 0;
         var message_count: u32 = 0;
 
-        fn onConnect(payload: *const MyPayloadMap(.on_connect)) void {
+        fn onConnect(payload: *const MyPayloads(.on_connect)) void {
             received_port = payload.port;
         }
-        fn onMessage(_: *const MyPayloadMap(.on_message)) void {
+        fn onMessage(_: *const MyPayloads(.on_message)) void {
             message_count += 1;
         }
     };
