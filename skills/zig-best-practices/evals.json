@@ -27,7 +27,7 @@
     },
     {
       "id": 4,
-      "prompt": "Write a generic, reusable event emitter in Zig using comptime. It should take an enum type as a comptime parameter to define the supported events, use `?*anyopaque` for type-erased callback context, and support registering multiple listeners per event, emitting events, and removing listeners. Show how to use it with a concrete example.",
+      "prompt": "Write a generic, reusable event emitter in Zig using comptime. It should take an enum type as a comptime parameter to define the supported events, use `?*anyopaque` for type-erased callback context, and provide three methods: `on` (register a listener), `emit` (fire all listeners for an event), and `off` (remove a listener). Show how to use it with a concrete example including inline tests.",
       "expected_output": "Uses comptime to define event types, implements EventEmitter(comptime events: type) that takes an enum, uses ?*anyopaque for type-erased callback context with concrete function pointer type (*const fn (ctx: ?*anyopaque) void), uses @intFromEnum for O(1) dispatch to per-event ArrayList of callbacks, handles listener storage with proper allocator usage, demonstrates the init/deinit pattern, includes on/off/emit methods, and provides a working usage example with inline tests.",
       "files": []
     },
