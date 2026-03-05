@@ -127,7 +127,11 @@ Phase 1 (preferences) → Repo investigation → Phase 2 (findings review) → [
    - *Correct but scoped* → **relocate** to sub-file (e.g., `src/api/AGENTS.md`) or path-scoped rule, add pointer from root
    - *Style/lint rule* → remove (use linter/hook)
    - *Redundant, stale, or inferrable* → remove
-3. **Always relocate before removing.** Never delete scoped content — relocate it to the appropriate sub-file with full original content first, then replace in root w/ a pointer. The word is "relocate", not "remove".
+3. **Always relocate before removing — this is an atomic operation.** Never delete scoped content from root until relocation is confirmed. Follow this exact sequence:
+   1. **Create** (or update) the destination sub-file (e.g., `src/api/AGENTS.md`) with the full original content — no paraphrasing, no summarization.
+   2. **Verify** the destination contains every instruction being moved.
+   3. **Replace** the original content in root with a pointer to the destination (e.g., "See `src/api/AGENTS.md` for API-specific conventions").
+   If any step fails, stop — do not remove from root. The word is "relocate", not "remove".
 4. **Hierarchical systems:** check if root content belongs in a sub-file, and if sub-files duplicate LCA knowledge.
 5. **Present results:** before/after line counts, what moved where, what removed and why, complete rewritten file(s).
 
