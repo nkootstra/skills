@@ -101,6 +101,16 @@ When the prompt lists multiple requirements (numbered or bulleted), verify compl
 3. **Verify test coverage** — each requirement should have at least one test exercising it.
 4. **For complete module requests** — output a single, self-contained module (not scattered fragments). Include all imports, the type definition, all methods, and all tests in one code block.
 
+### Failure recovery: compilation-proof output
+
+When generating complex comptime or generic code:
+
+1. **Start with the type signature** — write `fn MyType(comptime P: type, comptime F: fn (P) type) type` before the body. Verify the signature compiles in isolation.
+2. **Use only `std.ArrayList`** for dynamic listener/callback storage — never `std.EnumArray` or `std.BoundedArray` for callback lists.
+3. **Avoid `anytype` in stored function pointers** — you cannot store `anytype`. Use concrete `*const fn` types or `*const fn (*const anyopaque) void` for type erasure.
+4. **Test your `@ptrCast` round-trips** — if you erase `*const fn (*const T) void` to `*const fn (*const anyopaque) void`, the reverse cast at call site must restore the original type.
+5. **Include `const std = @import("std");`** at the top of every self-contained example.
+
 ## Quick principles
 
 1. **Default to `const`.** Only use `var` when you genuinely need mutation.

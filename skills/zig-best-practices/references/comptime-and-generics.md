@@ -265,15 +265,143 @@ fn processUser(user: User) void { ... }
 
 ## Comptime Event Emitter Pattern
 
-A complete example of using comptime to build a type-safe event system with per-event payloads and dynamic listener management:
+A reusable, generic event emitter using `EventEmitter(comptime EventEnum, comptime PayloadMap)`. The `PayloadMap` is a comptime function that maps each enum variant to its payload type, giving type-safe callbacks per event:
 
 ```zig
-fn EventEmitter(comptime events: type) type {
-    // events is an enum like: enum { on_connect, on_message, on_close }
-    const event_count = @typeInfo(events).@"enum".fields.len;
+const std = @import("std");
+
+/// Generic event emitter parameterized by an event enum and a comptime payload map.
+/// PayloadMap is a function: fn (EventEnum) type — returns the payload type for each event.
+fn EventEmitter(comptime EventEnum: type, comptime PayloadMap: fn (EventEnum) type) type {
+    const event_count = @typeInfo(EventEnum).@"enum".fields.len;
 
     return struct {
-        // One listener list per event kind
+        listeners: [event_count]std.ArrayList(ErasedCallback),
+        allocator: std.mem.Allocator,
+
+        const Self = @This();
+
+        /// Type-erased callback. Internally stores a function pointer cast.
+        const ErasedCallback = *const fn (ctx: *const anyopaque) void;
+
+        /// Initialize the emitter. Must call deinit() when done.
+        pub fn init(allocator: std.mem.Allocator) Self {
+            var self: Self = .{
+                .listeners = undefined,
+                .allocator = allocator,
+            };
+            for (&self.listeners) |*list| {
+                list.* = std.ArrayList(ErasedCallback).init(allocator);
+            }
+            return self;
+        }
+
+        /// Free all listener storage.
+        pub fn deinit(self: *Self) void {
+            for (&self.listeners) |*list| {
+                list.deinit();
+            }
+        }
+
+        /// Register a typed listener for the given event.
+        /// The callback signature is checked at comptime against PayloadMap.
+        pub fn on(
+            self: *Self,
+            comptime event: EventEnum,
+            comptime callback: *const fn (*const PayloadMap(event)) void,
+        ) !void {
+            try self.listeners[@intFromEnum(event)].append(@ptrCast(callback));
+        }
+
+        /// Remove a previously registered listener.
+        pub fn off(
+            self: *Self,
+            comptime event: EventEnum,
+            comptime callback: *const fn (*const PayloadMap(event)) void,
+        ) void {
+            const erased: ErasedCallback = @ptrCast(callback);
+            const list = &self.listeners[@intFromEnum(event)];
+            for (list.items, 0..) |cb, i| {
+                if (cb == erased) {
+                    _ = list.swapRemove(i);
+                    return;
+                }
+            }
+        }
+
+        /// Emit an event, calling all registered listeners with the typed payload.
+        pub fn emit(self: *Self, comptime event: EventEnum, payload: *const PayloadMap(event)) void {
+            for (self.listeners[@intFromEnum(event)].items) |cb| {
+                cb(@ptrCast(payload));
+            }
+        }
+    };
+}
+
+// --- Concrete usage example ---
+
+const MyEvents = enum { on_connect, on_message, on_close };
+
+/// Comptime function mapping each event to its payload struct.
+fn MyPayloads(event: MyEvents) type {
+    return switch (event) {
+        .on_connect => struct { address: []const u8, port: u16 },
+        .on_message => struct { data: []const u8, sender_id: u32 },
+        .on_close => struct { reason: []const u8 },
+    };
+}
+
+const MyEmitter = EventEmitter(MyEvents, MyPayloads);
+
+test "event emitter — register, emit, and remove listeners" {
+    var em = MyEmitter.init(std.testing.allocator);
+    defer em.deinit();
+
+    const Handlers = struct {
+        var received_port: u16 = 0;
+        var message_count: u32 = 0;
+
+        fn onConnect(payload: *const MyPayloads(.on_connect)) void {
+            received_port = payload.port;
+        }
+        fn onMessage(_: *const MyPayloads(.on_message)) void {
+            message_count += 1;
+        }
+    };
+
+    try em.on(.on_connect, Handlers.onConnect);
+    try em.on(.on_message, Handlers.onMessage);
+
+    em.emit(.on_connect, &.{ .address = "127.0.0.1", .port = 8080 });
+    em.emit(.on_message, &.{ .data = "hello", .sender_id = 1 });
+    em.emit(.on_message, &.{ .data = "world", .sender_id = 2 });
+
+    try std.testing.expectEqual(@as(u16, 8080), Handlers.received_port);
+    try std.testing.expectEqual(@as(u32, 2), Handlers.message_count);
+
+    // Remove listener — subsequent emits should not call it
+    em.off(.on_message, Handlers.onMessage);
+    em.emit(.on_message, &.{ .data = "ignored", .sender_id = 3 });
+    try std.testing.expectEqual(@as(u32, 2), Handlers.message_count);
+}
+```
+
+**Key patterns used:**
+- `EventEmitter(comptime EventEnum, comptime PayloadMap)` — the two comptime parameters define the event vocabulary and per-event payload types
+- `PayloadMap` is `fn (EventEnum) type` — a comptime function, not a type. This is how Zig does "associated types."
+- Callback signature `*const fn (*const PayloadMap(event)) void` is enforced at comptime — passing the wrong payload type is a compile error
+- One `ArrayList(ErasedCallback)` per event variant, indexed by `@intFromEnum` — O(1) dispatch
+- Type erasure: callbacks stored as `*const fn (*const anyopaque) void`, cast back via `@ptrCast` at emit time
+- init/deinit pair — `ArrayList` owns heap memory, so `deinit()` is mandatory
+- `std.testing.allocator` in tests catches memory leaks
+
+**For a simpler version** that doesn't need per-event payload types, use `?*anyopaque` for all callbacks:
+
+```zig
+fn SimpleEmitter(comptime EventEnum: type) type {
+    const event_count = @typeInfo(EventEnum).@"enum".fields.len;
+
+    return struct {
         listeners: [event_count]std.ArrayList(Callback),
         allocator: std.mem.Allocator,
 
@@ -292,193 +420,28 @@ fn EventEmitter(comptime events: type) type {
         }
 
         pub fn deinit(self: *Self) void {
-            for (&self.listeners) |*list| {
-                list.deinit();
-            }
+            for (&self.listeners) |*list| list.deinit();
         }
 
-        pub fn on(self: *Self, event: events, callback: Callback) !void {
+        pub fn on(self: *Self, event: EventEnum, callback: Callback) !void {
             try self.listeners[@intFromEnum(event)].append(callback);
         }
 
-        pub fn off(self: *Self, event: events, callback: Callback) void {
+        pub fn off(self: *Self, event: EventEnum, callback: Callback) void {
             const list = &self.listeners[@intFromEnum(event)];
             for (list.items, 0..) |cb, i| {
-                if (cb == callback) {
-                    _ = list.swapRemove(i);
-                    return;
-                }
+                if (cb == callback) { _ = list.swapRemove(i); return; }
             }
         }
 
-        pub fn emit(self: *Self, event: events, ctx: ?*anyopaque) void {
-            for (self.listeners[@intFromEnum(event)].items) |cb| {
-                cb(ctx);
-            }
+        pub fn emit(self: *Self, event: EventEnum, ctx: ?*anyopaque) void {
+            for (self.listeners[@intFromEnum(event)].items) |cb| cb(ctx);
         }
     };
-}
-
-// Usage:
-const MyEvents = enum { on_connect, on_message, on_close };
-const Emitter = EventEmitter(MyEvents);
-
-test "event emitter" {
-    var em = Emitter.init(std.testing.allocator);
-    defer em.deinit();
-
-    var called = false;
-    const cb = struct {
-        fn handler(ctx: ?*anyopaque) void {
-            const flag: *bool = @ptrCast(@alignCast(ctx.?));
-            flag.* = true;
-        }
-    }.handler;
-
-    try em.on(.on_connect, cb);
-    em.emit(.on_connect, @ptrCast(&called));
-    try std.testing.expect(called);
 }
 ```
 
-**Key patterns used:**
-- Enum → integer index via `@intFromEnum` for O(1) event dispatch
-- One `ArrayList` per event variant, indexed by enum ordinal
-- `*const fn` for callback type — avoids allocating closures
-- `?*anyopaque` for type-erased context — callers cast back with `@ptrCast(@alignCast(...))`
-- init/deinit pattern with `std.testing.allocator` in tests
-
-For typed payloads per event, use a comptime map from enum value to payload type and generate separate callback signatures per event. This is an advanced pattern — start with the `?*anyopaque` version above.
-
-## Typed EventEmitter with Comptime Payload Map
-
-For compile-time type-safe event payloads, use `EventEmitter(comptime EventEnum, comptime PayloadMap)`. Each event variant maps to a specific payload type via a comptime function, so callbacks are type-safe per event:
-
-```zig
-fn EventEmitter(comptime EventEnum: type, comptime payloadType: fn (EventEnum) type) type {
-    const event_fields = @typeInfo(EventEnum).@"enum".fields;
-    const event_count = event_fields.len;
-
-    return struct {
-        /// One type-erased listener list per event kind.
-        listeners: [event_count]std.ArrayList(ErasedCallback),
-        allocator: std.mem.Allocator,
-
-        const Self = @This();
-        const ErasedCallback = *const fn (ptr: *const anyopaque) void;
-
-        pub fn init(allocator: std.mem.Allocator) Self {
-            var self: Self = .{
-                .listeners = undefined,
-                .allocator = allocator,
-            };
-            for (&self.listeners) |*list| {
-                list.* = std.ArrayList(ErasedCallback).init(allocator);
-            }
-            return self;
-        }
-
-        pub fn deinit(self: *Self) void {
-            for (&self.listeners) |*list| {
-                list.deinit();
-            }
-        }
-
-        /// Register a typed callback for `event`.
-        /// The callback receives a pointer to the event's payload type.
-        pub fn on(
-            self: *Self,
-            comptime event: EventEnum,
-            comptime callback: *const fn (*const payloadType(event)) void,
-        ) !void {
-            const erased: ErasedCallback = @ptrCast(callback);
-            try self.listeners[@intFromEnum(event)].append(erased);
-        }
-
-        /// Remove a previously registered listener.
-        pub fn off(
-            self: *Self,
-            comptime event: EventEnum,
-            comptime callback: *const fn (*const payloadType(event)) void,
-        ) void {
-            const erased: ErasedCallback = @ptrCast(callback);
-            const list = &self.listeners[@intFromEnum(event)];
-            for (list.items, 0..) |cb, i| {
-                if (cb == erased) {
-                    _ = list.swapRemove(i);
-                    return;
-                }
-            }
-        }
-
-        /// Emit an event with its typed payload. All registered listeners are called.
-        pub fn emit(self: *Self, comptime event: EventEnum, payload: *const payloadType(event)) void {
-            for (self.listeners[@intFromEnum(event)].items) |cb| {
-                cb(@ptrCast(payload));
-            }
-        }
-    };
-}
-
-// --- Usage example ---
-
-const MyEvents = enum { on_connect, on_message, on_close };
-
-// Comptime function mapping each event to its payload type
-fn MyPayloads(event: MyEvents) type {
-    return switch (event) {
-        .on_connect => struct { address: []const u8, port: u16 },
-        .on_message => struct { data: []const u8, sender_id: u32 },
-        .on_close => struct { reason: []const u8 },
-    };
-}
-
-const MyEmitter = EventEmitter(MyEvents, MyPayloads);
-
-test "typed event emitter" {
-    var em = MyEmitter.init(std.testing.allocator);
-    defer em.deinit();
-
-    // Track whether handler was called with correct payload
-    const State = struct {
-        var received_port: u16 = 0;
-        var message_count: u32 = 0;
-
-        fn onConnect(payload: *const MyPayloads(.on_connect)) void {
-            received_port = payload.port;
-        }
-        fn onMessage(_: *const MyPayloads(.on_message)) void {
-            message_count += 1;
-        }
-    };
-
-    try em.on(.on_connect, State.onConnect);
-    try em.on(.on_message, State.onMessage);
-
-    // Emit with typed payload — wrong payload type would be a compile error
-    em.emit(.on_connect, &.{ .address = "127.0.0.1", .port = 8080 });
-    em.emit(.on_message, &.{ .data = "hello", .sender_id = 1 });
-    em.emit(.on_message, &.{ .data = "world", .sender_id = 2 });
-
-    try std.testing.expectEqual(@as(u16, 8080), State.received_port);
-    try std.testing.expectEqual(@as(u32, 2), State.message_count);
-
-    // Remove listener and verify it stops receiving
-    em.off(.on_message, State.onMessage);
-    em.emit(.on_message, &.{ .data = "ignored", .sender_id = 3 });
-    try std.testing.expectEqual(@as(u32, 2), State.message_count);
-}
-```
-
-**Key patterns used:**
-- `EventEmitter(comptime EventEnum, comptime PayloadMap)` — event enum + comptime function mapping events to payload types
-- Callback signature is `*const fn (*const PayloadType) void` — type-safe per event variant
-- Type erasure via `@ptrCast` to store heterogeneous callbacks in a single `ArrayList`
-- `@intFromEnum` for O(1) dispatch to the correct listener list
-- init/deinit pair with `std.testing.allocator` in tests
-- `on`/`off`/`emit` form the complete listener lifecycle
-
-The simpler `?*anyopaque` callback approach (shown above in "Comptime Event Emitter Pattern") is preferred when you don't need per-event payload type safety.
+Callers cast `?*anyopaque` back with `@ptrCast(@alignCast(ctx.?))`. Use the typed `PayloadMap` version when you want compile-time payload safety.
 
 ## Common Comptime Mistakes
 
