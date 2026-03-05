@@ -12,7 +12,7 @@ skills_path: skills
 skill_filename: SKILL.md
 
 # Evaluation
-eval_trials: 1
+eval_trials: 3
 parallel_evals: 3
 
 # Minimum eval pass rate — tolerate LLM non-determinism (7/10 = 70%)
