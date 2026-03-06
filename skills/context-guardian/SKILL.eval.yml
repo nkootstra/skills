@@ -1,0 +1,130 @@
+skill: context-guardian
+
+tests:
+  # --- Core: research/implementation split ---
+
+  - name: Decomposes vague task into research and implementation phases
+    prompt: |
+      I want to build a real-time notification system for my app. I'm not sure
+      whether to use WebSockets, SSE, or a message queue. Can you help me
+      structure this so my agent doesn't get confused?
+    expected: Should decompose the task into a research phase (compare options, pick one) and an implementation phase (fresh context with only the chosen approach). Should NOT try to answer the technical question itself.
+    required_keywords:
+      - "research"
+      - "implementation"
+    forbidden_keywords:
+      - "I recommend WebSockets"
+      - "use SSE"
+
+  - name: Insists on fresh context for implementation phase
+    prompt: |
+      I just spent a long session researching database options with my agent.
+      We decided on PostgreSQL. Now I want to implement the schema. Should I
+      continue in the same session?
+    expected: Should recommend starting a fresh session or fresh context for the implementation phase. The research context (comparisons, rejected alternatives) will pollute the implementation. Start with only the decision.
+    required_keywords:
+      - "fresh"
+    forbidden_keywords:
+      - "continue in the same session"
+      - "keep going"
+
+  # --- Core: context audit ---
+
+  - name: Classifies instructions during context audit
+    prompt: |
+      My CLAUDE.md has these instructions:
+      1. Always use TypeScript strict mode
+      2. Use Tailwind CSS for styling
+      3. Run pytest before committing
+      4. Never use var in JavaScript
+      5. Our API base URL is https://api.staging.example.com
+      6. Always write unit tests for new functions
+      Can you audit this for bloat?
+    expected: Should classify each instruction — some are essential, some may be scoped to specific tasks, some may be stale or contradictory (mixing Python and JavaScript rules). Should identify that mixing unrelated stack instructions is a form of bloat.
+    required_keywords:
+      - "keep"
+      - "remove"
+
+  - name: Flags contradictory instructions
+    prompt: |
+      My agent context file has these two rules:
+      - "Always write comprehensive error handling with try/catch around every function"
+      - "Keep code minimal and avoid unnecessary boilerplate"
+      My agent seems confused about how much error handling to add. What's wrong?
+    expected: Should identify these as contradictory instructions competing for the agent's attention. Should help the user resolve the conflict by choosing one clear directive or scoping each rule to specific situations.
+    required_keywords:
+      - "contradict"
+    forbidden_keywords:
+      - "both rules are fine"
+
+  # --- Core: session drift ---
+
+  - name: Diagnoses session drift from compaction
+    prompt: |
+      My agent was working great for the first hour but now it keeps forgetting
+      the project structure and repeating mistakes it already fixed. What's
+      happening?
+    expected: Should identify this as session drift likely caused by context compaction losing important earlier context. Should recommend a compaction recovery rule that tells the agent to re-read key files after compaction.
+    required_keywords:
+      - "compaction"
+    forbidden_keywords:
+      - "restart your computer"
+
+  - name: Recommends compaction recovery rule
+    prompt: |
+      How do I prevent my agent from losing track of what it's doing during
+      long sessions? It starts strong but degrades after a while.
+    expected: Should suggest writing a compaction recovery instruction block that tells the agent to re-read the task plan and current files after each compaction event rather than continuing from memory.
+    required_keywords:
+      - "re-read"
+    forbidden_keywords:
+      - "use a better model"
+
+  # --- Core: prompt crafting ---
+
+  - name: Applies precision checklist to vague prompt
+    prompt: |
+      I want to give my agent this prompt: "Add authentication to the app."
+      Is this good enough?
+    expected: Should identify this as too vague and apply the precision checklist — missing specific tech choices, file paths, integration points, scope boundary, and verification criteria. Should help rewrite it into a precise implementation prompt.
+    required_keywords:
+      - "scope"
+    forbidden_keywords:
+      - "this prompt is fine"
+      - "looks good"
+
+  - name: Ensures prompt excludes research burden
+    prompt: |
+      I'm writing a prompt for my agent to implement a caching layer. My prompt
+      says "Research the best caching strategy and implement it." Is this okay?
+    expected: Should flag that combining research and implementation in a single prompt forces the agent to carry research context into implementation. Should recommend splitting into two prompts or doing the research first and providing only the decision.
+    required_keywords:
+      - "split"
+    forbidden_keywords:
+      - "this is fine"
+      - "looks good"
+
+  # --- Core: diagnosis patterns ---
+
+  - name: Identifies instruction overload
+    prompt: |
+      My CLAUDE.md is 800 lines long with rules for every language, framework,
+      and tool we've ever used. My agent seems to follow random rules and
+      ignore others. What's going on?
+    expected: Should identify this as instruction overload — too many rules competing for attention. Should recommend pruning to only what's essential for the current workflow and moving scoped rules to conditional files.
+    required_keywords:
+      - "bloat"
+    forbidden_keywords:
+      - "800 lines is fine"
+
+  - name: Identifies scope creep in prompts
+    prompt: |
+      My prompt asks the agent to: set up the database, write the API endpoints,
+      create the frontend components, add tests, set up CI/CD, and write
+      documentation. The agent starts strong but the later tasks are terrible.
+      Why?
+    expected: Should identify this as scope creep — the prompt asks for too many things at once. Later tasks suffer because earlier task context is consuming attention. Should recommend breaking into focused, sequential prompts.
+    required_keywords:
+      - "scope"
+    forbidden_keywords:
+      - "the agent should handle all of this"
