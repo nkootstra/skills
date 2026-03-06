@@ -1,12 +1,15 @@
 ---
 name: context-guardian
-description: >-
-  Keep agent context lean and focused for maximum performance. Use when auditing
-  context bloat, splitting research from implementation, recovering from session
-  drift, crafting precise prompts, or reviewing overloaded AGENTS.md/CLAUDE.md files.
-  Triggers: context bloat, agent confused, agent hallucinating, too many instructions,
-  context too long, separate research from implementation, focus the agent, session drift,
-  precise prompt, agent quality degrading.
+description: >
+  Helps developers keep agent context lean and focused for maximum performance.
+  Use this skill whenever the user wants to: audit or reduce context bloat in their
+  agentic setup, separate a research phase from an implementation phase, craft precise
+  implementation prompts that avoid polluting agent context, review whether a CLAUDE.md
+  or prompt is overloaded with unnecessary information, or decompose a vague task into
+  a focused research step followed by a scoped implementation step. Trigger on phrases
+  like "my agent is confused", "context is too long", "agent keeps hallucinating",
+  "too many instructions", "separate research from implementation", "precise prompt",
+  "focus the agent", or any complaint about agent quality degrading over a session.
 ---
 
 # Context Guardian
