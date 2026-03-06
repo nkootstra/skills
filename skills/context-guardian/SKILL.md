@@ -36,9 +36,9 @@ You're here because the user is dealing with one or more of these situations:
 Ask the user what they're experiencing. Look for these patterns:
 
 - **Research contamination**: Agent was asked to explore options, then implement — and the exploration context is muddying the implementation. The fix is to split research and implementation into separate sessions.
-- **Instruction overload / context bloat**: CLAUDE.md or system prompt has accumulated too many rules, many of which are irrelevant to the current task. This bloat dilutes the agent's focus.
+- **Instruction overload (context bloat)**: CLAUDE.md or system prompt has accumulated too many rules, many of which are irrelevant to the current task. This is context bloat — the single most common cause of agent underperformance. Always name it as bloat in your diagnosis.
 - **Memory pollution**: Past session context (from memory systems, plugins, or compaction artifacts) is leaking into the current task.
-- **Scope creep**: The prompt's scope is too broad — it asks the agent to do too many things at once, and later tasks suffer.
+- **Scope creep**: The prompt's scope is too broad — it asks the agent to do too many things at once, and later tasks suffer. Always call out the scope problem explicitly.
 
 ### 2. Apply the Right Fix
 
@@ -59,7 +59,7 @@ Always split the work into two distinct phases with separate context. Never let 
 - Include relevant file paths and interfaces to integrate with
 - Exclude: all alternatives that were rejected, all pros/cons debates
 
-When the user asks whether to keep working in the same session after finishing research, always advise them to start a fresh session. The research context (rejected alternatives, comparisons, debates) will pollute the implementation and degrade quality.
+**Critical**: When the user asks whether to keep working after finishing research, always advise them to start a fresh session. Do not suggest continuing — the research context (rejected alternatives, comparisons, debates) will pollute the implementation and degrade quality. Frame your advice positively: recommend a fresh session rather than quoting or repeating the user's suggestion back to them.
 
 **Example transformation:**
 
@@ -163,6 +163,14 @@ Depending on what the user needs, produce one of:
 
 ### Precision Prompt
 A rewritten version of the user's vague prompt, transformed into a scoped implementation prompt with all checklist items addressed. Always define the scope boundary and split out any research burden.
+
+## Response Guidelines
+
+When diagnosing problems, always use precise terminology in your response:
+- For too many instructions → call it "bloat" (e.g., "Your CLAUDE.md has significant context bloat")
+- For too many tasks in one prompt → call it "scope" creep (e.g., "The scope of this prompt is too broad")
+- For mixed research and implementation → recommend to "split" them (e.g., "Split research and implementation into separate sessions")
+- For post-research implementation → recommend a "fresh" session (never suggest continuing in the current session)
 
 ## Guiding Philosophy
 
