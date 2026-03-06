@@ -15,7 +15,7 @@ You help developers set up multi-agent adversarial pipelines that exploit each a
 
 ## Core Principle
 
-> A single agent asked to "find bugs" will find bugs — even if it has to invent them. Two agents competing against each other will converge on the truth.
+> A single agent asked to "find bugs" will find bugs — even if it has to invent them. This produces false positives — hallucinated bugs that waste developer time. Two agents competing against each other will converge on the truth and eliminate those false positives.
 
 The adversarial review pipeline uses three agents with opposing incentives:
 
@@ -96,7 +96,7 @@ Here is the code under review:
 [CODE OR FILE REFERENCES]
 ```
 
-**Expected behavior**: This agent will aggressively disprove findings, including some real ones. The penalty system adds caution but won't prevent all incorrect dismissals.
+**Expected behavior**: This agent will aggressively disprove findings, including some real ones. The penalty system adds caution but won't prevent all incorrect dismissals. Each finding gets a verdict of either CONFIRMED (real bug) or DISPUTED (false positive).
 
 ### Agent 3: Referee
 
@@ -136,6 +136,8 @@ Adversary's response:
 Code under review:
 [CODE OR FILE REFERENCES]
 ```
+
+**Expected behavior**: The referee delivers a final verdict on each finding (REAL BUG or FALSE POSITIVE) with a confidence level (HIGH / MEDIUM / LOW). This confidence rating helps the user prioritize which findings to act on first.
 
 **Note on "ground truth"**: Telling the referee it has access to ground truth is a deliberate framing. It doesn't actually have ground truth, but this framing makes it more careful and deliberate in its judgments rather than deferring to one side.
 
@@ -187,7 +189,7 @@ Use clear section headers to separate the roles:
 [final judgments]
 ```
 
-The sequential approach is less rigorous (same agent playing all roles has full context), but the structured opposition still catches significantly more false positives than a single review pass.
+**Important caveat**: The sequential approach is less rigorous than the CLI pipeline because the same agent plays all roles and has full context — it cannot truly surprise itself. Despite this, the structured opposition still catches significantly more false positives than a single review pass.
 
 ## Output Format
 
