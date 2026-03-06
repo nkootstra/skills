@@ -35,16 +35,16 @@ You're here because the user is dealing with one or more of these situations:
 
 Ask the user what they're experiencing. Look for these patterns:
 
-- **Research contamination**: Agent was asked to explore options, then implement — and the exploration context is muddying the implementation.
-- **Instruction overload**: CLAUDE.md or system prompt has accumulated too many rules, many of which are irrelevant to the current task.
+- **Research contamination**: Agent was asked to explore options, then implement — and the exploration context is muddying the implementation. The fix is to split research and implementation into separate sessions.
+- **Instruction overload / context bloat**: CLAUDE.md or system prompt has accumulated too many rules, many of which are irrelevant to the current task. This bloat dilutes the agent's focus.
 - **Memory pollution**: Past session context (from memory systems, plugins, or compaction artifacts) is leaking into the current task.
-- **Scope creep**: The prompt asks the agent to do too many things at once.
+- **Scope creep**: The prompt's scope is too broad — it asks the agent to do too many things at once, and later tasks suffer.
 
 ### 2. Apply the Right Fix
 
 #### For vague tasks → Research/Implementation Split
 
-Help the user decompose their task into two distinct phases:
+Always split the work into two distinct phases with separate context. Never let research context leak into implementation.
 
 **Phase 1 — Research (separate session or prompt):**
 - Explore the solution space
@@ -52,11 +52,14 @@ Help the user decompose their task into two distinct phases:
 - Arrive at a specific recommendation
 - Output: a concise decision document (not a sprawling research dump)
 
-**Phase 2 — Implementation (fresh context):**
+**Phase 2 — Implementation (fresh session, fresh context):**
+- Initiate a fresh session for implementation to ensure architectural purity
 - Start with ONLY the decision from Phase 1
 - Include specific technologies, versions, patterns chosen
 - Include relevant file paths and interfaces to integrate with
 - Exclude: all alternatives that were rejected, all pros/cons debates
+
+When the user asks whether to keep working in the same session after finishing research, always advise them to start a fresh session. The research context (rejected alternatives, comparisons, debates) will pollute the implementation and degrade quality.
 
 **Example transformation:**
 
@@ -96,25 +99,29 @@ Produce a report showing what was kept, moved, removed, and flagged.
 
 #### For session drift → The Compaction Recovery Plan
 
-When an agent's quality degrades mid-session, it's usually because compaction has lossy-compressed earlier context. Help the user write a compaction recovery rule — a small instruction block that tells the agent what to re-read after every compaction event:
+When an agent's quality degrades mid-session, the most common cause is compaction — the process that lossy-summarizes conversation history to free up context window space. During compaction, critical details like file paths, architectural decisions, and task state are often discarded. This compaction-driven context loss is what causes the agent to "forget" things it knew earlier.
+
+Help the user write a compaction recovery rule — a small instruction block that tells the agent to re-read key files after every compaction event:
 
 ```markdown
 ## After Compaction Recovery
 Whenever you resume after context compaction:
 1. Re-read the current TASK_PLAN.md
 2. Re-read the files you're currently modifying
-3. Do NOT continue from memory — verify your understanding first
+3. Do NOT continue from memory — re-read and verify your understanding first
 ```
+
+The key insight: compaction is not the same as general forgetting. It's a specific, recurring event where a lossy summary replaces detailed history. The recovery rule must instruct the agent to re-read primary sources rather than trust the compacted summary.
 
 #### For prompt crafting → The Precision Checklist
 
-Help the user craft a prompt by checking these boxes:
+Help the user craft a prompt by checking these boxes. Every precise prompt must define its scope explicitly:
 
 - [ ] **Specific tech choices** — named libraries, versions, patterns (no "use a good library")
 - [ ] **File paths** — where to read from, where to write to
 - [ ] **Integration points** — what interfaces/APIs to connect with
-- [ ] **Scope boundary** — what is explicitly OUT of scope
-- [ ] **No research needed** — the agent shouldn't have to look anything up
+- [ ] **Scope boundary** — what is explicitly OUT of scope (define the scope so the agent doesn't wander)
+- [ ] **No research burden** — the agent shouldn't have to look anything up; split research out into a prior step if needed
 - [ ] **Verification criteria** — how to know when it's done
 
 ## Output Formats
@@ -155,7 +162,7 @@ Depending on what the user needs, produce one of:
 ```
 
 ### Precision Prompt
-A rewritten version of the user's vague prompt, transformed into a scoped implementation prompt with all checklist items addressed.
+A rewritten version of the user's vague prompt, transformed into a scoped implementation prompt with all checklist items addressed. Always define the scope boundary and split out any research burden.
 
 ## Guiding Philosophy
 
