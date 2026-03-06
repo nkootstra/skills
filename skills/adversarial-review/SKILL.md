@@ -1,17 +1,12 @@
 ---
 name: adversarial-review
 description: >
-  Sets up multi-agent adversarial verification pipelines (bug-finder → adversary
-  → referee) for high-fidelity code review, bug detection, and quality assurance.
-  Adapts to both Claude Code CLI (real subagents) and Claude.ai (sequential
-  simulation). Use this skill whenever the user wants to: find bugs with high
-  confidence, set up adversarial code review, verify code quality beyond a single
-  pass, use multiple agents to check each other's work, create a review pipeline,
-  or reduce false positives/negatives in automated reviews. Trigger on phrases like
-  "find all the bugs", "code review", "adversarial review", "agent pipeline",
-  "multi-agent verification", "bug finder", "double-check the code", "high fidelity
-  review", "reduce hallucinated bugs", or any request for thorough automated review
-  that goes beyond a single-pass analysis.
+  Set up multi-agent adversarial verification pipelines (bug-finder → adversary
+  → referee) for high-fidelity code review and bug detection. Adapts to both
+  Claude Code CLI (real subagents) and Claude.ai (sequential simulation). Use
+  when user asks for adversarial review, multi-agent verification, high-confidence
+  bug finding, agent review pipeline, or thorough automated review beyond a
+  single pass.
 ---
 
 # Adversarial Review
