@@ -96,6 +96,44 @@ test "createUser saves to database":
 
 **Red flags:** mocking internal collaborators, testing private methods, asserting on call counts/order, test name describes HOW not WHAT, verifying through external means instead of the interface.
 
+## Test-First Bug Fixing
+
+When a bug is reported, don't start by trying to fix it. Start by proving it.
+
+### The Workflow
+
+1. **Reproduce** — Write a test that fails because of the reported bug. The test describes the *expected* behavior. If you can't write a failing test, you don't understand the bug yet.
+2. **Fix** — Use subagents to attempt fixes in parallel. Each candidate fix is validated against the failing test. A fix is only accepted when the new test passes *and* all existing tests remain green.
+3. **Verify** — Review the passing fix. Confirm it addresses root cause, not symptoms.
+
+```
+BUG REPORTED
+  → Write failing test (RED)
+  → Spawn subagents with candidate fixes
+  → Each subagent runs full test suite
+  → Accept first fix where all tests pass (GREEN)
+  → Refactor if needed
+```
+
+### Why Test First
+
+- **Proves the bug exists** — no guessing, no "works on my machine"
+- **Defines "done"** — the fix is complete when the test passes
+- **Prevents regressions** — the test stays in the suite permanently
+- **Enables parallel fix attempts** — subagents can independently try different approaches, each validated by the same objective criterion
+
+### Example AGENTS.md Section
+
+When the user selects test-first bug workflow, include this in the generated AGENTS.md:
+
+```markdown
+## Bug Fixes
+
+When fixing a bug, write a failing test that reproduces it before attempting a fix.
+Use subagents to try candidate fixes in parallel — accept the first that passes
+all tests (new + existing). Never skip the reproducing test.
+```
+
 ## Mocking Boundaries
 
 Mock at **system boundaries** only: external APIs, databases (prefer test DB when possible), time, randomness, file system. Do not mock your own modules or internal collaborators.
