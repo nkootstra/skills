@@ -84,11 +84,13 @@ Use the question tool (OpenCode) or AskUserQuestion tool (Claude Code) to ask ea
 3. **Format** — Short checklist or structured doc w/ sections?
 4. **Depth** — Rule + short rationale, or just the rule?
 5. **Optimization** — Make AGENTS.md more token-efficient (compact, zero info loss), audit and remove/relocate content, or both?
+6. **Bug workflow** — When fixing bugs: write a failing test first that reproduces the bug, then fix it? Or jump straight to the fix?
 
 **Conditional follow-ups:**
 - Repo discovery or both → summarize patterns or cite exact examples?
 - Both audiences → separate agent-facing and human-facing content into different sections?
 - Compact or both → load `references/compaction.md` and apply passes before presenting results.
+- Test-first bug workflow → use subagents for fix attempts (parallel candidates validated against the failing test), or single-pass fix? See `references/tdd.md` § "Test-First Bug Fixing" for the workflow to include.
 
 Then investigate: scan for conventions, configs, linter rules, CI, directory structure, existing AGENTS.md files, and patterns worth codifying.
 

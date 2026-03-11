@@ -97,6 +97,29 @@ tests:
 
   # --- References: TDD ---
 
+  - name: Asks about bug-fixing workflow during intake
+    prompt: |
+      I just cloned a TypeScript project with good test coverage. Write me an
+      AGENTS.md. My preferences: discover from repo, agents only, structured
+      doc, rule + rationale, no optimization needed.
+    expected: Should still ask about the bug-fixing workflow preference — whether to write a failing test first when fixing bugs, or jump straight to the fix. This is Phase 1 question 6 and should not be skipped even when other preferences are provided.
+    required_keywords:
+      - "bug"
+      - "test"
+
+  - name: Includes test-first bug fix workflow when selected
+    prompt: |
+      I want my AGENTS.md to include a test-first bug fixing workflow. When
+      a bug is reported, the agent should write a failing test first, then
+      use subagents to try fixes in parallel. What would that section look
+      like?
+    expected: Should describe the test-first bug fixing workflow — write a failing test that reproduces the bug, then use subagents to attempt candidate fixes validated against the failing test. Should reference that the test proves the bug exists and defines "done".
+    required_keywords:
+      - "reproduc"
+      - "subagent"
+    forbidden_keywords:
+      - "skip the test"
+
   - name: Recommends behavior-based tests over implementation tests
     prompt: |
       My AGENTS.md has this testing rule: "Always mock internal services
