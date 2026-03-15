@@ -1,0 +1,103 @@
+{
+  "skill_name": "latency-engineering",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "My REST API p99 latency jumped from 50ms to 800ms after a deploy. Where do I start debugging?",
+      "expected_output": "Should recommend measuring first to identify where time is spent, then route to the appropriate category (data, compute, or hiding latency).",
+      "expectations": [
+        "Response recommends measuring as the first step",
+        "Response does NOT jump straight to 'just add a cache' or similar prescriptions without measurement"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "We're designing a system where a user in NYC makes a request that hits our primary database in London, then replicates to Sydney. What's a reasonable back-of-envelope latency estimate for one full round trip?",
+      "expected_output": "Should reference concrete latency numbers (NYC-London ~60-150ms, London-Sydney ~250ms) from the constants table and reason about geographic distance.",
+      "expectations": [
+        "Response includes concrete latency numbers in milliseconds",
+        "Response references geographic distance as a fundamental constraint",
+        "Response provides a total estimate summing the segments"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our monitoring shows average API latency of 45ms which is fine. But users are still complaining about slowness. What's going on?",
+      "expected_output": "Should explain that averages hide tail latency and recommend looking at p95/p99/p99.9 percentiles instead.",
+      "expectations": [
+        "Response explains that percentiles (p95/p99/p99.9) reveal what averages hide",
+        "Response does NOT say 'average is sufficient' or 'averages are fine'",
+        "Response recommends looking at the distribution, not just the average"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We have a product catalog API that hits PostgreSQL on every request. Response time is 120ms. Read-to-write ratio is 1000:1. How can we reduce latency?",
+      "expected_output": "Should discuss caching strategies (cache-aside, read-through), hit ratio importance, and mention consistency tradeoffs like thundering herd or stale data.",
+      "expectations": [
+        "Response recommends caching given the high read-to-write ratio",
+        "Response discusses consistency tradeoffs or failure modes of caching",
+        "Response does NOT present caching as having 'no downsides'"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We need to serve user profile reads from data centers in the US, EU, and Asia. Writes only happen from the US. What replication strategy minimizes read latency while keeping data reasonably fresh?",
+      "expected_output": "Should discuss single-leader replication with read replicas, and explain the consistency tradeoff between strong and eventual consistency.",
+      "expectations": [
+        "Response discusses read replicas or replication as a strategy",
+        "Response explains the consistency tradeoff (strong vs eventual)",
+        "Response leverages the single write-origin (US) to recommend a leader-based approach"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our Rails endpoint fetches a list of 200 orders, then for each order loads the customer record individually. Response time scales linearly with order count. What's the latency problem?",
+      "expected_output": "Should identify this as an N+1 query pattern (hidden O(n) DB calls), a common algorithmic complexity issue, and suggest eager loading or batch queries.",
+      "expectations": [
+        "Response identifies the N+1 query pattern",
+        "Response suggests eager loading, batch queries, or joins as solutions",
+        "Response explains why this pattern causes latency that scales with data size"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Our Java service p50 is 5ms but p99 spikes to 200ms every few seconds. The spikes correlate with JVM GC pauses in the logs. How do we fix this?",
+      "expected_output": "Should identify GC pauses as the tail latency source and suggest GC tuning, reducing heap allocation in hot paths, or using memory pools/arenas.",
+      "expectations": [
+        "Response identifies GC pauses as the cause of tail latency",
+        "Response suggests reducing allocation in hot paths, GC tuning, or memory pools",
+        "Response does NOT suggest 'add more servers' as the primary fix"
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Our checkout flow calls a third-party payment gateway that takes 2-3 seconds to respond. We can't change their API. How do we improve the user experience?",
+      "expected_output": "Should suggest hiding the latency through async processing, optimistic UI updates, or background jobs rather than trying to speed up the third party.",
+      "expectations": [
+        "Response suggests async processing, optimistic updates, or background jobs",
+        "Response recognizes that the third-party latency cannot be reduced directly",
+        "Response focuses on hiding or masking the latency from the user"
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "We have a real-time collaborative editor using TCP. Users report a ~200ms delay on every keystroke even though the server is in the same datacenter (<1ms RTT). What could cause this?",
+      "expected_output": "Should identify TCP Nagle algorithm or delayed ACKs as the likely cause and recommend TCP_NODELAY.",
+      "expectations": [
+        "Response identifies the Nagle algorithm or delayed ACKs as the likely cause",
+        "Response recommends TCP_NODELAY to disable Nagle's algorithm",
+        "Response does NOT blame geographic distance given the same-datacenter context"
+      ],
+      "files": []
+    }
+  ]
+}

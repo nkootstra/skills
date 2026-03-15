@@ -1,0 +1,149 @@
+{
+  "skill_name": "adversarial-review",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "How does your adversarial review process work? Give me an overview.",
+      "expected_output": "Should describe the three-agent pipeline — Bug Finder (over-reports to maximize findings), Adversary (challenges and disproves findings), and Referee (delivers final verdicts). Should explain that opposing incentives converge on truth.",
+      "expectations": [
+        "Response describes the Bug Finder role",
+        "Response describes the Adversary role",
+        "Response describes the Referee role",
+        "Response does NOT describe a single-pass or one-reviewer approach"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Why can't I just ask one agent to find all the bugs in my code? Isn't that enough?",
+      "expected_output": "Should explain that a single agent will over-report — inventing bugs to please the user. The adversarial pipeline uses competing incentives to filter false positives and converge on real bugs.",
+      "expectations": [
+        "Response explains the false positive problem with single-agent review",
+        "Response does NOT say 'single pass is fine' or 'one agent is enough'",
+        "Response explains how competing incentives improve accuracy"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "What's the core insight behind this adversarial approach?",
+      "expected_output": "Should explain that the pipeline turns sycophancy into a feature — each agent's desire to please is channeled into opposing roles, so their biases cancel out and the truth emerges.",
+      "expectations": [
+        "Response mentions sycophancy or the desire-to-please bias",
+        "Response explains how opposing roles turn that bias into an advantage",
+        "Response does NOT claim that agents are inherently objective"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I want to set up adversarial review. What do I need to know about the different environments it supports?",
+      "expected_output": "Should describe two modes — CLI mode (Claude Code / Codex) with real parallel subagents, and Claude.ai mode with sequential simulation. Should explain the trade-offs between them.",
+      "expectations": [
+        "Response describes CLI mode with parallel subagents",
+        "Response describes sequential simulation for Claude.ai",
+        "Response does NOT say it only works in CLI"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I'm using Claude Code on my terminal. How should I set up the adversarial review pipeline?",
+      "expected_output": "Should recommend CLI mode with real subagents spawned via claude -p or equivalent. Should describe the directory structure with prompt files and orchestration script. Each agent gets a clean context.",
+      "expectations": [
+        "Response describes the prompt file structure (bug-finder, adversary, referee)",
+        "Response mentions the orchestration script or pipeline",
+        "Response describes spawning agents with clean/isolated contexts"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I'm chatting with you in Claude.ai. Can I still use adversarial review?",
+      "expected_output": "Should confirm it works via sequential simulation — adopting each role in turn with clear section headers (Bug Finder Report, Adversary Challenge, Referee Verdict). Should note it's less rigorous since the same agent plays all roles.",
+      "expectations": [
+        "Response confirms adversarial review works in Claude.ai via sequential simulation",
+        "Response describes the role-switching approach with clear section separation",
+        "Response acknowledges that sequential simulation is less rigorous than parallel agents"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "What exactly does the Bug Finder agent do? How is it prompted?",
+      "expected_output": "Should describe the Bug Finder as an enthusiastic hunter incentivized to find every possible issue. Uses a scoring system (+1 low, +5 medium, +10 critical) to maximize findings. Reports with IDs (BUG-001, etc.), severity, location, description, and suggested fix.",
+      "expectations": [
+        "Response describes the BUG-ID numbering scheme (BUG-001, etc.)",
+        "Response explains the scoring incentive system",
+        "Response mentions severity levels in the report format"
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "How does the Adversary agent work? What prevents it from dismissing everything?",
+      "expected_output": "Should describe the Adversary as a defense attorney for the codebase. Uses asymmetric penalties — gains points for correctly disproving bugs but loses 2x for incorrectly dismissing real bugs. This makes it aggressive but cautious.",
+      "expectations": [
+        "Response describes the CONFIRMED and DISPUTED verdict system",
+        "Response explains the asymmetric penalty that prevents blanket dismissals",
+        "Response does NOT suggest the Adversary dismisses everything indiscriminately"
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "What does the Referee agent do and why does the prompt say it has \"access to the ground truth\"?",
+      "expected_output": "Should explain the Referee is an impartial judge that resolves disagreements. The 'ground truth' framing is deliberate — it makes the referee more careful and deliberate rather than deferring to one side. It doesn't actually have ground truth.",
+      "expectations": [
+        "Response explains the 'ground truth' framing as a deliberate technique",
+        "Response mentions the confidence levels (HIGH/MEDIUM/LOW) in verdicts",
+        "Response clarifies the referee doesn't actually have ground truth"
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "What does the final output look like after running the full pipeline?",
+      "expected_output": "Should describe the structured report format with Summary (findings examined, confirmed bugs, false positives eliminated), Confirmed Bugs section with BUG IDs and severity, Dismissed Findings section with adversary rebuttal and referee verdict, and Referee Notes.",
+      "expectations": [
+        "Response describes the confirmed bugs section with structured format",
+        "Response describes the dismissed/false positive findings section",
+        "Response mentions the summary with counts of confirmed vs dismissed"
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "I just want a quick review of a small utility function. Should I use the adversarial pipeline?",
+      "expected_output": "Should advise against it — the pipeline is overkill for simple tasks. Recommend it for critical code (auth, payments, data integrity), production deployments, security audits, or when single-pass reviews have missed bugs before.",
+      "expectations": [
+        "Response says the pipeline is overkill for this use case",
+        "Response recommends when adversarial review IS appropriate (critical code, security, etc.)",
+        "Response does NOT say 'always use adversarial review'"
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "I'm about to deploy our authentication and payment processing code to production. I want to make sure we haven't missed any bugs. What do you suggest?",
+      "expected_output": "Should recommend the adversarial pipeline since auth and payments are critical code. Should describe the three-agent approach and how it reduces false positives for high-confidence review.",
+      "expectations": [
+        "Response recommends the adversarial pipeline for this use case",
+        "Response references all three agents (bug finder, adversary, referee)",
+        "Response explains why critical code benefits from multi-agent review"
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "I only care about security vulnerabilities, not code style. Can the pipeline be customized?",
+      "expected_output": "Should confirm the pipeline is flexible and can focus on specific areas — security only, logic bugs only, performance, or all categories. Can also adjust severity threshold to skip low-impact findings.",
+      "expectations": [
+        "Response confirms the pipeline can be scoped to security-only focus",
+        "Response mentions other customization options (severity threshold, focus areas)",
+        "Response describes how to adjust the agent prompts for a specific focus"
+      ],
+      "files": []
+    }
+  ]
+}
