@@ -1,0 +1,173 @@
+{
+  "skill_name": "create-skill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "hey i write a weekly newsletter about AI and design and every time i start a new issue i have to re-explain my whole voice and format to claude. can you help me make a skill so it just knows how i write? i like short punchy sentences, no fluff, and i always end with a 'one thing to try this week' section. go ahead and draft the skill for me",
+      "expected_output": "A well-structured SKILL.md draft produced in the first response. The user gave enough detail (voice, format, signature section) to generate immediately. May ask a small number of follow-up questions alongside the draft, but should not defer generation entirely to a wizard interview.",
+      "persona": "Non-technical designer/writer",
+      "tests": [
+        "Does the output include a proper SKILL.md with frontmatter?",
+        "Does it capture the voice preferences (short, punchy, no fluff)?",
+        "Does it include the 'one thing to try this week' section?",
+        "Is the description pushy enough to trigger reliably?",
+        "Does it produce a draft in the first response (not just questions)?",
+        "Is the language accessible to a non-developer?"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need a skill that takes a messy Notion database export (CSV) and generates a formatted project status report as a .docx file. It should group tasks by status (done, in progress, blocked), calculate completion percentages, and flag anything that's been 'in progress' for more than 2 weeks. I use this every Friday for my team standup. Please generate the SKILL.md for me — I've given you all the details you need.",
+      "expected_output": "A complete draft SKILL.md produced in the first response. The user has provided enough detail that the skill creator should generate a Draft 0 immediately rather than running a multi-turn interview. The draft should include step-by-step workflow instructions, CSV parsing guidance, status grouping, percentage calculations, the 2-week flag, .docx output, and ideally reference scripts/ for the deterministic math and file conversion. Clarifying questions (if any) should come alongside the draft, not instead of it.",
+      "persona": "Technical project manager who gave detailed specs upfront",
+      "tests": [
+        "Does it produce an actual SKILL.md draft in the first response (not just a plan or questions)?",
+        "Does the draft include step-by-step workflow instructions?",
+        "Does it specify how to handle the CSV parsing?",
+        "Does it mention grouping by status and calculating percentages?",
+        "Does it flag the 2-week 'in progress' items?",
+        "Does it specify .docx output format?"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "turn this into a skill - we just spent the last hour figuring out how to analyze customer feedback. the process was: 1) read the CSV of feedback, 2) categorize each entry into themes (UX, pricing, features, support), 3) score sentiment 1-5, 4) generate a summary report with top themes and example quotes, 5) output as markdown. you kept getting the categories wrong until i told you to look for specific keywords per category",
+      "expected_output": "A SKILL.md extracted from conversation context with the workflow steps, the keyword-based categorization fix, and the output format",
+      "persona": "Product manager who iterated with Claude",
+      "tests": [
+        "Does it follow the conversation-to-skill extraction path?",
+        "Does it incorporate the correction (keyword-based categorization)?",
+        "Does it include all 5 workflow steps?",
+        "Does it specify the categories (UX, pricing, features, support)?",
+        "Does it define the sentiment scoring scale?",
+        "Does it specify markdown output with themes and example quotes?"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "i have this skill that's supposed to help me write linkedin posts but it keeps triggering when i ask claude to write emails too. also the tone is way too formal, i want it more casual and real. can you fix it? here's my current SKILL.md:\n\n---\nname: linkedin-writer\ndescription: Writes professional content for social media platforms.\n---\n\n# LinkedIn Writer\n\n## Instructions\n\nWrite professional LinkedIn posts.\n\n### Tone\nUse a professional, corporate tone. Include industry terminology.\n\n### Format\n- Opening hook\n- 3-4 paragraphs\n- Call to action\n- Hashtags",
+      "expected_output": "An improved SKILL.md that fixes the triggering (more specific description that excludes email), shifts tone from corporate to casual, preserves the original name, and demonstrates understanding of the update workflow",
+      "persona": "Frustrated user with a broken skill \u2014 will push back if suggestions feel off",
+      "tests": [
+        "Preserves original skill name 'linkedin-writer'?",
+        "Fixes the description to exclude email triggers?",
+        "Shifts tone guidance from corporate to casual?",
+        "Includes negative trigger examples (what NOT to trigger for)?",
+        "Follows the update workflow (copy to writable location, etc.)?",
+        "Acknowledges the user's frustration constructively?"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "i want claude to help me with something but i'm not sure exactly what to call it. basically every time i get a new client project i have to set up a bunch of stuff and it takes forever. like files and folders and things. can you make that faster somehow?",
+      "expected_output": "Claude should NOT immediately generate a skill. Instead, it should use the wizard to draw out what 'set up a bunch of stuff' actually means \u2014 what kind of projects, what files/folders, what tools, what's the deliverable. The skill should only be generated after clarifying questions are answered.",
+      "persona": "Non-technical freelancer with vague request",
+      "tests": [
+        "Does NOT immediately generate a SKILL.md?",
+        "Asks what kind of projects/clients?",
+        "Asks what specific files and folders get created?",
+        "Asks what tools are involved (Figma, Google Drive, local folders)?",
+        "Uses plain language, no jargon?",
+        "Explains what a skill is in accessible terms?"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Build me a skill for processing bank statement PDFs. It needs to: 1) extract all transactions from the PDF using OCR if needed, 2) categorize each transaction (groceries, dining, transport, subscriptions, etc.), 3) calculate monthly totals per category, 4) detect anomalies \u2014 any transaction that's 3x the average for its category, 5) output a clean CSV and a markdown summary. This needs to be rock solid because I run it on 6 months of statements at once. Bundle whatever scripts make sense \u2014 I don't want Claude reinventing the wheel every time. Go ahead and generate the full skill with the scripts included. Write real, functional code \u2014 no placeholder comments or TODOs in the scripts.",
+      "expected_output": "A complete SKILL.md and functional Python scripts with real implementation logic. Scripts must contain actual working code, not skeleton stubs with comments like '# ... parsing logic ...' or '# TODO: implement'. The user explicitly asked for bundled scripts so Claude doesn't reinvent the wheel — placeholder code defeats the purpose. The SKILL.md should reference scripts/ for deterministic tasks. Error handling for OCR failures should be addressed.",
+      "persona": "Technical power user who explicitly wants scripts and pushes back on LLM-only approaches",
+      "tests": [
+        "Does it produce an actual SKILL.md and at least one functional script (no placeholder stubs)?",
+        "Does it separate deterministic tasks (math, CSV output) from LLM tasks (categorization)?",
+        "Does it include anomaly detection logic (3x average)?",
+        "Does it handle OCR failure edge cases?",
+        "Does it specify both CSV and markdown output formats?",
+        "Does it address batch processing (6 months at once)?"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "We use Notion as our project hub and every time a new sprint starts, someone has to manually create the sprint page from a template, add all the tasks from our backlog database, tag the team members, and set the dates. Can you make a skill that does this through Claude's Notion connection? We use the MCP integration already. Please draft the SKILL.md \u2014 our workflow is straightforward and I've described all the steps.",
+      "expected_output": "A draft SKILL.md for an MCP-enhanced skill that guides Claude on using Notion MCP tools for sprint setup. The user described a clear 4-step workflow and asked for a draft. The response should produce a SKILL.md (with any follow-up questions alongside it, not instead of it). Should reference MCP capabilities, include Notion-specific patterns (databases, pages, properties), and handle MCP unavailability gracefully.",
+      "persona": "Engineering manager with MCP already connected",
+      "tests": [
+        "Produces a SKILL.md draft in the first response (not just clarifying questions)?",
+        "References MCP/Notion integration in the instructions?",
+        "Includes Notion-specific concepts (databases, pages, properties)?",
+        "Provides step-by-step workflow for sprint creation?",
+        "Handles the case where MCP connection fails or is unavailable?",
+        "Description triggers on sprint/Notion-related phrases?"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want a skill that writes really detailed, thorough technical documentation but also I need it to be super concise and scannable. Like, comprehensive but short. And make sure it covers every edge case but don't make it too long. Oh and it should work for both API docs and user guides \u2014 same skill.",
+      "expected_output": "Claude should recognize the contradictions, surface them diplomatically, and help the user resolve the tension rather than producing a confused skill that tries to do everything. Should suggest either two skills or a skill with mode switching.",
+      "persona": "User with contradictory requirements",
+      "tests": [
+        "Identifies the contradiction (thorough vs concise)?",
+        "Surfaces the tension diplomatically without being condescending?",
+        "Proposes a resolution (two modes, two skills, or progressive detail)?",
+        "Doesn't just produce a confused skill that ignores the conflict?",
+        "Handles the API docs vs user guide scope question?",
+        "Asks which constraint matters more to break the tie?"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "can you make me a skill that just adds 'sent from my AI assistant' at the bottom of every email claude writes for me? that's literally all i want, nothing else",
+      "expected_output": "A minimal, tight skill \u2014 NOT an over-engineered monstrosity. The wizard should recognize this is simple and not force the user through 8 steps. The SKILL.md should be short.",
+      "persona": "User who wants something dead simple",
+      "tests": [
+        "Produces a short, minimal SKILL.md (under 30 lines)?",
+        "Doesn't over-engineer with unnecessary sections?",
+        "Doesn't force the full wizard flow on a trivial request?",
+        "Description is appropriately scoped to email writing?",
+        "Correctly implements the signature append behavior?",
+        "Respects the user's 'that's literally all i want' boundary?"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Our design team (8 people) needs a skill for creating design critique documents. When someone submits a design for review, the reviewer should be able to ask Claude to generate a structured critique following our team's framework: 1) First impressions, 2) Alignment with design principles (we have 5), 3) Accessibility check, 4) Specific actionable feedback, 5) Summary recommendation (ship/iterate/rethink). This needs to work the same way for everyone on the team. Two things I need help with: (1) the actual SKILL.md content, and (2) how do we deploy this so all 8 team members have it and get identical output?",
+      "expected_output": "Must address both questions explicitly: (1) the skill content — a rigid critique framework with all 5 sections, output schema, and placeholders for the team's 5 design principles, and (2) the deployment — concrete steps for distributing the skill to all 8 team members (e.g., admin workspace deployment, shared repository, or Claude Code project-level skill). The user explicitly separated these two concerns and both must be answered.",
+      "persona": "Design lead setting up a team workflow",
+      "tests": [
+        "Addresses team deployment or distribution (how all 8 people get the skill)?",
+        "Produces a rigid critique framework for consistency across reviewers?",
+        "Includes all 5 framework sections with guidance per section?",
+        "Asks about the team's 5 design principles to embed them?",
+        "Uses rigid output schemas (not 'use your judgment') for cross-team consistency?",
+        "Handles different design types (UI, branding, illustration)?"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Here's my SKILL.md draft, can you review it and tell me what's wrong? I've been using it for a week and it works OK but sometimes the output is inconsistent.\n\n---\nname: code-reviewer\ndescription: Reviews code.\n---\n\n# Code Reviewer\n\nReview code that the user shares. Look for bugs, performance issues, and style problems. Give feedback in a numbered list.\n\nBe thorough but not nitpicky. Focus on things that actually matter.\n\nIf the code is in Python, check for PEP 8 compliance. If it's JavaScript, check for modern syntax usage.\n\nAlways end with a summary: how many issues found, severity breakdown (critical/warning/info), and an overall quality score from 1-10.",
+      "expected_output": "Should skip the wizard entirely and jump straight to review/improve mode. Should identify specific problems: thin description, no examples, vague 'thorough but not nitpicky', no output format template, missing edge cases. Should improve the skill without rewriting from scratch.",
+      "persona": "Developer with existing draft \u2014 wants review, not a rebuild",
+      "tests": [
+        "Skips the wizard and goes straight to review mode?",
+        "Identifies the thin description as problem #1?",
+        "Points out vague instructions ('thorough but not nitpicky')?",
+        "Suggests adding an output format example?",
+        "Preserves the user's existing structure and intent?",
+        "Offers to run test cases after improvements?"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "I want a skill for summarizing articles. Like when I paste a long article, Claude should give me a summary with key points and a one-line takeaway. Is this worth making into a skill, or does Claude already do this well enough without one?",
+      "expected_output": "The user is explicitly asking whether this skill is worth creating. The response must engage with that question honestly. Claude already summarizes articles well by default — this is a textbook overlap case. The response should acknowledge Claude's native summarization ability, then probe for what specific format, style, length, or structural requirements would make a skill worthwhile. If the user has no specifics beyond 'summary with key points', gently explain a skill would add overhead without improving output. Do NOT just generate a SKILL.md and ignore the user's question about whether it's worth it.",
+      "persona": "User requesting a skill that overlaps with built-in Claude ability",
+      "tests": [
+        "Directly answers the user's question about whether a skill is worth creating?",
+        "Explicitly acknowledges that Claude already summarizes well by default?",
+        "Asks what the skill would add beyond Claude's built-in summarization?",
+        "Probes for specific format/style/structural requirements that would justify a skill?",
+        "Doesn't dismiss the user or refuse outright — remains open if specifics emerge?",
+        "Does NOT immediately generate a SKILL.md without engaging with the overlap question?"
+      ]
+    }
+  ]
+}
