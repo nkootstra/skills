@@ -17,15 +17,15 @@
     },
     {
       "id": 2,
-      "prompt": "I need a skill that takes a messy Notion database export (CSV) and generates a formatted project status report as a .docx file. It should group tasks by status (done, in progress, blocked), calculate completion percentages, and flag anything that's been 'in progress' for more than 2 weeks. I use this every Friday for my team standup.",
-      "expected_output": "A technical SKILL.md with clear workflow steps, file processing instructions, formatting specs, and possibly bundled scripts",
-      "persona": "Technical project manager",
+      "prompt": "I need a skill that takes a messy Notion database export (CSV) and generates a formatted project status report as a .docx file. It should group tasks by status (done, in progress, blocked), calculate completion percentages, and flag anything that's been 'in progress' for more than 2 weeks. I use this every Friday for my team standup. Please generate the SKILL.md for me — I've given you all the details you need.",
+      "expected_output": "A complete draft SKILL.md produced in the first response. The user has provided enough detail that the skill creator should generate a Draft 0 immediately rather than running a multi-turn interview. The draft should include step-by-step workflow instructions, CSV parsing guidance, status grouping, percentage calculations, the 2-week flag, .docx output, and ideally reference scripts/ for the deterministic math and file conversion. Clarifying questions (if any) should come alongside the draft, not instead of it.",
+      "persona": "Technical project manager who gave detailed specs upfront",
       "tests": [
-        "Does it include step-by-step workflow instructions?",
+        "Does it produce an actual SKILL.md draft in the first response (not just a plan or questions)?",
+        "Does the draft include step-by-step workflow instructions?",
         "Does it specify how to handle the CSV parsing?",
         "Does it mention grouping by status and calculating percentages?",
         "Does it flag the 2-week 'in progress' items?",
-        "Does it reference scripts/ for deterministic tasks?",
         "Does it specify .docx output format?"
       ]
     },
@@ -73,16 +73,16 @@
     },
     {
       "id": 6,
-      "prompt": "Build me a skill for processing bank statement PDFs. It needs to: 1) extract all transactions from the PDF using OCR if needed, 2) categorize each transaction (groceries, dining, transport, subscriptions, etc.), 3) calculate monthly totals per category, 4) detect anomalies \u2014 any transaction that's 3x the average for its category, 5) output a clean CSV and a markdown summary. This needs to be rock solid because I run it on 6 months of statements at once. Bundle whatever scripts make sense \u2014 I don't want Claude reinventing the wheel every time.",
-      "expected_output": "A SKILL.md with bundled scripts for PDF extraction, categorization, and anomaly detection. Should include scripts/ directory guidance, error handling for OCR failures, and the full pipeline as deterministic code rather than LLM-generated each run.",
+      "prompt": "Build me a skill for processing bank statement PDFs. It needs to: 1) extract all transactions from the PDF using OCR if needed, 2) categorize each transaction (groceries, dining, transport, subscriptions, etc.), 3) calculate monthly totals per category, 4) detect anomalies \u2014 any transaction that's 3x the average for its category, 5) output a clean CSV and a markdown summary. This needs to be rock solid because I run it on 6 months of statements at once. Bundle whatever scripts make sense \u2014 I don't want Claude reinventing the wheel every time. Go ahead and generate the full skill with the scripts included.",
+      "expected_output": "A complete SKILL.md and actual bundled Python scripts (not just a proposal to create them later). The user gave exhaustive requirements and explicitly asked to 'build' and 'bundle' — the response should deliver artifacts, not a plan. The SKILL.md should reference scripts/ for deterministic tasks (CSV output, anomaly math, monthly totals). At minimum one script should be written out. Error handling for OCR failures should be addressed. Any clarifying questions should accompany the artifacts, not replace them.",
       "persona": "Technical power user who explicitly wants scripts and pushes back on LLM-only approaches",
       "tests": [
-        "Recommends bundled scripts in scripts/ directory?",
-        "Separates deterministic tasks (math, CSV output) from LLM tasks (categorization)?",
-        "Includes anomaly detection logic (3x average)?",
-        "Handles OCR failure edge cases?",
-        "Specifies both CSV and markdown output formats?",
-        "Addresses batch processing (6 months at once)?"
+        "Does it produce an actual SKILL.md and at least one script in the first response?",
+        "Does it separate deterministic tasks (math, CSV output) from LLM tasks (categorization)?",
+        "Does it include anomaly detection logic (3x average)?",
+        "Does it handle OCR failure edge cases?",
+        "Does it specify both CSV and markdown output formats?",
+        "Does it address batch processing (6 months at once)?"
       ]
     },
     {
@@ -129,15 +129,15 @@
     },
     {
       "id": 10,
-      "prompt": "Our design team (8 people) needs a skill for creating design critique documents. When someone submits a design for review, the reviewer should be able to ask Claude to generate a structured critique following our team's framework: 1) First impressions, 2) Alignment with design principles (we have 5), 3) Accessibility check, 4) Specific actionable feedback, 5) Summary recommendation (ship/iterate/rethink). This needs to work the same way for everyone on the team. How do we set this up?",
-      "expected_output": "A skill designed for team deployment with consistent output across 8 users. Should address team distribution, mention admin deployment, and ensure the critique framework is rigid enough for consistency but flexible enough for different design types.",
+      "prompt": "Our design team (8 people) needs a skill for creating design critique documents. When someone submits a design for review, the reviewer should be able to ask Claude to generate a structured critique following our team's framework: 1) First impressions, 2) Alignment with design principles (we have 5), 3) Accessibility check, 4) Specific actionable feedback, 5) Summary recommendation (ship/iterate/rethink). This needs to work the same way for everyone on the team. How do we set this up so all 8 people get consistent output?",
+      "expected_output": "A skill designed for team deployment with consistent output across 8 users. Must address two things: (1) the skill content — a rigid critique framework with all 5 sections, output schema, and the team's design principles embedded, and (2) the deployment — how to distribute this to all 8 team members (admin workspace deployment, or shared skill installation). The 'How do we set this up' question specifically asks about governance/distribution, not just the SKILL.md content.",
       "persona": "Design lead setting up a team workflow",
       "tests": [
-        "Addresses team deployment (admin can deploy to workspace)?",
+        "Addresses team deployment or distribution (how all 8 people get the skill)?",
         "Produces a rigid critique framework for consistency across reviewers?",
         "Includes all 5 framework sections with guidance per section?",
         "Asks about the team's 5 design principles to embed them?",
-        "Mentions that all 8 people will get the same skill behavior?",
+        "Uses rigid output schemas (not 'use your judgment') for cross-team consistency?",
         "Handles different design types (UI, branding, illustration)?"
       ]
     },
@@ -158,15 +158,15 @@
     {
       "id": 12,
       "prompt": "I want a skill for summarizing articles. Like when I paste a long article, Claude should give me a summary with key points and a one-line takeaway.",
-      "expected_output": "This is tricky \u2014 Claude already summarizes articles well without any skill. The skill creator should recognize this overlap and help the user understand when a skill adds value vs when Claude's default behavior is sufficient. If the user has specific formatting or style requirements, those justify a skill. If not, it might not be worth creating one.",
+      "expected_output": "The response must NOT immediately generate a SKILL.md. Claude already summarizes articles well by default — this is a textbook case of built-in capability overlap. The skill creator should first perform a value-add assessment: acknowledge that Claude handles summarization natively, then ask what specific format, style, length, or structural requirements the user has that go beyond default behavior. Only if the user identifies concrete gaps (e.g., 'always use bullet points with exactly 5 key points' or 'write for a C-suite audience') should the skill be created. If the user has no specifics, gently explain a skill would add overhead without improving output.",
       "persona": "User requesting a skill that overlaps with built-in Claude ability",
       "tests": [
-        "Recognizes overlap with Claude's built-in summarization?",
-        "Asks what's different from what Claude already does?",
-        "Probes for specific format/style requirements that would justify a skill?",
-        "Doesn't dismiss the user or refuse to create the skill?",
-        "If user has specifics, creates the skill willingly?",
-        "If user has no specifics, gently explains Claude already does this?"
+        "Does NOT immediately generate a SKILL.md without questioning the need?",
+        "Explicitly acknowledges that Claude already summarizes well by default?",
+        "Asks what the skill would add beyond Claude's built-in summarization?",
+        "Probes for specific format/style/structural requirements that would justify a skill?",
+        "Doesn't dismiss the user or refuse outright — remains open if specifics emerge?",
+        "Performs a clear value-add assessment before deciding whether to create the skill?"
       ]
     }
   ]
