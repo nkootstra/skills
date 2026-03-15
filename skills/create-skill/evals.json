@@ -3,15 +3,15 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "hey i write a weekly newsletter about AI and design and every time i start a new issue i have to re-explain my whole voice and format to claude. can you help me make a skill so it just knows how i write? i like short punchy sentences, no fluff, and i always end with a 'one thing to try this week' section",
-      "expected_output": "A well-structured SKILL.md for a newsletter writing skill that captures voice, format, sections, and the signature closing section",
+      "prompt": "hey i write a weekly newsletter about AI and design and every time i start a new issue i have to re-explain my whole voice and format to claude. can you help me make a skill so it just knows how i write? i like short punchy sentences, no fluff, and i always end with a 'one thing to try this week' section. go ahead and draft the skill for me",
+      "expected_output": "A well-structured SKILL.md draft produced in the first response. The user gave enough detail (voice, format, signature section) to generate immediately. May ask a small number of follow-up questions alongside the draft, but should not defer generation entirely to a wizard interview.",
       "persona": "Non-technical designer/writer",
       "tests": [
         "Does the output include a proper SKILL.md with frontmatter?",
         "Does it capture the voice preferences (short, punchy, no fluff)?",
         "Does it include the 'one thing to try this week' section?",
         "Is the description pushy enough to trigger reliably?",
-        "Does it ask clarifying questions or just generate?",
+        "Does it produce a draft in the first response (not just questions)?",
         "Is the language accessible to a non-developer?"
       ]
     },
@@ -73,11 +73,11 @@
     },
     {
       "id": 6,
-      "prompt": "Build me a skill for processing bank statement PDFs. It needs to: 1) extract all transactions from the PDF using OCR if needed, 2) categorize each transaction (groceries, dining, transport, subscriptions, etc.), 3) calculate monthly totals per category, 4) detect anomalies \u2014 any transaction that's 3x the average for its category, 5) output a clean CSV and a markdown summary. This needs to be rock solid because I run it on 6 months of statements at once. Bundle whatever scripts make sense \u2014 I don't want Claude reinventing the wheel every time. Go ahead and generate the full skill with the scripts included.",
-      "expected_output": "A complete SKILL.md and actual bundled Python scripts (not just a proposal to create them later). The user gave exhaustive requirements and explicitly asked to 'build' and 'bundle' — the response should deliver artifacts, not a plan. The SKILL.md should reference scripts/ for deterministic tasks (CSV output, anomaly math, monthly totals). At minimum one script should be written out. Error handling for OCR failures should be addressed. Any clarifying questions should accompany the artifacts, not replace them.",
+      "prompt": "Build me a skill for processing bank statement PDFs. It needs to: 1) extract all transactions from the PDF using OCR if needed, 2) categorize each transaction (groceries, dining, transport, subscriptions, etc.), 3) calculate monthly totals per category, 4) detect anomalies \u2014 any transaction that's 3x the average for its category, 5) output a clean CSV and a markdown summary. This needs to be rock solid because I run it on 6 months of statements at once. Bundle whatever scripts make sense \u2014 I don't want Claude reinventing the wheel every time. Go ahead and generate the full skill with the scripts included. Write real, functional code \u2014 no placeholder comments or TODOs in the scripts.",
+      "expected_output": "A complete SKILL.md and functional Python scripts with real implementation logic. Scripts must contain actual working code, not skeleton stubs with comments like '# ... parsing logic ...' or '# TODO: implement'. The user explicitly asked for bundled scripts so Claude doesn't reinvent the wheel — placeholder code defeats the purpose. The SKILL.md should reference scripts/ for deterministic tasks. Error handling for OCR failures should be addressed.",
       "persona": "Technical power user who explicitly wants scripts and pushes back on LLM-only approaches",
       "tests": [
-        "Does it produce an actual SKILL.md and at least one script in the first response?",
+        "Does it produce an actual SKILL.md and at least one functional script (no placeholder stubs)?",
         "Does it separate deterministic tasks (math, CSV output) from LLM tasks (categorization)?",
         "Does it include anomaly detection logic (3x average)?",
         "Does it handle OCR failure edge cases?",
@@ -87,11 +87,11 @@
     },
     {
       "id": 7,
-      "prompt": "We use Notion as our project hub and every time a new sprint starts, someone has to manually create the sprint page from a template, add all the tasks from our backlog database, tag the team members, and set the dates. Can you make a skill that does this through Claude's Notion connection? We use the MCP integration already.",
-      "expected_output": "An MCP-enhanced skill that guides Claude on how to use Notion MCP tools in a specific sprint setup workflow. Should reference MCP capabilities, include Notion-specific patterns, and add the guidance layer on top.",
+      "prompt": "We use Notion as our project hub and every time a new sprint starts, someone has to manually create the sprint page from a template, add all the tasks from our backlog database, tag the team members, and set the dates. Can you make a skill that does this through Claude's Notion connection? We use the MCP integration already. Please draft the SKILL.md \u2014 our workflow is straightforward and I've described all the steps.",
+      "expected_output": "A draft SKILL.md for an MCP-enhanced skill that guides Claude on using Notion MCP tools for sprint setup. The user described a clear 4-step workflow and asked for a draft. The response should produce a SKILL.md (with any follow-up questions alongside it, not instead of it). Should reference MCP capabilities, include Notion-specific patterns (databases, pages, properties), and handle MCP unavailability gracefully.",
       "persona": "Engineering manager with MCP already connected",
       "tests": [
-        "Recognizes this as an MCP enhancement skill pattern?",
+        "Produces a SKILL.md draft in the first response (not just clarifying questions)?",
         "References MCP/Notion integration in the instructions?",
         "Includes Notion-specific concepts (databases, pages, properties)?",
         "Provides step-by-step workflow for sprint creation?",
@@ -129,8 +129,8 @@
     },
     {
       "id": 10,
-      "prompt": "Our design team (8 people) needs a skill for creating design critique documents. When someone submits a design for review, the reviewer should be able to ask Claude to generate a structured critique following our team's framework: 1) First impressions, 2) Alignment with design principles (we have 5), 3) Accessibility check, 4) Specific actionable feedback, 5) Summary recommendation (ship/iterate/rethink). This needs to work the same way for everyone on the team. How do we set this up so all 8 people get consistent output?",
-      "expected_output": "A skill designed for team deployment with consistent output across 8 users. Must address two things: (1) the skill content — a rigid critique framework with all 5 sections, output schema, and the team's design principles embedded, and (2) the deployment — how to distribute this to all 8 team members (admin workspace deployment, or shared skill installation). The 'How do we set this up' question specifically asks about governance/distribution, not just the SKILL.md content.",
+      "prompt": "Our design team (8 people) needs a skill for creating design critique documents. When someone submits a design for review, the reviewer should be able to ask Claude to generate a structured critique following our team's framework: 1) First impressions, 2) Alignment with design principles (we have 5), 3) Accessibility check, 4) Specific actionable feedback, 5) Summary recommendation (ship/iterate/rethink). This needs to work the same way for everyone on the team. Two things I need help with: (1) the actual SKILL.md content, and (2) how do we deploy this so all 8 team members have it and get identical output?",
+      "expected_output": "Must address both questions explicitly: (1) the skill content — a rigid critique framework with all 5 sections, output schema, and placeholders for the team's 5 design principles, and (2) the deployment — concrete steps for distributing the skill to all 8 team members (e.g., admin workspace deployment, shared repository, or Claude Code project-level skill). The user explicitly separated these two concerns and both must be answered.",
       "persona": "Design lead setting up a team workflow",
       "tests": [
         "Addresses team deployment or distribution (how all 8 people get the skill)?",
@@ -157,16 +157,16 @@
     },
     {
       "id": 12,
-      "prompt": "I want a skill for summarizing articles. Like when I paste a long article, Claude should give me a summary with key points and a one-line takeaway.",
-      "expected_output": "The response must NOT immediately generate a SKILL.md. Claude already summarizes articles well by default — this is a textbook case of built-in capability overlap. The skill creator should first perform a value-add assessment: acknowledge that Claude handles summarization natively, then ask what specific format, style, length, or structural requirements the user has that go beyond default behavior. Only if the user identifies concrete gaps (e.g., 'always use bullet points with exactly 5 key points' or 'write for a C-suite audience') should the skill be created. If the user has no specifics, gently explain a skill would add overhead without improving output.",
+      "prompt": "I want a skill for summarizing articles. Like when I paste a long article, Claude should give me a summary with key points and a one-line takeaway. Is this worth making into a skill, or does Claude already do this well enough without one?",
+      "expected_output": "The user is explicitly asking whether this skill is worth creating. The response must engage with that question honestly. Claude already summarizes articles well by default — this is a textbook overlap case. The response should acknowledge Claude's native summarization ability, then probe for what specific format, style, length, or structural requirements would make a skill worthwhile. If the user has no specifics beyond 'summary with key points', gently explain a skill would add overhead without improving output. Do NOT just generate a SKILL.md and ignore the user's question about whether it's worth it.",
       "persona": "User requesting a skill that overlaps with built-in Claude ability",
       "tests": [
-        "Does NOT immediately generate a SKILL.md without questioning the need?",
+        "Directly answers the user's question about whether a skill is worth creating?",
         "Explicitly acknowledges that Claude already summarizes well by default?",
         "Asks what the skill would add beyond Claude's built-in summarization?",
         "Probes for specific format/style/structural requirements that would justify a skill?",
         "Doesn't dismiss the user or refuse outright — remains open if specifics emerge?",
-        "Performs a clear value-add assessment before deciding whether to create the skill?"
+        "Does NOT immediately generate a SKILL.md without engaging with the overlap question?"
       ]
     }
   ]
