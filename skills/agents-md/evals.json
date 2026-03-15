@@ -1,0 +1,126 @@
+{
+  "skill_name": "agents-md",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I just cloned a new Rails monorepo and want you to create an AGENTS.md for it. Go ahead and write one.",
+      "expected_output": "Should NOT immediately write an AGENTS.md. Should run the interactive intake questionnaire first (Phase 1 preferences), asking about source, audience, format, depth, and optimization preferences before investigating the repo.",
+      "expectations": [
+        "Response asks questions before writing (interactive intake)",
+        "Response does NOT produce a finished AGENTS.md immediately",
+        "Response does NOT say 'here is your AGENTS.md' or 'here's your AGENTS.md'"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "My AGENTS.md is 500 lines long. It covers every convention, has a full directory tree, architecture overview, and examples for each pattern. Is this a good AGENTS.md?",
+      "expected_output": "Should explain that 500 lines is too long — every line loads every session, so brevity has direct cost benefits. Should recommend targeting under 200 lines for root and relocating scoped content to sub-files.",
+      "expectations": [
+        "Response references the 200-line target for root files",
+        "Response explains that length causes compliance degradation",
+        "Response recommends relocating scoped content to sub-files"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "My AGENTS.md includes these rules:\n- Use 2 spaces for indentation\n- Always use trailing commas\n- Prefer single quotes over double quotes\n- Max line length 100 characters\nShould I keep these?",
+      "expected_output": "Should identify these as style/formatting rules that belong in a linter configuration (ESLint, Prettier, etc.), not in AGENTS.md. This is the 'style guide' anti-pattern.",
+      "expectations": [
+        "Response identifies these as style/lint rules that belong in a linter",
+        "Response recommends removing them from AGENTS.md",
+        "Response does NOT say these are good rules to keep in AGENTS.md"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We have a monorepo with 3 apps (web, mobile-api, admin), 12 shared packages, and 4 different teams. Should we use a single AGENTS.md?",
+      "expected_output": "Should recommend a hierarchical system with scoped sub-files rather than a single root file. Should mention that the harness auto-loads context files as the agent navigates, and that sub-files can be richer since they only load for that area.",
+      "expectations": [
+        "Response recommends a hierarchical system with scoped sub-files",
+        "Response explains that the harness auto-loads context files per directory",
+        "Response mentions that sub-files can be richer since they only load when relevant"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I'm auditing our AGENTS.md and found 15 instructions that are correct but only relevant to our API server code in src/api/. What should I do with them?",
+      "expected_output": "Should recommend relocating these to a scoped sub-file (e.g., src/api/AGENTS.md) rather than simply removing them. Must create the destination with full original content first, then replace in root with a pointer.",
+      "expectations": [
+        "Response recommends relocating content to a scoped sub-file",
+        "Response does NOT suggest 'just remove' or 'just delete' the instructions",
+        "Response describes creating the destination file before removing from root"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I ran `claude init` and it generated a CLAUDE.md with a full directory tree, all my npm scripts listed, and a summary of every source file. Should I commit this as-is?",
+      "expected_output": "Should warn against committing auto-generated /init output unedited. It's typically stuffed with docs the agent can already read. Should recommend rewriting it before committing.",
+      "expectations": [
+        "Response recommends rewriting before committing",
+        "Response does NOT say 'looks good', 'yes, commit it', 'go ahead and commit', or 'safe to commit'",
+        "Response explains that auto-generated output contains content the agent can already discover"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "My AGENTS.md has this section:\n## Commands\n- `npm run dev` — starts development server\n- `npm run build` — builds for production\n- `npm run start` — starts production server\n- `npm run lint` — runs ESLint\nIs this useful?",
+      "expected_output": "Should identify this as the 'command dump' anti-pattern — listing inferrable commands that the agent can discover from package.json. Should recommend removing standard commands and only keeping non-obvious ones.",
+      "expectations": [
+        "Response identifies these as inferrable commands the agent can discover on its own",
+        "Response recommends removing standard/obvious commands",
+        "Response mentions that only non-obvious commands should be documented"
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "We have the same testing convention documented in both packages/auth/AGENTS.md and packages/billing/AGENTS.md. They say the same thing. Is this fine since each team owns their package?",
+      "expected_output": "Should identify this as the 'duplicated siblings' anti-pattern and recommend hoisting the shared fact to the Least Common Ancestor — the shallowest file that covers both paths (likely root or packages/AGENTS.md).",
+      "expectations": [
+        "Response identifies the Least Common Ancestor principle",
+        "Response recommends hoisting the shared convention to a parent file",
+        "Response explains that duplicating across siblings is an anti-pattern"
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "I just cloned a TypeScript project with good test coverage. Write me an AGENTS.md. My preferences: discover from repo, agents only, structured doc, rule + rationale, no optimization needed.",
+      "expected_output": "Should still ask about the bug-fixing workflow preference — whether to write a failing test first when fixing bugs, or jump straight to the fix. This is Phase 1 question 6 and should not be skipped even when other preferences are provided.",
+      "expectations": [
+        "Response asks about bug-fixing workflow preference",
+        "Response mentions test-first vs jump-to-fix as options",
+        "Response does NOT skip Phase 1 question 6 despite other preferences being provided"
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "I want my AGENTS.md to include a test-first bug fixing workflow. When a bug is reported, the agent should write a failing test first, then use subagents to try fixes in parallel. What would that section look like?",
+      "expected_output": "Should describe the test-first bug fixing workflow — write a failing test that reproduces the bug, then use subagents to attempt candidate fixes validated against the failing test. Should reference that the test proves the bug exists and defines 'done'.",
+      "expectations": [
+        "Response describes writing a failing test that reproduces the bug",
+        "Response mentions using subagents for parallel fix attempts",
+        "Response does NOT suggest skipping the reproducing test"
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "My AGENTS.md has this testing rule: \"Always mock internal services and verify they were called with the correct arguments.\" Is this good guidance for the agent?",
+      "expected_output": "Should push back — mocking internal collaborators leads to implementation-coupled tests. Should recommend testing through public interfaces and mocking only at system boundaries (external APIs, databases, time, etc.).",
+      "expectations": [
+        "Response recommends mocking only at system boundaries",
+        "Response explains that mocking internal collaborators couples tests to implementation",
+        "Response does NOT say 'this is good advice'"
+      ],
+      "files": []
+    }
+  ]
+}
