@@ -227,11 +227,11 @@
     {
       "id": 18,
       "prompt": "I need to add pagination to a React restaurant search results page using PIE",
-      "expected_output": "PiePagination React import from pie-webc/react/pagination.js, currentPage/totalPages props or equivalent, onChange handler, docs link.",
+      "expected_output": "Should check whether PiePagination exists in pie-webc (it may not be released yet). If it doesn't exist, should recommend fetching live docs and offer an accessible fallback using PieButton + nav element. Should NOT confidently provide a fake import path for a component that doesn't exist.",
       "expectations": [
-        "Response imports PiePagination from '@justeattakeaway/pie-webc/react/pagination.js'",
-        "Response shows props for current page and total pages or item count",
-        "Response shows a handler for page change events",
+        "Response either correctly imports PiePagination if it exists, OR acknowledges it may not be available and directs to live docs at https://pie.design/components/pagination/",
+        "Response does NOT fabricate an import path for a component without verifying it exists",
+        "Response provides a working path forward (either the real component or a PIE-token-styled accessible fallback)",
         "Response includes a link to https://pie.design/components/pagination/"
       ],
       "files": []

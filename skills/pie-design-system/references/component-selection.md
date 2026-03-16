@@ -21,34 +21,37 @@ When multiple components could serve a need, use these decision guides.
 - You're on a mobile-primary flow where a bottom sheet is more natural
 - You need multiple modals at once (avoid this pattern entirely)
 
-### Bottom Sheet (`pie-bottom-sheet`)
+### Bottom Sheet (`pie-bottom-sheet`) — MOBILE ONLY
+**Bottom Sheet is exclusively for mobile and small-screen interfaces.** Do not use it on desktop.
+
 **Use when:**
 - The surface is mobile or small-screen-first
-- Presenting supplementary actions or information without fully obscuring main content
+- Presenting supplementary actions/info without fully obscuring main content
 - You want a natural thumb-reachable interaction on mobile
-- Content is secondary to what's on screen (filters, quick settings, action menus)
+- Examples: mobile filter panel, share sheet, quick settings
 
-**Don't use when:**
-- Designing primarily for desktop — use a modal or side sheet instead
-- Content is complex or long-form — use a full page or side sheet
+**Don't use on desktop** — use Side Sheet instead.
 
-### Side Sheet (`pie-side-sheet`)
+### Side Sheet (`pie-side-sheet`) — DESKTOP
+**Side Sheet is the correct choice for desktop side panels, filter drawers, and detail views.**
+
 **Use when:**
-- Displaying secondary content that complements the main view (e.g. filters, details panel)
-- The user needs to reference main content while interacting with the sheet
-- Content is too long for a modal but doesn't warrant a full page navigation
-- Providing a secondary navigation layer or contextual detail view
+- Desktop: displaying secondary content alongside the main view (filters, details panel, navigation)
+- The user needs to see and interact with main content while the sheet is open
+- Content is too long for a modal but doesn't require full-page navigation
 
 **Don't use when:**
-- The task requires full focus and background interaction should be blocked — use a modal
-- On small screens where a full-width bottom sheet would be more appropriate
+- On mobile — use Bottom Sheet instead
+- The task requires full focus and blocking the background — use a modal
 
 ### Quick decision
 ```
-Requires user decision or confirmation?         → Modal
-Mobile-first, supplementary content?           → Bottom Sheet
-Long content, user needs to see main view?      → Side Sheet
+Requires user decision or confirmation?              → Modal
+Desktop side panel / filter drawer?                  → Side Sheet (PieSideSheet)
+Mobile supplementary actions or filter?              → Bottom Sheet (PieBottomSheet)
 ```
+
+**Important:** A desktop filter panel that the user keeps open while browsing = **Side Sheet**. Never Bottom Sheet on desktop.
 
 ---
 
@@ -65,7 +68,7 @@ Long content, user needs to see main view?      → Side Sheet
 - **info** — supplementary info, no urgent action needed, can auto-dismiss
 - **success** — confirms task completion, may auto-dismiss
 - **warning** — persists until dismissed or user proceeds; action may be needed
-- **error** — always persists until resolved; never auto-dismiss
+- **error** — **NEVER auto-dismisses**; always persists until the user resolves or dismisses it
 - **neutral** — generic, non-action messages
 
 **Don't use when:**

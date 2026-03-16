@@ -20,7 +20,7 @@ Browse all: https://pie.design/components/
 | Checkbox Group | `<pie-checkbox-group>` | `PieCheckboxGroup` | Groups related checkboxes with a shared label. | https://pie.design/components/checkbox-group/ |
 | Radio Button | `<pie-radio-button>` | `PieRadioButton` | Single radio option. Use inside a radio group. | https://pie.design/components/radio-button/ |
 | Radio Group | `<pie-radio-group>` | `PieRadioGroup` | Wraps radio buttons; manages selection state. | https://pie.design/components/radio-group/ |
-| Switch | `<pie-switch>` | `PieSwitch` | Toggle switch for on/off states (e.g. settings). | https://pie.design/components/switch/ |
+| Switch | `<pie-switch>` | `PieSwitch` | Toggle switch for on/off states. Controlled via `checked` prop (not `isChecked`) and `onChange` handler. | https://pie.design/components/switch/ |
 | Select | `<pie-select>` | `PieSelect` | Styled native select dropdown. | https://pie.design/components/select/ |
 | Date Picker | `<pie-date-picker>` | `PieDatePicker` | Date selection input. | https://pie.design/components/date-picker/ |
 | Numeric Stepper | `<pie-numeric-stepper>` | `PieNumericStepper` | Increment/decrement number input. | https://pie.design/components/numeric-stepper/ |
@@ -41,7 +41,7 @@ Browse all: https://pie.design/components/
 | Tab (item) | `<pie-tab>` | `PieTab` | Individual tab button inside `PieTabs`. Import from `pie-webc/react/tab.js`. | https://pie.design/components/tabs/ |
 | Tab Panel | `<pie-tab-panel>` | `PieTabPanel` | Content panel associated with a tab. Import from `pie-webc/react/tab-panel.js`. | https://pie.design/components/tabs/ |
 | Accordion | `<pie-accordion>` | `PieAccordion` | Collapsible content sections. | https://pie.design/components/accordion/ |
-| Pagination | `<pie-pagination>` | `PiePagination` | Page navigation control. | https://pie.design/components/pagination/ |
+| Pagination | `<pie-pagination>` | `PiePagination` | Page navigation control. **Verify availability** — fetch https://pie.design/components/pagination/ before use; this component may not yet be released in `pie-webc`. If it doesn't exist, implement with accessible `<nav>` + `PieButton` components. | https://pie.design/components/pagination/ |
 | Progress Stepper | `<pie-progress-stepper>` | `PieProgressStepper` | Multi-step progress indicator. | https://pie.design/components/progress-stepper/ |
 | Segmented Controls | `<pie-segmented-controls>` | `PieSegmentedControls` | Mutually exclusive option selector (like radio but visual). | https://pie.design/components/segmented-controls/ |
 
@@ -97,7 +97,7 @@ All three components must be imported separately. Never mix `PieTabs` with bare 
 
 | Component | Tag | React | Description | Docs |
 |---|---|---|---|---|
-| Card | `<pie-card>` | `PieCard` | Content container. Variants: default, outline, inverse. Supports interactive (clickable) mode. Uses `$rounded-c` (12px) radius. | https://pie.design/components/card/ |
+| Card | `<pie-card>` | `PieCard` | Content container. Variants: default, outline, inverse. Add the `interactive` prop to make it clickable — do NOT wrap in an `<a>` tag. Use `tag="a"` with `href` for link navigation. Uses `$rounded-c` (12px) radius. | https://pie.design/components/card/ |
 | Divider | `<pie-divider>` | `PieDivider` | Horizontal/vertical separator. | https://pie.design/components/divider/ |
 | List Item | `<pie-list-item>` | `PieListItem` | Standard or interactive list row. | https://pie.design/components/list-item/ |
 | Carousel Indicator | `<pie-carousel-indicator>` | `PieCarouselIndicator` | Dot indicators for carousels/sliders. | https://pie.design/components/carousel-indicator/ |
