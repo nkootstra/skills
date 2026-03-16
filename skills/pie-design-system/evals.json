@@ -1,0 +1,253 @@
+{
+  "skill_name": "pie-design-system",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Add a primary PIE button that submits a form in React",
+      "expected_output": "React import from pie-webc/react/button.js, PieButton with variant='primary' and type='submit', docs link.",
+      "expectations": [
+        "Response includes: import { PieButton } from '@justeattakeaway/pie-webc/react/button.js'",
+        "Response shows <PieButton variant=\"primary\" type=\"submit\">",
+        "Response does NOT hardcode hex color values",
+        "Response includes a link to https://pie.design/components/button/"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Build a React login form with an email text input, password input, and a submit button using PIE components",
+      "expected_output": "React imports for PieTextInput and PieButton, correct import paths from pie-webc/react/*, usage with type='email' and type='password', form structure.",
+      "expectations": [
+        "Response imports PieTextInput from '@justeattakeaway/pie-webc/react/text-input.js'",
+        "Response imports PieButton from '@justeattakeaway/pie-webc/react/button.js'",
+        "Response uses type='email' on the email input and type='password' on the password input",
+        "Response wraps components in a <form> element",
+        "Response does NOT use bare pie-* custom element tags (it's a React project)"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How do I show a form validation error on a PIE text input in React? The email field should turn red and show 'Invalid email address'",
+      "expected_output": "PieTextInput with status='error', PieAssistiveText with variant='error' below the input, correct React imports for both components.",
+      "expectations": [
+        "Response imports PieAssistiveText from '@justeattakeaway/pie-webc/react/assistive-text.js'",
+        "Response shows status='error' on PieTextInput",
+        "Response shows PieAssistiveText with variant='error' containing the error message",
+        "Response does NOT suggest setting a red border color manually via CSS"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I need a React modal with a title, some body text, a confirm button and a cancel button using PIE",
+      "expected_output": "PieModal import from pie-webc/react/modal.js, usage with heading prop, PieButton variants for confirm (primary) and cancel (secondary or ghost), docs link.",
+      "expectations": [
+        "Response imports PieModal from '@justeattakeaway/pie-webc/react/modal.js'",
+        "Response shows the heading prop or slot on PieModal",
+        "Response uses a primary or destructive PieButton for the confirm action",
+        "Response uses a secondary, ghost or outline PieButton for cancel",
+        "Response includes a link to https://pie.design/components/modal/"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Add a React loading spinner while data is being fetched from an API",
+      "expected_output": "PieSpinner import from pie-webc/react/spinner.js, conditional render based on loading state, mention of brand or default variant, docs link.",
+      "expectations": [
+        "Response imports PieSpinner from '@justeattakeaway/pie-webc/react/spinner.js'",
+        "Response shows conditional rendering (e.g. {isLoading && <PieSpinner />})",
+        "Response does NOT recommend showing multiple spinners",
+        "Response includes a link to https://pie.design/components/spinner/"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I want to show a React notification banner after a failed payment — it should be dismissible and show an error",
+      "expected_output": "PieNotification with variant='error', isDismissible prop, React import from pie-webc/react/notification.js, explanation that notifications persist until dismissed for errors.",
+      "expectations": [
+        "Response imports PieNotification from '@justeattakeaway/pie-webc/react/notification.js'",
+        "Response uses variant='error' on PieNotification",
+        "Response includes isDismissible prop or notes the component supports dismissal",
+        "Response explains that error notifications should persist (not auto-dismiss)"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "How do I implement a React checkbox group for dietary preferences (Vegetarian, Vegan, Gluten-free)?",
+      "expected_output": "PieCheckboxGroup with PieCheckbox children, React imports for both, name/value props, controlled state with onChange.",
+      "expectations": [
+        "Response imports PieCheckbox from '@justeattakeaway/pie-webc/react/checkbox.js'",
+        "Response imports PieCheckboxGroup from '@justeattakeaway/pie-webc/react/checkbox-group.js'",
+        "Response nests PieCheckbox components inside PieCheckboxGroup",
+        "Response shows value and name props on each PieCheckbox",
+        "Response does NOT import only PieCheckbox without PieCheckboxGroup"
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Build a React card component that is clickable and navigates to a restaurant page when clicked",
+      "expected_output": "PieCard with interactive mode/prop, React import from pie-webc/react/card.js, onClick handler or href, mention of the interactive variant.",
+      "expectations": [
+        "Response imports PieCard from '@justeattakeaway/pie-webc/react/card.js'",
+        "Response mentions the interactive prop or variant to make the card clickable",
+        "Response shows an onClick handler or href attribute",
+        "Response does NOT wrap a non-interactive card in a plain <div onClick>",
+        "Response includes a link to https://pie.design/components/card/"
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "I need a React icon button for a close/dismiss action in a header. No visible label.",
+      "expected_output": "PieIconButton import from pie-webc/react/icon-button.js, aria-label prop for accessibility, icon slot or prop, note that aria-label is required.",
+      "expectations": [
+        "Response imports PieIconButton from '@justeattakeaway/pie-webc/react/icon-button.js'",
+        "Response includes aria-label prop on PieIconButton",
+        "Response explains that aria-label is required because there is no visible text label",
+        "Response does NOT use a regular PieButton with hidden text as the primary recommendation"
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "How do I add PIE tabs in React to switch between 'Overview', 'Reviews', and 'Menu' sections?",
+      "expected_output": "PieTabs React import, tab items/panels structure, controlled or uncontrolled selection, docs link.",
+      "expectations": [
+        "Response imports PieTabs from '@justeattakeaway/pie-webc/react/tabs.js'",
+        "Response shows a structure with tab items for Overview, Reviews, and Menu",
+        "Response includes a link to https://pie.design/components/tabs/"
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "We need to show a destructive confirmation in React when the user clicks 'Delete account'. Which PIE component and how?",
+      "expected_output": "PieModal with a destructive PieButton variant for confirm and a secondary/ghost for cancel, explanation that modal is correct for irreversible actions.",
+      "expectations": [
+        "Response recommends PieModal for a destructive confirmation",
+        "Response uses variant='destructive' on the confirm PieButton",
+        "Response uses a secondary, ghost, or outline PieButton for cancel",
+        "Response explains why modal is appropriate (blocks background, forces decision)",
+        "Response does NOT recommend toast or notification for a destructive confirmation"
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "I'm setting up a new React + Vite project and want to use PIE. Walk me through the setup.",
+      "expected_output": "npm install @justeattakeaway/pie-webc, import @justeattakeaway/pie-css in main entry, React wrapper import pattern, no special Vite config needed.",
+      "expectations": [
+        "Response includes: npm install @justeattakeaway/pie-webc",
+        "Response shows importing @justeattakeaway/pie-css in the app entry point",
+        "Response shows the React wrapper import pattern from pie-webc/react/*.js",
+        "Response does NOT require complex build config (React+Vite needs none)",
+        "Response does NOT show bare web component imports as the primary pattern for React"
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "What's the correct way to style a custom component using PIE color tokens in React? I need brand background with white text.",
+      "expected_output": "CSS custom properties --dt-color-interactive-brand for background and --dt-color-content-inverse for text, used in a className or style object, explanation of alias token semantics.",
+      "expectations": [
+        "Response uses --dt-color-interactive-brand for the brand background",
+        "Response uses --dt-color-content-inverse for text on dark/brand backgrounds",
+        "Response uses CSS var() syntax",
+        "Response does NOT hardcode hex values like #FF8000 or #FFFFFF",
+        "Response explains that alias tokens adapt to light/dark themes"
+      ],
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "How do I add a React select dropdown for choosing a delivery time slot with PIE?",
+      "expected_output": "PieSelect import from pie-webc/react/select.js, option elements inside, label association, docs link.",
+      "expectations": [
+        "Response imports PieSelect from '@justeattakeaway/pie-webc/react/select.js'",
+        "Response shows <option> elements or equivalent inside PieSelect",
+        "Response includes a label or PieFormLabel association",
+        "Response includes a link to https://pie.design/components/select/"
+      ],
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "I need a React toggle switch for enabling/disabling push notifications in a settings page",
+      "expected_output": "PieSwitch import from pie-webc/react/switch.js, checked/onChange controlled pattern, label association.",
+      "expectations": [
+        "Response imports PieSwitch from '@justeattakeaway/pie-webc/react/switch.js'",
+        "Response shows controlled usage with checked prop and onChange handler",
+        "Response associates a visible label with the switch",
+        "Response does NOT use a checkbox as the recommended component for a toggle"
+      ],
+      "files": []
+    },
+    {
+      "id": 15,
+      "prompt": "Should I use a modal or a side sheet for a React filter panel on desktop that the user keeps open while browsing results?",
+      "expected_output": "Side sheet recommended because it keeps main content visible, modal blocks background interaction. Modal reserved for focused decisions.",
+      "expectations": [
+        "Response recommends side sheet for a filter panel the user keeps open while browsing",
+        "Response explains that side sheet keeps the main content partially visible",
+        "Response explains that modal blocks background interaction (wrong for this use case)",
+        "Response imports or references PieSideSheet",
+        "Response does NOT recommend modal as correct for this desktop browsing scenario"
+      ],
+      "files": []
+    },
+    {
+      "id": 16,
+      "prompt": "Add a React skeleton loader for a restaurant listing page that's loading",
+      "expected_output": "PieSkeleton component, explanation that skeleton is better than spinner for full page/list loading because content shape is known, import path.",
+      "expectations": [
+        "Response recommends PieSkeleton over PieSpinner for a full listing page",
+        "Response explains why skeleton is preferred (known content shape, better perceived performance)",
+        "Response imports or references the pie-skeleton component",
+        "Response does NOT recommend spinner as the primary solution for a full page loading state"
+      ],
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "What's the PIE spacing token equivalent of margin-bottom: 24px in React inline styles or a CSS class?",
+      "expected_output": "Identify --dt-spacing-e as 24px, show CSS var syntax, and show how to use in React inline styles or className.",
+      "expectations": [
+        "Response identifies --dt-spacing-e as the 24px spacing token",
+        "Response shows var(--dt-spacing-e) syntax",
+        "Response shows usage in either a CSS class or React inline style object",
+        "Response does NOT suggest hardcoding 24px"
+      ],
+      "files": []
+    },
+    {
+      "id": 18,
+      "prompt": "I need to add pagination to a React restaurant search results page using PIE",
+      "expected_output": "PiePagination React import from pie-webc/react/pagination.js, currentPage/totalPages props or equivalent, onChange handler, docs link.",
+      "expectations": [
+        "Response imports PiePagination from '@justeattakeaway/pie-webc/react/pagination.js'",
+        "Response shows props for current page and total pages or item count",
+        "Response shows a handler for page change events",
+        "Response includes a link to https://pie.design/components/pagination/"
+      ],
+      "files": []
+    },
+    {
+      "id": 19,
+      "prompt": "How do I add icons to a PIE button in React — e.g. a basket icon on an 'Add to basket' button?",
+      "expected_output": "Separate @justeattakeaway/pie-icons-react package, IconBasket or similar import, placed as a slot/child inside PieButton, note that icons are a separate package.",
+      "expectations": [
+        "Response mentions @justeattakeaway/pie-icons-react as a separate package",
+        "Response shows: npm install @justeattakeaway/pie-icons-react",
+        "Response shows placing the icon component inside or alongside PieButton",
+        "Response does NOT suggest @justeattakeaway/pie-webc provides icons",
+        "Response does NOT suggest using an <img> tag for the icon"
+      ],
+      "files": []
+    }
+  ]
+}
