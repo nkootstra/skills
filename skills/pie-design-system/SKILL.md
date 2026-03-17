@@ -20,16 +20,20 @@ Map the user's UI need to a PIE component name. Use this quick reference:
 | Checkbox (single) | pie-checkbox | `<pie-checkbox>` / `PieCheckbox` |
 | Checkbox group (multiple) | pie-checkbox-group + pie-checkbox | `PieCheckboxGroup` wrapping `PieCheckbox` children — always use the group |
 | Radio button | pie-radio-button | `<pie-radio-button>` / `PieRadioButton` |
+| Radio group | pie-radio-group | `<pie-radio-group>` / `PieRadioGroup` — always wrap radio buttons in a group |
 | Toggle / Switch | pie-switch | `<pie-switch>` / `PieSwitch` — controlled via `checked` prop |
-| Select / Dropdown | pie-select | `<pie-select>` / `PieSelect` |
+| Select input (native) | pie-select | `<pie-select>` / `PieSelect` — styled native `<select>` |
+| Dropdown (custom menu) | pie-dropdown | `<pie-dropdown>` / `PieDropdown` — custom dropdown UI, not a native select |
 | Form group | pie-form-label | `<pie-form-label>` / `PieFormLabel` |
 | Form helper / error text | pie-assistive-text | `<pie-assistive-text>` / `PieAssistiveText` — use `variant="error"` for errors |
 | Modal / Dialog | pie-modal | `<pie-modal>` / `PieModal` |
 | Notification banner | pie-notification | `<pie-notification>` / `PieNotification` |
 | Toast | pie-toast | `<pie-toast>` / `PieToast` |
 | Loading indicator | pie-spinner | `<pie-spinner>` / `PieSpinner` |
+| Progress bar (determinate) | pie-progress-bar | `<pie-progress-bar>` / `PieProgressBar` |
 | Skeleton loader | pie-skeleton | `<pie-skeleton>` (Web Component only — no React wrapper yet) |
 | Link | pie-link | `<pie-link>` / `PieLink` |
+| List item | pie-list-item | `<pie-list-item>` / `PieListItem` |
 | Chip / Tag | pie-chip | `<pie-chip>` / `PieChip` |
 | Badge | pie-badge | `<pie-badge>` / `PieBadge` |
 | Avatar | pie-avatar | `<pie-avatar>` / `PieAvatar` |
@@ -38,6 +42,10 @@ Map the user's UI need to a PIE component name. Use this quick reference:
 | Divider | pie-divider | `<pie-divider>` / `PieDivider` |
 | Accordion | pie-accordion | `<pie-accordion>` / `PieAccordion` |
 | Tabs | pie-tabs | `PieTabs` + `PieTab` + `PieTabPanel` (three separate imports) |
+| Progress stepper | pie-progress-stepper | `<pie-progress-stepper>` / `PieProgressStepper` — multi-step indicator |
+| Segmented controls | pie-segmented-controls | `<pie-segmented-controls>` / `PieSegmentedControls` — mutually exclusive options |
+| Show more / expand | pie-show-more | `<pie-show-more>` / `PieShowMore` — progressive disclosure |
+| Floating action button | pie-fab | `<pie-fab>` / `PieFab` — one per screen |
 | Side panel / filter drawer (desktop) | pie-side-sheet | `<pie-side-sheet>` / `PieSideSheet` — desktop only |
 | Bottom panel (mobile) | pie-bottom-sheet | `<pie-bottom-sheet>` / `PieBottomSheet` — mobile only |
 | Tooltip | pie-tooltip | `<pie-tooltip>` / `PieTooltip` |
@@ -153,6 +161,11 @@ This skill's baked-in knowledge may be out of date. If uncertain about props, va
 Component docs:  https://pie.design/components/<component-name>/
 Token reference: https://pie.design/foundations/design-tokens/
 Full component list: https://pie.design/components/
+Patterns:        https://pie.design/patterns/
+  └─ Cookie Banner pattern: https://pie.design/patterns/cookie-banner/
+  └─ Overlay patterns:      https://pie.design/patterns/overlay-patterns/
+  └─ Messaging / chatbots:  https://pie.design/patterns/chatbots/
+Agents & AI resources: https://pie.design/agents/resources/
 ```
 
 Always prefer live docs over baked-in knowledge for prop details.
@@ -195,8 +208,13 @@ Docs: https://pie.design/components/button/
 - PieSwitch controlled state uses `checked` prop (not `isChecked`) and `onChange` handler
 - Error notifications (`variant="error"`) **never auto-dismiss** — always persist until the user acts
 
+**Typography:**
+- **Wrong font rendering** — if text doesn't look like JET Sans Digital, `@justeattakeaway/pie-css` is missing from the app entry point; it includes the font-face declarations, not just tokens
+- **Wrong font weight** — PIE uses 5 weights (regular 400, bold 700, extra-bold ~800, black ~900, extra-black ~950); using `font-weight: bold` hardcoded bypasses the variable font; use `--dt-font-weight-*` tokens
+- **Assembling typography from scratch** — use alias tokens like `--dt-font-heading-l`, `--dt-font-body-s` etc. rather than combining raw `--dt-font-size-*` + `--dt-font-weight-*` manually
+
 **Setup:**
-- **Missing `@justeattakeaway/pie-css`** — must be imported in the app entry point or tokens won't resolve
+- **Missing `@justeattakeaway/pie-css`** — must be imported in the app entry point or tokens won't resolve and JET Sans Digital won't load
 - **Wrong icon package in React** — use `@justeattakeaway/pie-icons-react`; `pie-icons-webc` is for non-React projects
 - **Wrong import path** — React wrappers: `pie-webc/react/<name>.js`; Web Components: `pie-webc/components/<name>.js`
 - **Missing side-effect import** — Web Components need `import '@justeattakeaway/pie-webc/components/foo.js'` or the tag renders as a plain `HTMLElement`

@@ -18,10 +18,10 @@ Browse all: https://pie.design/components/
 | Textarea | `<pie-textarea>` | `PieTextarea` | Multi-line text input. Supports resize, character count. Use when input likely spans multiple lines. | https://pie.design/components/textarea/ |
 | Checkbox | `<pie-checkbox>` | `PieCheckbox` | Standard checkbox. Supports indeterminate state. | https://pie.design/components/checkbox/ |
 | Checkbox Group | `<pie-checkbox-group>` | `PieCheckboxGroup` | Groups related checkboxes with a shared label. | https://pie.design/components/checkbox-group/ |
-| Radio Button | `<pie-radio-button>` | `PieRadioButton` | Single radio option. Use inside a radio group. | https://pie.design/components/radio-button/ |
-| Radio Group | `<pie-radio-group>` | `PieRadioGroup` | Wraps radio buttons; manages selection state. | https://pie.design/components/radio-group/ |
+| Radio Button | `<pie-radio-button>` | `PieRadioButton` | Single radio option. Use inside a radio group. | https://pie.design/components/radio/ |
+| Radio Group | `<pie-radio-group>` | `PieRadioGroup` | Wraps radio buttons; manages selection state. Always use — never group radios manually. | https://pie.design/components/radio-group/ |
 | Switch | `<pie-switch>` | `PieSwitch` | Toggle switch for on/off states. Controlled via `checked` prop (not `isChecked`) and `onChange` handler. | https://pie.design/components/switch/ |
-| Select | `<pie-select>` | `PieSelect` | Styled native select dropdown. | https://pie.design/components/select/ |
+| Select Input | `<pie-select>` | `PieSelect` | Styled native select dropdown. | https://pie.design/components/select-input/ |
 | Date Picker | `<pie-date-picker>` | `PieDatePicker` | Date selection input. | https://pie.design/components/date-picker/ |
 | Numeric Stepper | `<pie-numeric-stepper>` | `PieNumericStepper` | Increment/decrement number input. | https://pie.design/components/numeric-stepper/ |
 | Slider | `<pie-slider>` | `PieSlider` | Range input slider. | https://pie.design/components/slider/ |
@@ -77,6 +77,7 @@ All three components must be imported separately. Never mix `PieTabs` with bare 
 | Rating | `<pie-rating>` | `PieRating` | Star/score rating display or input. | https://pie.design/components/rating/ |
 | Badge | `<pie-badge>` | `PieBadge` | Count/status indicator. Variants: default, subtle, outline, strong, inverse. | https://pie.design/components/badge/ |
 | Tag | `<pie-tag>` | `PieTag` | Categorization label. | https://pie.design/components/tag/ |
+| Tag (icon only) | `<pie-tag>` | `PieTag` | Icon-only variant of Tag — set `iconOnly` prop; always provide `aria-label`. | https://pie.design/components/tag/ |
 
 ---
 
@@ -124,6 +125,19 @@ All three components must be imported separately. Never mix `PieTabs` with bare 
 | Component | Tag | React | Description | Docs |
 |---|---|---|---|---|
 | Data Table | `<pie-data-table>` | `PieDataTable` | Tabular data display. | https://pie.design/components/data-table/ |
+
+---
+
+## Data Visualisation
+
+PIE includes charting components backed by design tokens. These are separate from `pie-webc` — check the live docs for the current package name and install instructions.
+
+| Component | Description | Docs |
+|---|---|---|
+| Bar Chart | Vertical/horizontal bar chart | https://pie.design/components/bar-chart/ |
+| Line Chart | Time-series or trend line chart | https://pie.design/components/line-chart/ |
+
+> **Note:** Data viz components are evolving. Always fetch the live docs before implementing — package names and APIs may differ from standard `pie-webc` patterns.
 
 ---
 

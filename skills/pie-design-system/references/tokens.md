@@ -159,31 +159,141 @@ Full radius tokens: https://pie.design/foundations/radius/tokens/alias/
 
 ---
 
+## Blur Tokens
+
+PIE provides blur (backdrop-filter) tokens for use in frosted-glass UI surfaces — e.g. nav bars, overlays, modals on photo backgrounds.
+
+> **Android caveat:** `backdrop-filter` is not supported on Android WebView. Use blur tokens only for iOS/web; provide a solid fallback background for Android.
+
+| CSS Variable | Usage |
+|---|---|
+| `--dt-blur-base` | Subtle blur — light overlay surfaces |
+| `--dt-blur-neutral` | Moderate blur — nav bars, sticky headers |
+| `--dt-blur-prominent` | Strong blur — modals, sheets on imagery |
+
+### Container fill pairings
+
+Blur alone looks wrong without a semi-transparent background. Pair blur tokens with the matching container fill token:
+
+| Blur token | Container fill token | Use case |
+|---|---|---|
+| `--dt-blur-base` | `--dt-color-container-base` | Light surface on subtle bg |
+| `--dt-blur-neutral` | `--dt-color-container-neutral` | Nav bar |
+| `--dt-blur-prominent` | `--dt-color-container-prominent` | Modal on imagery |
+
+```css
+.frosted-nav {
+  backdrop-filter: var(--dt-blur-neutral);
+  background-color: var(--dt-color-container-neutral);
+}
+```
+
+Full blur tokens: https://pie.design/foundations/blur/
+
+---
+
 ## Typography
 
 PIE's primary typeface is **JET Sans Digital** (variable font, weight 100–1000).
 Fallback: Arial. Code snippets: PT Mono.
 
-### Font size scale (responsive headings resize at 768px breakpoint)
+**Font loading:** `@justeattakeaway/pie-css` includes the JET Sans Digital font-face declarations. Import it at your app entry point — without it, browsers will fall back to Arial and the design will look wrong.
 
-| CSS Variable | Size | Usage |
-|---|---|---|
-| `--dt-font-size-12` | 12px | Caption / label |
-| `--dt-font-size-14` | 14px | Small body |
-| `--dt-font-size-16` | 16px | Body (default) |
-| `--dt-font-size-18` | 18px | Body large |
-| `--dt-font-size-20` | 20px | Subheading |
-| `--dt-font-size-24` | 24px | Heading S (narrow) / Heading M (wide) |
-| `--dt-font-size-28` | 28px | Heading L (wide) |
-| `--dt-font-size-32` | 32px | Heading XL |
+```js
+import '@justeattakeaway/pie-css'  // loads JET Sans Digital + all --dt-* tokens
+```
+
+### Font families
+
+| Family | Usage |
+|---|---|
+| JET Sans Digital | Primary — all product UI |
+| Arial | Fallback only (loaded automatically if JET Sans Digital fails) |
+| PT Mono | Code snippets only |
 
 ### Font weights
-| CSS Variable | Value | Usage |
+
+PIE uses 5 named weights (JET Sans Digital is a variable font):
+
+| CSS Variable | Approx. Value | Usage |
 |---|---|---|
 | `--dt-font-weight-regular` | 400 | Body, captions, subheadings |
-| `--dt-font-weight-bold` | 700 | Headings, buttons |
+| `--dt-font-weight-bold` | 700 | Body strong, caption strong, interactive XS |
+| `--dt-font-weight-extrabold` | 800 | Interactive L/S, subheading L (narrow), caption strong italic |
+| `--dt-font-weight-black` | 900 | Headings XS–L |
+| `--dt-font-weight-extrablack` | 950 | Headings XL–XXL |
 
-Full typography tokens: https://pie.design/foundations/typography/
+### Alias typography tokens (use these — not raw size/weight tokens)
+
+PIE exposes composite typography tokens that bundle font-size, line-height, weight, and family together. Prefer these over assembling raw tokens manually.
+
+Token names in Figma map to CSS custom properties with the same name: `$font-heading-l` → `var(--dt-font-heading-l)`.
+
+#### Headings (wide / narrow — responsive at 768px)
+
+| Token | Wide size | Narrow size | Weight |
+|---|---|---|---|
+| `--dt-font-heading-xxl` | 48px / 52px lh | 32px / 36px lh | extra-black |
+| `--dt-font-heading-xl` | 32px / 36px lh | 28px / 32px lh | extra-black |
+| `--dt-font-heading-l` | 28px / 32px lh | 24px / 28px lh | black |
+| `--dt-font-heading-m` | 24px / 28px lh | 20px / 24px lh | black |
+| `--dt-font-heading-s` | 20px / 24px lh | 16px / 20px lh | black |
+| `--dt-font-heading-xs` | 16px / 20px lh | 14px / 20px lh | black |
+
+Italic variants: append `-italic` (e.g. `--dt-font-heading-l-italic`). Use for brand moments and speed/delivery messaging — not for UI controls.
+
+#### Subheadings
+
+| Token | Wide size | Narrow size | Weight |
+|---|---|---|---|
+| `--dt-font-subheading-l` | 24px / 28px lh | 20px / 24px lh | extra-bold |
+| `--dt-font-subheading-s` | 20px / 24px lh | 16px / 24px lh | regular |
+
+#### Body
+
+| Token | Size | Line height | Weight | Notes |
+|---|---|---|---|---|
+| `--dt-font-body-l` | 16px | 24px | regular | Long-form reading |
+| `--dt-font-body-l-link` | 16px | 24px | regular | Link in body text (underline) |
+| `--dt-font-body-s` | 14px | 20px | regular | Components |
+| `--dt-font-body-s-link` | 14px | 20px | regular | Link in small body (underline) |
+| `--dt-font-body-strong-l` | 16px | 24px | bold | Emphasis in body |
+| `--dt-font-body-strong-l-link` | 16px | 24px | bold | Bold link |
+| `--dt-font-body-strong-s` | 14px | 20px | bold | Emphasis in small body |
+| `--dt-font-body-strong-s-link` | 14px | 20px | bold | Bold small link |
+
+#### Caption
+
+| Token | Size | Line height | Weight |
+|---|---|---|---|
+| `--dt-font-caption` | 12px | 16px | regular |
+| `--dt-font-caption-link` | 12px | 16px | regular (underline) |
+| `--dt-font-caption-strong` | 12px | 16px | bold |
+| `--dt-font-caption-strong-italic` | 12px | 16px | extra-bold + italic |
+| `--dt-font-caption-strong-link` | 12px | 16px | bold (underline) |
+
+#### Interactive (button labels)
+
+| Token | Size | Line height | Weight | Usage |
+|---|---|---|---|---|
+| `--dt-font-interactive-l` | 20px | 24px | extra-bold | Large buttons, numeric counters |
+| `--dt-font-interactive-s` | 16px | 20px | extra-bold | Small buttons |
+| `--dt-font-interactive-xs` | 14px | 20px | bold | Extra-small buttons |
+
+### Global font size tokens (raw — use alias tokens above instead)
+
+| CSS Variable | Size |
+|---|---|
+| `--dt-font-size-12` | 12px |
+| `--dt-font-size-14` | 14px |
+| `--dt-font-size-16` | 16px |
+| `--dt-font-size-20` | 20px |
+| `--dt-font-size-24` | 24px |
+| `--dt-font-size-28` | 28px |
+| `--dt-font-size-32` | 32px |
+| `--dt-font-size-48` | 48px |
+
+Full typography tokens: https://pie.design/foundations/typography/tokens/alias/wide/
 
 ---
 
