@@ -105,6 +105,56 @@ Full alias color tokens: https://pie.design/foundations/colour/tokens/alias/
 
 ---
 
+## Colour Usage Rules
+
+### Brand Orange vs Product Orange
+
+PIE uses two distinct oranges with different roles — mixing them is a common mistake:
+
+| Orange | Token | Use for |
+|---|---|---|
+| **Product Orange** (`#FF8000`) | `--dt-color-interactive-brand` | Interactive elements: buttons, icons, links |
+| **Brand Orange** (`#F36805`) | `--dt-color-content-brand` | Non-interactive: logos, nav bars, brand moments |
+
+> **Rule:** If the user can click/tap it, use Product Orange (`--dt-color-interactive-brand`). For brand decoration that isn't interactive, use Brand Orange (`--dt-color-content-brand`).
+
+### Content Token Suffixes
+
+The `-inverse`, `-light`, and `-dark` suffixes on content tokens have precise meanings:
+
+| Suffix | Behaviour | When to use |
+|---|---|---|
+| `-inverse` | Light in light theme, dark in dark theme (auto-adapts) | Text on dark/brand backgrounds in both themes |
+| `-light` | **Always stays light** regardless of theme | Text that pairs with Product Orange, error red — must remain readable in dark mode |
+| `-dark` | **Always stays dark** regardless of theme | Text that pairs with brand colours that stay light in dark mode |
+
+Examples:
+```css
+/* Text on a dark/brand background — adapts to theme automatically */
+color: var(--dt-color-content-inverse);
+
+/* Text alongside error (red bg stays dark in dark mode) — must always be light */
+color: var(--dt-color-content-light);
+
+/* Text alongside brand decoration — must always be dark */
+color: var(--dt-color-content-dark);
+```
+
+### Opacity vs Solid Tokens
+
+PIE provides both opacity-based and solid variants of some tokens:
+
+| Context | Use |
+|---|---|
+| Solid background (most cases) | **Opacity tokens** — they blend correctly with the background |
+| Blur/frosted-glass / transparency backgrounds | **Solid tokens** — opacity tokens look wrong on blurred surfaces |
+
+### Color Space
+
+PIE's palette is defined in **HSLuv** (perceptually uniform HSL), ensuring WCAG 2.1 contrast compliance across the full palette. You do not need to compute contrast manually — use alias tokens and PIE's semantic pairings.
+
+---
+
 ## Spacing Tokens
 
 PIE uses an 8px/4px grid. Token names are letters; numeric global tokens are the underlying values.
@@ -292,6 +342,13 @@ Italic variants: append `-italic` (e.g. `--dt-font-heading-l-italic`). Use for b
 | `--dt-font-size-28` | 28px |
 | `--dt-font-size-32` | 32px |
 | `--dt-font-size-48` | 48px |
+
+### Typography Context
+
+- **Responsive headings:** Heading and subheading tokens have `wide` and `narrow` variants. The breakpoint is **768px** — below 768px use the narrow variant values, above use wide.
+- **Paragraph spacing:** 16px default (`--dt-spacing-d`), 14px for long-form text, 12px for tight exception cases.
+- **Line length:** Keep text columns to **80–100 characters** for readability.
+
 
 Full typography tokens: https://pie.design/foundations/typography/tokens/alias/wide/
 

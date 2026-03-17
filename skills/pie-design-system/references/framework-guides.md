@@ -300,6 +300,21 @@ If your project uses Fozzie (JET's internal webpack configuration), PIE componen
 
 ---
 
+## Browser Support
+
+PIE targets modern browsers using a Priority A/B/C tier model. Priority A browsers (latest Chrome, Firefox, Safari, Edge) receive full support and testing. Priority B/C receive best-effort support. IE11 is not supported. Always check with `pie.design/engineers/getting-started/` for the current tier list if supporting older browsers.
+
+---
+
+## Accessibility
+
+PIE components ship with **WCAG 2.1 AA compliant** markup out of the box — correct ARIA roles, keyboard navigation, and focus management are built in. You should still:
+- Provide `aria-label` on icon-only buttons (`PieIconButton`)
+- Ensure form inputs have associated labels via `PieFormLabel`
+- Use semantic HTML for page structure around PIE components
+
+---
+
 ## Troubleshooting
 
 **Custom element not defined (renders as `<HTMLElement>`)**

@@ -143,20 +143,21 @@ PIE includes charting components backed by design tokens. These are separate fro
 
 ## Icons Package (separate from pie-webc)
 
+Use `@justeattakeaway/pie-icons-webc` for **all frameworks** (React and non-React).
+`@justeattakeaway/pie-icons-react` is **deprecated** — do not use it.
+
 ```bash
 npm install @justeattakeaway/pie-icons-webc
-# React icons
-npm install @justeattakeaway/pie-icons-react
 ```
 
 ```js
-// Web component icon
-import '@justeattakeaway/pie-icons-webc/dist/pie-icon-close.js'
-// <pie-icon-close></pie-icon-close>
-
-// React icon
-import { IconClose } from '@justeattakeaway/pie-icons-react'
+// React — use the /dist/react/ entrypoint per icon
+import { IconClose } from '@justeattakeaway/pie-icons-webc/dist/react/IconClose.js'
 // <IconClose />
+
+// Web Component / non-React — registers the custom element
+import '@justeattakeaway/pie-icons-webc/dist/IconClose.js'
+// <icon-close></icon-close>
 ```
 
 Browse all icons: https://pie.design/foundations/iconography/
