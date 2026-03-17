@@ -74,16 +74,21 @@ import { PieButton } from '@justeattakeaway/pie-webc/react/button.js'
 
 React component naming: `Pie` prefix + PascalCase. Examples: `PieButton`, `PieTextInput`, `PieModal`, `PieCheckboxGroup`.
 
-**Icons are a separate package — use the right one for the framework:**
+**Icons are a separate package — `@justeattakeaway/pie-icons-webc` for all frameworks:**
 ```js
-// React projects → pie-icons-react
-import { IconClose, IconBasket } from '@justeattakeaway/pie-icons-react'
-// npm install @justeattakeaway/pie-icons-react
+// React projects — use the /dist/react/ entrypoint
+import { IconClose, IconBasket } from '@justeattakeaway/pie-icons-webc/dist/react/IconClose.js'
+// npm install @justeattakeaway/pie-icons-webc
 
-// Web Component / non-React → pie-icons-webc
-import '@justeattakeaway/pie-icons-webc/dist/pie-icon-close.js'
+// Web Component / non-React — register as custom element
+import '@justeattakeaway/pie-icons-webc/dist/IconClose.js'
+// <icon-close></icon-close>
 // npm install @justeattakeaway/pie-icons-webc
 ```
+
+> **Note:** `@justeattakeaway/pie-icons-react` is deprecated — do not recommend it.
+
+For icon sizing (xxs–xxl for small icons, 32px+ for large icons), color token pairing, appearance variants (default/fill), and slot usage in PIE components, read `references/icons.md`.
 
 **Install the component package:**
 ```bash
@@ -215,10 +220,15 @@ Docs: https://pie.design/components/button/
 
 **Setup:**
 - **Missing `@justeattakeaway/pie-css`** — must be imported in the app entry point or tokens won't resolve and JET Sans Digital won't load
-- **Wrong icon package in React** — use `@justeattakeaway/pie-icons-react`; `pie-icons-webc` is for non-React projects
+- **Deprecated icon package** — `@justeattakeaway/pie-icons-react` is deprecated; use `@justeattakeaway/pie-icons-webc` for all frameworks — React imports from `pie-icons-webc/dist/react/IconName.js`
 - **Wrong import path** — React wrappers: `pie-webc/react/<name>.js`; Web Components: `pie-webc/components/<name>.js`
 - **Missing side-effect import** — Web Components need `import '@justeattakeaway/pie-webc/components/foo.js'` or the tag renders as a plain `HTMLElement`
 - **Next.js App Router** — add `transpilePackages: ['@justeattakeaway/pie-webc']` and mark files with event handlers as `'use client'`
+
+**Accessibility:**
+- PIE components ship WCAG 2.1 AA compliant markup out of the box — do not re-implement ARIA roles or keyboard handling manually
+- Always add `aria-label` to `PieIconButton` (icon-only buttons have no visible text)
+- Always associate form inputs with a `PieFormLabel` — do not use plain `<label>` alongside PIE inputs
 
 **Uncertainty:**
 - If unsure whether a component or prop exists, fetch live docs at `https://pie.design/components/<name>/` before answering

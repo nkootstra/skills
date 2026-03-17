@@ -6,6 +6,44 @@ When multiple components could serve a need, use these decision guides.
 
 ---
 
+## Overlays: Full Decision Tree
+
+When choosing an overlay component, use this expanded decision tree before defaulting to Modal.
+
+```
+Is the content time-sensitive and non-interactive (action completed)?
+  → Toast
+
+Is it brief supplementary info tied to a specific UI element (icon, term)?
+  → Tooltip (single line, no interactivity) or Popover (richer content, can be interactive)
+
+Does the user need to make a decision or acknowledge before continuing?
+  → Modal
+
+Is it a desktop side panel, filter drawer, or detail view?
+  → Side Sheet
+
+Is it a mobile supplementary panel or action sheet?
+  → Bottom Sheet
+
+Is it page-level persistent feedback (error, warning, info)?
+  → Notification
+```
+
+### Z-index stacking (lowest → highest)
+
+| Layer | Component | Notes |
+|---|---|---|
+| Page | Default content | z-index 0 |
+| Sticky | Side Sheet, sticky nav | Low overlay |
+| Dropdown | Popover, Tooltip | Above page content |
+| Modal | Modal, Bottom Sheet | Blocks background |
+| Toast | Toast | Always on top |
+
+**Rule:** Never render a Modal inside another Modal. Never render a Tooltip inside a Modal (use inline helper text instead).
+
+---
+
 ## Overlays: Modal vs Bottom Sheet vs Side Sheet
 
 ### Modal (`pie-modal`)

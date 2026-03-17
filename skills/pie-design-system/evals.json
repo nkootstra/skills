@@ -239,13 +239,28 @@
     {
       "id": 19,
       "prompt": "How do I add icons to a PIE button in React — e.g. a basket icon on an 'Add to basket' button?",
-      "expected_output": "Separate @justeattakeaway/pie-icons-react package, IconBasket or similar import, placed as a slot/child inside PieButton, note that icons are a separate package.",
+      "expected_output": "Separate @justeattakeaway/pie-icons-webc package with React import from /dist/react/IconBasket.js, placed as a slot/child inside PieButton, note that icons are a separate package and pie-icons-react is deprecated.",
       "expectations": [
-        "Response mentions @justeattakeaway/pie-icons-react as a separate package",
-        "Response shows: npm install @justeattakeaway/pie-icons-react",
+        "Response mentions @justeattakeaway/pie-icons-webc as the icon package",
+        "Response shows: npm install @justeattakeaway/pie-icons-webc",
+        "Response shows a React import from '@justeattakeaway/pie-icons-webc/dist/react/IconBasket.js' or similar",
         "Response shows placing the icon component inside or alongside PieButton",
         "Response does NOT suggest @justeattakeaway/pie-webc provides icons",
-        "Response does NOT suggest using an <img> tag for the icon"
+        "Response does NOT suggest using an <img> tag for the icon",
+        "Response does NOT recommend the deprecated @justeattakeaway/pie-icons-react package"
+      ],
+      "files": []
+    },
+    {
+      "id": 20,
+      "prompt": "I'm using @justeattakeaway/pie-icons-react in my React app for PIE icons. Is that correct?",
+      "expected_output": "Should warn that @justeattakeaway/pie-icons-react is deprecated and recommend migrating to @justeattakeaway/pie-icons-webc, showing the React-specific import path from /dist/react/.",
+      "expectations": [
+        "Response warns that @justeattakeaway/pie-icons-react is deprecated",
+        "Response recommends @justeattakeaway/pie-icons-webc as the replacement",
+        "Response shows a React import from '@justeattakeaway/pie-icons-webc/dist/react/IconName.js' or similar",
+        "Response shows: npm install @justeattakeaway/pie-icons-webc",
+        "Response does NOT tell the user their current setup is correct"
       ],
       "files": []
     }
