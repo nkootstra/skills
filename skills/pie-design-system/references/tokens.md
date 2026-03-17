@@ -349,6 +349,7 @@ Italic variants: append `-italic` (e.g. `--dt-font-heading-l-italic`). Use for b
 - **Paragraph spacing:** 16px default (`--dt-spacing-d`), 14px for long-form text, 12px for tight exception cases.
 - **Line length:** Keep text columns to **80–100 characters** for readability.
 
+
 Full typography tokens: https://pie.design/foundations/typography/tokens/alias/wide/
 
 ---
