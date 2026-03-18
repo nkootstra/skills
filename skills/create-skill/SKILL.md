@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: Create, improve, and manage Claude skills through a guided wizard, starter templates, or by converting conversation history into reusable skills. Use this skill whenever the user mentions creating a skill, building a skill, "turn this into a skill", "make a skill from this", skill templates, improving an existing skill, running skill evals, benchmarking skill performance, optimizing skill descriptions, or anything related to authoring or editing SKILL.md files. Also trigger when the user says things like "I keep repeating myself", "Claude should remember this", "automate this workflow", or "save this as a process". Even if the user doesn't use the word "skill", trigger when they want to codify a repeatable process for Claude. This includes non-developers, designers, writers, and anyone who wants Claude to work the way they do without re-explaining every time.
+description: Create, improve, and manage Claude skills through a guided wizard, starter templates, or by converting conversation history into reusable skills. Use this skill whenever the user mentions creating a skill, building a skill, "turn this into a skill", "make a skill from this", skill templates, improving an existing skill, running skill evals, benchmarking skill performance, optimizing skill descriptions, or anything related to authoring or editing SKILL.md files. Also trigger when the user says things like "I keep repeating myself", "Claude should remember this", "automate this workflow", or "save this as a process". Even if the user doesn't use the word "skill", trigger when they want to codify a repeatable process for Claude. This includes non-developers, designers, writers, and anyone who wants Claude to work the way they do without re-explaining every time. Also trigger when the user wants to improve or write an agent context file: CLAUDE.md, AGENTS.md, .cursorrules, or any file that provides project-level instructions to an AI coding agent.
 ---
 
 # Skill Creator Plus
@@ -35,7 +35,7 @@ Do not load all references at once. Read the relevant reference when you need it
 | Running formal evals with subagents | `references/full-eval.md` | Claude Code / Cowork only |
 | Running tests without subagents | `references/quick-test.md` | Claude.ai only |
 | Optimizing description for triggering accuracy | `references/description-optimization.md` | Claude Code / Cowork only |
-| User wants to improve a CLAUDE.md file, or a skill is overkill | `references/claude-md-guide.md` | Claude Code (CLAUDE.md); Claude.ai (project instructions) |
+| User wants to improve an agent context file, or a skill is overkill | `references/claude-md-guide.md` | Claude Code (CLAUDE.md / AGENTS.md); Claude.ai (project instructions) |
 | Need JSON schemas for evals, grading, benchmark, etc. | `references/schemas.md` | All |
 
 ---
@@ -55,7 +55,7 @@ Before doing anything, assess what the user actually needs. This is the most imp
 - **User is frustrated with a broken skill?** → Don't re-ask questions they already answered. Acknowledge the problem, diagnose directly, and fix it.
 - **Requirements contradict each other?** → Surface the tension explicitly before generating — do not paper over it. Name the contradiction, explain why it matters (inconsistent output), and offer concrete resolution paths: two output modes (quick vs. detailed), layered output (TL;DR + full version), or two separate skills. A skill built on contradictions will produce inconsistent output every time. Do not build it — resolve the contradiction first.
 - **Request overlaps with something Claude already does well?** → Probe for what the skill adds beyond default behavior. If the user has specific format/style preferences, create the skill. If not, gently explain that Claude already handles this.
-- **User's issue is better solved by CLAUDE.md than a skill?** → If the problem is "Claude keeps ignoring my project conventions" (testing patterns, API conventions, code style), **do not create a skill**. Tell the user directly that a skill is the wrong tool here, explain why (skills are for workflows, CLAUDE.md is for project-level conventions), and help them fix their CLAUDE.md instead. Read `references/claude-md-guide.md` for the `<important if>` pattern and CLAUDE.md writing principles. Offering to build a skill anyway in this situation is a mistake.
+- **User's issue is better solved by an agent context file than a skill?** → If the problem is "Claude keeps ignoring my project conventions" (testing patterns, API conventions, code style), **do not create a skill**. Tell the user directly that a skill is the wrong tool here, explain why (skills are for workflows, agent context files like CLAUDE.md or AGENTS.md are for project-level conventions), and help them fix their agent context file instead. Read `references/claude-md-guide.md` for the `<important if>` pattern and writing principles for CLAUDE.md, AGENTS.md, and `.cursorrules`. Offering to build a skill anyway in this situation is a mistake.
 
 **Scale your response to the task:**
 - Trivial tasks → minimal skill, fast turnaround, no headers or preamble

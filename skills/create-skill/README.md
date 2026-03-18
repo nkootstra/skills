@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: Create, improve, and manage Claude skills through a guided wizard, starter templates, or by converting conversation history into reusable skills. Use this skill whenever the user mentions creating a skill, building a skill, "turn this into a skill", "make a skill from this", skill templates, improving an existing skill, running skill evals, benchmarking skill performance, optimizing skill descriptions, or anything related to authoring or editing SKILL.md files. Also trigger when the user says things like "I keep repeating myself", "Claude should remember this", "automate this workflow", or "save this as a process". Even if the user doesn't use the word "skill", trigger when they want to codify a repeatable process for Claude. This includes non-developers, designers, writers, and anyone who wants Claude to work the way they do without re-explaining every time.
+description: Create, improve, and manage Claude skills through a guided wizard, starter templates, or by converting conversation history into reusable skills. Use this skill whenever the user mentions creating a skill, building a skill, "turn this into a skill", "make a skill from this", skill templates, improving an existing skill, running skill evals, benchmarking skill performance, optimizing skill descriptions, or anything related to authoring or editing SKILL.md files. Also trigger when the user says things like "I keep repeating myself", "Claude should remember this", "automate this workflow", or "save this as a process". Even if the user doesn't use the word "skill", trigger when they want to codify a repeatable process for Claude. This includes non-developers, designers, writers, and anyone who wants Claude to work the way they do without re-explaining every time. Also trigger when the user wants to improve or write an agent context file: CLAUDE.md, AGENTS.md, .cursorrules, or any file that provides project-level instructions to an AI coding agent.
 ---
 
 # create-skill
@@ -22,7 +22,7 @@ create-skill/
 ├── references/
 │   ├── skill-categories.md               # 9 skill categories with examples
 │   ├── advanced-patterns.md              # Config, memory, hooks, composable scripts
-│   ├── claude-md-guide.md                # When to fix CLAUDE.md instead of making a skill
+│   ├── claude-md-guide.md                # When to fix CLAUDE.md / AGENTS.md instead of making a skill
 │   ├── full-eval.md                      # Formal eval workflow (Claude Code / Cowork)
 │   ├── quick-test.md                     # Simplified testing (Claude.ai)
 │   ├── description-optimization.md       # Automated trigger optimization
@@ -77,12 +77,12 @@ Diagnose problems with a skill you already have:
 Fix triggering issues:
 > My LinkedIn writing skill keeps triggering when I ask Claude to write emails. Can you fix it?
 
-### Fix your CLAUDE.md instead
+### Fix your agent context file instead
 
-Sometimes the answer isn't a skill — it's a better CLAUDE.md:
-> Claude keeps ignoring my testing conventions. I have a CLAUDE.md that says to use vitest and put fixtures in \_\_fixtures\_\_ but it just does its own thing. Can you help?
+Sometimes the answer isn't a skill — it's a better `CLAUDE.md` or `AGENTS.md`:
+> Claude keeps ignoring my testing conventions. I have an AGENTS.md that says to use vitest and put fixtures in \_\_fixtures\_\_ but it just does its own thing. Can you help?
 
-The skill will recognize this as a CLAUDE.md problem and help you rewrite it using `<important if="condition">` blocks for better instruction adherence, rather than creating an unnecessary skill.
+The skill will recognize this as an agent context file problem and help you rewrite it using `<important if="condition">` blocks for better instruction adherence, rather than creating an unnecessary skill.
 
 ### Advanced patterns
 
@@ -115,7 +115,7 @@ Skills produced by this skill follow the conventions in [`AGENTS.md`](../../AGEN
 | Templates | Yes | Yes | Yes |
 | Conversation extraction | Yes | Yes | Yes |
 | Skill review / improve | Yes | Yes | Yes |
-| CLAUDE.md guide | — | Yes | — |
+| Agent context file guide | — | Yes | — |
 | Formal evals (subagents) | — | Yes | Yes |
 | Description optimization | — | Yes | Yes |
 | On-demand hooks | — | Yes | — |
