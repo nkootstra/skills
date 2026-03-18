@@ -151,6 +151,8 @@
         "Identifies the thin description as problem #1?",
         "Points out vague instructions ('thorough but not nitpicky')?",
         "Suggests adding an output format example?",
+        "Flags the missing gotchas section?",
+        "Notes that some instructions restate what Claude already knows (e.g., PEP 8, modern JS syntax)?",
         "Preserves the user's existing structure and intent?",
         "Offers to run test cases after improvements?"
       ]
@@ -167,6 +169,100 @@
         "Probes for specific format/style/structural requirements that would justify a skill?",
         "Doesn't dismiss the user or refuse outright — remains open if specifics emerge?",
         "Does NOT immediately generate a SKILL.md without engaging with the overlap question?"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Claude keeps ignoring my testing conventions. I have a CLAUDE.md that says 'use vitest for all tests, put fixtures in __fixtures__, mock the database with prismaMock' but when I ask it to write tests it just uses its own approach. I also have rules about import style and naming conventions that it ignores half the time. Can you help me make a skill to fix this?",
+      "expected_output": "The response should recognize this is a CLAUDE.md problem, not a skill problem. The user's issue is that Claude ignores project conventions — the fix is improving their CLAUDE.md (potentially using <important if> blocks for conditional relevance), not creating a skill. The response should: suggest CLAUDE.md as the right solution, explain why (these are project-level conventions, not a multi-step reusable workflow), and offer to help rewrite the CLAUDE.md. It should NOT create a skill. It may mention that linter-enforceable rules (import style, naming) should be handled by tooling rather than instructions.",
+      "persona": "Developer frustrated that Claude ignores project conventions",
+      "tests": [
+        "Identifies this as a CLAUDE.md problem, not a skill problem?",
+        "Suggests improving the CLAUDE.md rather than creating a skill?",
+        "Mentions the <important if> pattern or conditional blocks?",
+        "Explains why a skill is the wrong tool (project conventions vs reusable workflow)?",
+        "Offers to help rewrite the CLAUDE.md?",
+        "Suggests linter/formatter for enforceable rules (import style, naming)?"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "I need a skill for our internal billing library. it's called chargebee-wrapper and it wraps the Chargebee API with our own abstractions. Claude keeps making mistakes with it — it tries to call Chargebee directly instead of using our wrapper, it doesn't know about our retry logic, and it always forgets that subscription.cancel() requires a reason enum. I have the source code in packages/billing/ if that helps. Go ahead and draft the SKILL.md.",
+      "expected_output": "A SKILL.md for a library/API reference skill. Critically, the skill should focus on what pushes Claude out of its default behavior — the gotchas, the wrapper vs direct API distinction, the required reason enum — NOT restate general Chargebee API knowledge that Claude already has. Should include a prominent gotchas section. Should reference the source code for API details rather than inlining everything. Should identify this as a 'library & API reference' category skill.",
+      "persona": "Backend engineer with internal library issues",
+      "tests": [
+        "Produces a SKILL.md draft focused on delta-from-default (what Claude gets wrong)?",
+        "Includes a prominent gotchas section with the specific issues mentioned?",
+        "Emphasizes using the wrapper instead of direct Chargebee API calls?",
+        "Includes the subscription.cancel() reason enum requirement?",
+        "Does NOT restate general Chargebee API documentation Claude already knows?",
+        "References the source code path for detailed API signatures?",
+        "Uses progressive disclosure (SKILL.md for gotchas, references/ for full API)?",
+        "Identifies this as a library/API reference category skill?"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "I want a skill that posts my daily standup to Slack. It should look at my git commits and open PRs from the last 24 hours, check my Linear tickets, and format a standup message. The format should be: what I did yesterday, what I'm doing today (based on my in-progress tickets), and any blockers. I also want it to remember what it posted last time so it can show what changed. Different people on my team would use different Slack channels though — can it ask which channel on first use?",
+      "expected_output": "A SKILL.md that demonstrates three advanced patterns: (1) config.json for user-specific setup (Slack channel, stored on first use), (2) memory/data storage for standup history (so it knows what changed since last time), and (3) MCP integration for git/Linear/Slack. Should store config in a config.json file and history in a log or JSON file using ${CLAUDE_PLUGIN_DATA} for persistence. Should handle first-run setup gracefully.",
+      "persona": "Developer who wants a smart standup bot with memory",
+      "tests": [
+        "Includes a config.json setup pattern for the Slack channel?",
+        "Asks the user for channel on first use and saves it?",
+        "Implements memory/history storage for previous standups?",
+        "Uses ${CLAUDE_PLUGIN_DATA} or similar stable path for persistent data?",
+        "Formats output as yesterday/today/blockers?",
+        "References git, Linear, and Slack as data sources?",
+        "Handles first-run gracefully (no history, no config yet)?",
+        "Skill works for different team members (channel is per-user, not hardcoded)?"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "We need a skill that verifies our checkout flow actually works end-to-end after every deploy. It should: open the app in a headless browser, add an item to cart, go through checkout with a Stripe test card, verify the order shows up in our admin dashboard, and verify the Stripe webhook created the right invoice state. We use Playwright already. I want it to record a video of the run so I can see what happened if something breaks. Generate the full SKILL.md.",
+      "expected_output": "A SKILL.md for a product verification skill, ideally starting from the verification template. Should include: Playwright-based browser automation, assertions at each step (not just the final state), Stripe test card usage, admin dashboard verification, webhook/invoice state verification, video recording of the run, and failure handling (screenshots + logs on failure). Should suggest scripts/ for deterministic assertion logic.",
+      "persona": "QA engineer who wants automated verification after deploys",
+      "tests": [
+        "Produces a SKILL.md structured as a verification skill (step-by-step with assertions)?",
+        "Includes assertions at each step, not just the final outcome?",
+        "Specifies Playwright for browser automation?",
+        "Includes Stripe test card usage for checkout?",
+        "Verifies admin dashboard state (not just frontend)?",
+        "Includes video recording of the test run?",
+        "Has failure handling (screenshot + logs when a step fails)?",
+        "Suggests scripts/ for deterministic verification logic?"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Our payments service goes down about once a month and it's always the same investigation: check if it's a Stripe outage, look at our error logs, check the database connection pool, verify the webhook queue isn't backed up, and check if a recent deploy changed anything. Can you make a skill that walks through this investigation automatically and produces a findings report? We use Grafana for dashboards and Datadog for logs.",
+      "expected_output": "A SKILL.md for a runbook skill, ideally starting from the runbook template. Should include: symptom routing table (mapping symptoms to investigation paths), specific dashboard URLs/IDs to check, log query patterns for Datadog, database connection pool checks, webhook queue depth checks, deploy history correlation, and a structured findings report template with severity, timeline, root cause, impact, and follow-up actions.",
+      "persona": "SRE tired of repeating the same incident investigation",
+      "tests": [
+        "Produces a SKILL.md structured as a runbook (symptom → investigation → report)?",
+        "Includes a symptom routing table?",
+        "References Grafana dashboards and Datadog logs specifically?",
+        "Checks the external dependency (Stripe status page)?",
+        "Includes database connection pool investigation?",
+        "Checks webhook queue depth?",
+        "Correlates with recent deploys?",
+        "Produces a structured findings report (severity, timeline, root cause, next steps)?",
+        "Asks for specific dashboard IDs/URLs to embed in the skill?"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Make me a skill for doing code reviews on our React codebase. I want it to check for performance issues, accessibility problems, and security vulnerabilities. But here's the thing — I don't want it to be super rigid about HOW it reviews. Different PRs need different approaches. A small CSS change shouldn't get the same treatment as a new authentication flow. I want it to be smart about adapting to what it's looking at. Just make sure it always produces a structured output at the end.",
+      "expected_output": "A SKILL.md that gives Claude clear context about WHAT to check (performance, a11y, security) and WHY each matters, but avoids railroading with rigid step-by-step procedures for HOW to review. Should specify the output format (structured) but let Claude adapt its investigation approach based on the PR. Should include guidance on scaling depth to PR complexity (small CSS → quick scan, auth flow → deep review). This tests the 'avoid railroading' principle — the skill should inform and constrain output, not micromanage the process.",
+      "persona": "Tech lead who wants smart, adaptive reviews — not a checklist robot",
+      "tests": [
+        "Specifies WHAT to check (performance, a11y, security) with reasoning for WHY?",
+        "Avoids rigid step-by-step procedures for HOW to review?",
+        "Includes guidance on scaling review depth to PR complexity?",
+        "Specifies a structured output format?",
+        "Gives Claude flexibility to adapt its approach per PR?",
+        "Does NOT read like a rigid checklist — uses reasoning and context, not just commands?",
+        "Includes a gotchas section with common React-specific issues?"
       ]
     }
   ]
