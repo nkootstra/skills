@@ -1,3 +1,8 @@
+---
+name: create-skill
+description: Create, improve, and manage Claude skills through a guided wizard, starter templates, or by converting conversation history into reusable skills. Use this skill whenever the user mentions creating a skill, building a skill, "turn this into a skill", "make a skill from this", skill templates, improving an existing skill, running skill evals, benchmarking skill performance, optimizing skill descriptions, or anything related to authoring or editing SKILL.md files. Also trigger when the user says things like "I keep repeating myself", "Claude should remember this", "automate this workflow", or "save this as a process". Even if the user doesn't use the word "skill", trigger when they want to codify a repeatable process for Claude. This includes non-developers, designers, writers, and anyone who wants Claude to work the way they do without re-explaining every time.
+---
+
 # create-skill
 
 A skill that helps you create, improve, and manage other skills. It works for everyone — developers, designers, writers, anyone who wants Claude to work the way they do without re-explaining every time.

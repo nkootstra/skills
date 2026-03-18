@@ -48,19 +48,22 @@ Before doing anything, assess what the user actually needs. This is the most imp
 
 - **User already has a draft?** → Skip the wizard. Go straight to review/diagnose mode (Path 4).
 - **User says "turn this into a skill"?** → Use conversation extraction (Path 3).
-- **Request is trivially simple?** (e.g., "just add a signature to my emails") → Don't force 8 wizard steps. Generate a minimal skill immediately. Match the skill's complexity to the task's complexity — a 1-line behavior gets a 10-line skill, not a 150-line monstrosity.
+- **Request is trivially simple?** (e.g., "just add a signature to my emails") → Don't force 8 wizard steps. Generate a minimal skill immediately. Match the skill's complexity to the task's complexity — a 1-line behavior gets a 10-line skill, not a 150-line monstrosity. **For simple requests, skip headers and explanatory preamble — just produce the SKILL.md.**
+- **User provided enough detail?** → Build immediately. If the prompt contains the workflow, format preferences, constraints, and output shape, that's enough — produce the full SKILL.md in the first response. Do not start a wizard interview when the user has already given you everything you need. Clarifying questions (if any) go alongside the draft, not instead of it.
 - **Request is complex with many steps?** → Full wizard flow. Take your time on edge cases and scripts.
 - **Request is vague?** (e.g., "help me set up stuff faster") → Use the wizard to draw out specifics. Don't generate anything until you understand the actual workflow.
 - **User is frustrated with a broken skill?** → Don't re-ask questions they already answered. Acknowledge the problem, diagnose directly, and fix it.
-- **Requirements contradict each other?** → Surface the tension before generating. A skill built on contradictions will produce inconsistent output.
+- **Requirements contradict each other?** → Surface the tension explicitly before generating — do not paper over it. Name the contradiction, explain why it matters (inconsistent output), and offer concrete resolution paths: two output modes (quick vs. detailed), layered output (TL;DR + full version), or two separate skills. A skill built on contradictions will produce inconsistent output every time. Do not build it — resolve the contradiction first.
 - **Request overlaps with something Claude already does well?** → Probe for what the skill adds beyond default behavior. If the user has specific format/style preferences, create the skill. If not, gently explain that Claude already handles this.
-- **User's issue is better solved by CLAUDE.md than a skill?** → If the problem is "Claude keeps ignoring my project conventions" (testing patterns, API conventions, code style), suggest improving their CLAUDE.md instead. Read `references/claude-md-guide.md` for the `<important if>` pattern and CLAUDE.md writing principles.
+- **User's issue is better solved by CLAUDE.md than a skill?** → If the problem is "Claude keeps ignoring my project conventions" (testing patterns, API conventions, code style), **do not create a skill**. Tell the user directly that a skill is the wrong tool here, explain why (skills are for workflows, CLAUDE.md is for project-level conventions), and help them fix their CLAUDE.md instead. Read `references/claude-md-guide.md` for the `<important if>` pattern and CLAUDE.md writing principles. Offering to build a skill anyway in this situation is a mistake.
 
 **Scale your response to the task:**
-- Trivial tasks → minimal skill, fast turnaround
-- Clear tasks → wizard with appropriate depth, skip unnecessary steps
+- Trivial tasks → minimal skill, fast turnaround, no headers or preamble
+- Clear/detailed tasks → produce the artifact immediately; ask questions alongside the draft if needed
 - Complex tasks → full wizard, edge cases, scripts architecture, test cases
 - Vague tasks → discovery questions first, skill later
+
+**The default is to build, not to plan.** When in doubt, produce a draft. Users can react to a concrete draft far better than to a list of questions. "I drafted this based on what you said — does it land?" is almost always better than "Before I start, let me ask you 5 questions."
 
 ## Communicating with the User
 
@@ -103,7 +106,7 @@ Ask: "What do you want Claude to do for you automatically? Describe it like you'
 
 Listen for the core task. Restate it back in one sentence to confirm. Don't move on until you both agree on what the skill does.
 
-**Watch for contradictions** when restating. If requirements pull in opposite directions (e.g., "thorough but concise"), surface the tension before proceeding. Offer resolution paths: two modes in one skill, layered output (TL;DR + full version), or two separate skills. Don't build a skill on contradictory foundations — it will produce inconsistent output.
+**Watch for contradictions** when restating. If requirements pull in opposite directions (e.g., "thorough but concise", "comprehensive but short"), stop and surface the tension explicitly — don't paper over it with a clever pattern like "progressive disclosure." Name the contradiction: "These two requirements pull in opposite directions. A skill built on both will produce inconsistent output every run." Then offer concrete resolution paths: two output modes in one skill (triggered by a keyword like "quick" vs. "full"), layered output (TL;DR + detail below a fold), or two separate skills. Get agreement before generating anything.
 
 **Watch for overlap** with Claude's built-in abilities. If the task is something Claude already does well by default (summarizing, translating, basic code review, email drafting), probe for what the skill adds: "Claude already handles [task] pretty well out of the box. What's missing — a specific format, style, or process you want locked in?" If the user has specific requirements, the skill is justified. If not, gently explain it would add overhead without improving output.
 
@@ -137,6 +140,8 @@ If no template fits, start from a blank SKILL.md.
 
 **Step 8 — Generate the draft**
 Write the SKILL.md based on everything gathered. Show it to the user and explain each section briefly in plain language. Ask: "How does this look? Anything you'd change?"
+
+**Produce the full file, not a plan.** The output of this step is the actual SKILL.md content in a markdown code block — not a summary of what the file will contain, not a list of sections to fill in later, not "here's what I'd put in each section." If you've done steps 1–7, you have enough information to generate the full draft. For runbooks, include the actual symptom routing table with real log patterns and dashboard links (or clearly-labeled placeholders for things only the user knows). For verification skills, include the actual assertion logic in `scripts/` with real code. Domain-specific depth matters — generic placeholders are not useful.
 
 Then proceed to the testing phase (see "Testing and Iteration" below).
 
@@ -197,7 +202,7 @@ This path is powerful because it captures implicit knowledge — the stuff users
 
 Use this when the user already has a SKILL.md and wants it reviewed, fixed, or improved. They might say "review my skill", "fix my skill", "it's inconsistent", "it triggers for the wrong things", or paste an existing SKILL.md with complaints.
 
-**Do NOT re-run the wizard.** The user already has something — they want diagnosis, not a restart.
+**Do NOT re-run the wizard.** The user already has something — they want diagnosis, not a restart. Do NOT ask what the skill is supposed to do — read it and figure that out yourself.
 
 **How to review an existing skill:**
 
@@ -214,7 +219,7 @@ Use this when the user already has a SKILL.md and wants it reviewed, fixed, or i
 
 3. **Propose fixes with reasoning.** Don't just rewrite — explain why each change matters. The user learns to write better skills, and they can push back if they disagree with the reasoning.
 
-4. **Preserve the user's intent and structure.** Improve the skill, don't rebuild it from scratch. The user has context about their workflow that you don't — respect it.
+4. **Preserve the user's intent and structure.** Improve the skill, don't rebuild it from scratch. The user has context about their workflow that you don't — respect it. Do not introduce new external dependencies (new reference files, new scripts) unless the user asks for them.
 
 5. **Offer to test after.** "Want me to run your original prompt through this improved version so you can compare?"
 
@@ -342,6 +347,10 @@ Use **scripts** when a task is deterministic and repeatable (data validation, fi
 
 This separation is the difference between a skill that's reliable across hundreds of runs and one that subtly varies each time.
 
+**Write functional scripts, not stubs.** When the skill includes a `scripts/` folder, the scripts must contain actual working logic — not comments like `# TODO: add parsing logic here` or placeholder skeleton functions. If the user needs OCR, include the `pytesseract` / `pdf2image` import and the actual extraction call. If they need CSV parsing, use `csv` or `pdfplumber` with real field mapping. Skeleton stubs are not useful. If you are uncertain about a specific implementation detail (e.g., the exact PDF format), make a reasonable assumption, note it in a comment, and implement the rest fully. A partial implementation with one noted assumption is far better than an empty stub.
+
+**Handle error cases in scripts.** If the prompt mentions "using OCR if needed" or "rock solid" or "don't make me reinvent the wheel", that's a signal the user expects resilience — include try/except blocks, fallback logic, and meaningful error messages.
+
 Beyond single-purpose scripts, consider providing **composable helper libraries** — reusable functions that Claude can import and combine to build more complex workflows on the fly. For example, a data analysis skill might include helper functions for fetching events, computing funnels, and flagging anomalies. Claude can then compose these into custom scripts for specific queries. Read `references/advanced-patterns.md` for detailed examples.
 
 Design scripts with CLI interfaces (`--input`, `--output`, `--help` flags) so they're reusable and testable independently of the skill.
@@ -351,6 +360,8 @@ Use **references** for large bodies of knowledge that the skill needs sometimes 
 Use **assets** for files that get embedded in output (templates, images, fonts, icons).
 
 For advanced patterns including config/setup files, persistent memory/data storage, and on-demand hooks, read `references/advanced-patterns.md`.
+
+**Memory requirement signal:** If the user's request includes words like "remember", "last time", "history", "track over time", or "knows what it posted before", the skill needs persistent storage. Do not implement this as a vague suggestion — mandate `${CLAUDE_PLUGIN_DATA}` as the storage location in the SKILL.md instructions. Data stored in the skill directory itself may be deleted on upgrade; `${CLAUDE_PLUGIN_DATA}` survives upgrades. Read `references/advanced-patterns.md` for the exact implementation pattern.
 
 ### Principle of Lack of Surprise
 
@@ -472,13 +483,13 @@ Direct the user to the resulting `.skill` file path so they can install it.
 
 ### Distribution at Scale
 
-For smaller teams working across relatively few repos, checking skills into repos (under `.claude/skills/`) works well. But every skill checked in adds a little to Claude's context. As you scale, consider an internal plugin marketplace where users can install the skills they need.
+For smaller teams, checking skills into repos (under `.claude/skills/`) works well. But every checked-in skill adds to Claude's context. As you scale, consider an internal plugin marketplace where users install only what they need.
 
-**Organic curation:** Don't try to centrally decide which skills are valuable. Let people upload skills to a sandbox or shared folder, point others to them in Slack or other forums, and promote skills to the marketplace once they've gotten traction. It's easy to create bad or redundant skills, so some curation before official release is important.
+**Organic curation:** Don't centrally decide which skills are valuable. Let people upload skills to a sandbox or shared folder, promote them in Slack, and graduate to the marketplace once they've gotten traction. Some curation before official release prevents redundancy.
 
-**Composing skills:** Skills can reference other skills by name — Claude will invoke them if they're installed. For example, a `gradual-rollout` skill might reference a `smoke-tests` skill. Treat these as optional enhancements rather than hard dependencies, since the referenced skill may not be installed everywhere.
+**Composing skills:** Skills can reference other skills by name — Claude will invoke them if installed. Treat these as optional enhancements, not hard dependencies.
 
-**Measuring usage:** To understand how skills are performing, use a PreToolUse hook to log skill invocations. This helps identify popular skills and catch undertriggering.
+**Measuring usage:** Use a PreToolUse hook to log skill invocations — helps identify popular skills and catch undertriggering.
 
 ---
 
