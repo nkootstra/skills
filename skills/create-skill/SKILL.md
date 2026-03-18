@@ -54,7 +54,7 @@ Before doing anything, assess what the user actually needs. This is the most imp
 - **Request is vague?** (e.g., "help me set up stuff faster") → Use the wizard to draw out specifics. Don't generate anything until you understand the actual workflow.
 - **User is frustrated with a broken skill?** → Don't re-ask questions they already answered. Acknowledge the problem, diagnose directly, and fix it.
 - **Requirements contradict each other?** → Surface the tension explicitly before generating — do not paper over it. Name the contradiction, explain why it matters (inconsistent output), and offer concrete resolution paths: two output modes (quick vs. detailed), layered output (TL;DR + full version), or two separate skills. A skill built on contradictions will produce inconsistent output every time. Do not build it — resolve the contradiction first.
-- **Request overlaps with something Claude already does well?** → Probe for what the skill adds beyond default behavior. If the user has specific format/style preferences, create the skill. If not, gently explain that Claude already handles this.
+- **Request overlaps with something Claude already does well?** → You must directly address this. Say out loud: "Claude already handles [this task] reasonably well without a skill." Then probe: "What specifically is missing — a particular format, structure, or workflow?" If the user can articulate specifics (a rigid output format, a multi-step process, a house style), build the skill. If the user has no concrete additions beyond the baseline task, tell them directly: "A skill here would add overhead without improving output — you'd get the same result by just asking Claude." Do not sidestep this by generating a skill anyway.
 - **User's issue is better solved by an agent context file than a skill?** → If the problem is "Claude keeps ignoring my project conventions" (testing patterns, API conventions, code style), **do not create a skill**. Tell the user directly that a skill is the wrong tool here, explain why (skills are for workflows, agent context files like CLAUDE.md or AGENTS.md are for project-level conventions), and help them fix their agent context file instead. Read `references/claude-md-guide.md` for the `<important if>` pattern and writing principles for CLAUDE.md, AGENTS.md, and `.cursorrules`. Offering to build a skill anyway in this situation is a mistake.
 
 **Scale your response to the task:**
@@ -64,6 +64,8 @@ Before doing anything, assess what the user actually needs. This is the most imp
 - Vague tasks → discovery questions first, skill later
 
 **The default is to build, not to plan.** When in doubt, produce a draft. Users can react to a concrete draft far better than to a list of questions. "I drafted this based on what you said — does it land?" is almost always better than "Before I start, let me ask you 5 questions."
+
+**When producing a skill, output the actual file — not a description of it.** The output must be the SKILL.md content in a fenced code block. Not "here's what I'd put in each section." Not a bulleted outline. Not "Step 1 would cover X, Step 2 would cover Y." The file itself, in full. If you catch yourself writing "The SKILL.md would include..." — stop. Write the SKILL.md instead.
 
 ## Communicating with the User
 
@@ -141,7 +143,12 @@ If no template fits, start from a blank SKILL.md.
 **Step 8 — Generate the draft**
 Write the SKILL.md based on everything gathered. Show it to the user and explain each section briefly in plain language. Ask: "How does this look? Anything you'd change?"
 
-**Produce the full file, not a plan.** The output of this step is the actual SKILL.md content in a markdown code block — not a summary of what the file will contain, not a list of sections to fill in later, not "here's what I'd put in each section." If you've done steps 1–7, you have enough information to generate the full draft. For runbooks, include the actual symptom routing table with real log patterns and dashboard links (or clearly-labeled placeholders for things only the user knows). For verification skills, include the actual assertion logic in `scripts/` with real code. Domain-specific depth matters — generic placeholders are not useful.
+**Produce the full file, not a plan.** The output of this step is the actual SKILL.md content in a markdown code block — not a summary of what the file will contain, not a list of sections to fill in later, not "here's what I'd put in each section." If you've done steps 1–7, you have enough information to generate the full draft.
+
+Domain-specific depth is required — generic placeholders are not useful:
+- **Runbooks:** Include the actual symptom routing table (symptom → likely cause → investigation path), real log query patterns for the user's tooling (Datadog, CloudWatch, Splunk, etc.) with correct syntax and filter examples, specific dashboard names/URLs if known (use clearly-labeled placeholders like `[YOUR_GRAFANA_DASHBOARD_URL]` for things only the user knows), and a structured findings report template with named fields (severity, timeline, root cause, impact, follow-up actions).
+- **Verification skills:** Include the actual assertion logic in `scripts/` with real code, not pseudocode. Step-by-step assertions at each checkpoint, not just the final state.
+- **Data processing skills:** Include real script code with actual library calls, field mappings, and error handling — not skeleton functions.
 
 Then proceed to the testing phase (see "Testing and Iteration" below).
 
@@ -348,6 +355,13 @@ Use **scripts** when a task is deterministic and repeatable (data validation, fi
 This separation is the difference between a skill that's reliable across hundreds of runs and one that subtly varies each time.
 
 **Write functional scripts, not stubs.** When the skill includes a `scripts/` folder, the scripts must contain actual working logic — not comments like `# TODO: add parsing logic here` or placeholder skeleton functions. If the user needs OCR, include the `pytesseract` / `pdf2image` import and the actual extraction call. If they need CSV parsing, use `csv` or `pdfplumber` with real field mapping. Skeleton stubs are not useful. If you are uncertain about a specific implementation detail (e.g., the exact PDF format), make a reasonable assumption, note it in a comment, and implement the rest fully. A partial implementation with one noted assumption is far better than an empty stub.
+
+Before calling a script done, mentally verify:
+- Every import is real (not invented) and the library can do what you're using it for
+- The main logic path runs end-to-end without hitting a `pass`, `TODO`, or `raise NotImplementedError`
+- Data flows correctly between steps (e.g., if step 1 returns a list of dicts, step 2 actually iterates that list — not a placeholder variable)
+- OCR: uses `pdf2image` + `pytesseract` (not just `pdfplumber` text extraction, which silently returns empty strings on image-based PDFs)
+- Math operations use the actual computed values, not hardcoded test numbers
 
 **Handle error cases in scripts.** If the prompt mentions "using OCR if needed" or "rock solid" or "don't make me reinvent the wheel", that's a signal the user expects resilience — include try/except blocks, fallback logic, and meaningful error messages.
 
