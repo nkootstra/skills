@@ -97,9 +97,41 @@ tests/
 | Testing conventions (5 lines) | Correct, scoped to tests | Move to path-scoped rule |
 | Event handling (5 lines) | Correct, scoped to events | Move to path-scoped rule |
 
-## Step 3: Relocate, then rewrite
+## Step 3: Gap Analysis
 
-### After: Root AGENTS.md (20 lines)
+Load `references/coverage-checklist.md` and check each relevant topic against what the repo has and what the AGENTS.md covers.
+
+| Topic | Signal in repo | AGENTS.md covers it? | Suggested action |
+|---|---|---|---|
+| Architecture | Layered: controllers → services → repositories. Named in description but no boundaries documented. | One sentence (too thin) | Add to root (1 line) + create `src/AGENTS.md` with boundaries |
+| Performance | Pagination present in API conventions. No N+1, caching, or batch rules. | Partially (pagination max) | Add N+1 prevention rule; ask if caching conventions exist |
+| Security | Rate limiting mentioned. No auth pattern, input validation approach, or secrets rules. | Partially (rate limit) | Ask about auth pattern and validation layer; document or flag |
+| Error handling | No custom error classes found. No error propagation rules anywhere. | Not covered | Ask: is there an error handling strategy? Add if so. |
+| Data access | ORM present. No migration or transaction boundary conventions documented. | Not covered | Low priority for this example — ask user |
+| Observability | No logging library or structured logging conventions visible. | Not covered | Ask user if relevant |
+
+Present to user:
+
+```
+I found documented conventions for: API design, testing, event handling.
+
+These topics appear relevant to this repo but aren't covered:
+
+| Topic | Signal found | Suggested action |
+|---|---|---|
+| Architecture | Layered structure clear — no boundary rules documented | Document in root + src/AGENTS.md |
+| Performance | Pagination rules exist — no N+1 prevention or caching docs | Add N+1 rule; ask about caching |
+| Security | Rate limiting mentioned — no auth or validation docs | Ask about auth pattern |
+| Error handling | No error strategy found | Ask if one exists |
+
+Which of these gaps matter for your project? (add / not needed / handled elsewhere)
+```
+
+User responds: architecture + N+1 prevention are important; security and error handling are handled elsewhere and don't need to be in AGENTS.md.
+
+## Step 4: Relocate, then rewrite
+
+### After: Root AGENTS.md (22 lines)
 
 ```markdown
 # Order Service API
@@ -120,9 +152,30 @@ Run linter and typechecker before finishing.
 
 - Named exports only, no default exports.
 - Validate all request bodies with a schema library.
+- Avoid N+1 queries — always use eager loading when fetching related entities in a loop.
 - Events must be idempotent — consumers may receive duplicates.
 
-For API design, testing, and event patterns: see scoped rules.
+For API design, testing, event patterns, and architecture details: see scoped rules.
+```
+
+### New: sub-file for architecture and data access
+
+```markdown
+# src/AGENTS.md
+
+Layered architecture. Strict dependency direction: controllers call services; services call repositories. Never call repositories directly from controllers. Never put business logic in controllers.
+
+## Adding new features
+
+- New endpoint → add controller method, service method, repository method in that order.
+- Business rules go in services. Data queries go in repositories.
+- Repository interfaces in `src/repositories/interfaces/`. Implementations in `src/repositories/`.
+
+## Performance
+
+- Never fetch related entities inside a loop. Use eager loading or batch queries.
+- All list endpoints paginated — cursor-based, max 100 items. Use `src/utils/paginate.ts`.
+- Cache reads for catalog and user data (Redis, 5-min TTL). Don't cache order state.
 ```
 
 ### New: scoped rule for API conventions
@@ -181,12 +234,14 @@ paths:
 - Events must be idempotent — consumers may receive duplicates
 ```
 
-## Step 4: Results
+## Step 5: Results
 
 | Metric | Before | After (root) | After (total) |
 |---|---|---|---|
-| Root lines | 62 | 20 | — |
-| Total lines | 62 | — | 54 |
+| Root lines | 62 | 22 | — |
+| Total lines | 62 | — | 80 |
 | Style/lint rules | 6 | 0 | 0 |
 | Inferrable commands | 6 | 0 | 0 |
+| Architecture documented | No | Yes (root + sub) | — |
+| Performance rules | No | Yes (root + sub) | — |
 | Information lost | — | 0 | 0 |
