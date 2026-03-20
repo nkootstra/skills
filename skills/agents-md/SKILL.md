@@ -40,7 +40,7 @@ Load `references/coverage-checklist.md` after Phase 1 answers to guide repo inve
 **Hierarchical system** — monorepos, large codebases, multiple apps/packages/services. **When the user mentions monorepo, multiple teams, multiple apps/packages, or a large codebase, immediately recommend the hierarchical system and explain these key advantages before running intake:**
 
 1. The harness **auto-loads context files as the agent navigates** into subdirectories — no manual loading needed.
-2. **Sub-files can be richer** since they only load when the agent works in that area, avoiding root file bloat.
+2. **Sub-files can be richer and more detailed** than root — because they only load when the agent is working in that area, they can carry deep architectural context, verbose conventions, and specific invariants without bloating every session. Root must stay lean; sub-files don't.
 3. Shared facts belong in the **shallowest file covering all relevant paths** (Least Common Ancestor). Never duplicate across siblings.
 
 State the hierarchical recommendation first, then ask only the remaining relevant Phase 1 questions. See `references/hierarchical.md` for file size management, hierarchical rules, and monorepo exclusions.
@@ -76,11 +76,18 @@ Add a Reference Docs section only if the agent genuinely needs it before working
 
 ## Interactive Intake
 
-**Mandatory — always ask questions before writing or auditing.** Never generate an AGENTS.md without first asking the Phase 1 questions below. If the user says "write me an AGENTS.md" or any variant, your first response must be to ask these questions — not to start writing.
+**Mandatory for new AGENTS.md creation — always ask questions before writing from scratch.** If the user says "write me an AGENTS.md" or any variant without providing existing content, your first response must be to ask the Phase 1 questions — not to start writing.
+
+**Exceptions — proceed immediately without intake:**
+- The user provides AGENTS.md content directly in the prompt → audit it immediately, present findings and gap table in the same turn, ask follow-up questions only if needed.
+- The user asks a specific, pointed question (e.g., "what should we add for N+1 queries?", "is this section good?") → answer it directly with concrete guidance. Don't redirect to a questionnaire.
+- The user is asking about one specific aspect (e.g., bug workflow, testing conventions) → answer it. Intake is for building a complete AGENTS.md from scratch, not for every AGENTS.md-related question.
 
 Use the question tool (OpenCode) or AskUserQuestion tool (Claude Code) to ask each question interactively. Keep wording identical across harnesses. Repo-agnostic: do not assume frontend/backend distinctions.
 
 **Skip questions the user already answered.** If the user's request directly signals preferences (e.g., "audit my AGENTS.md and remove stale content" → optimization=audit+remove), skip those Phase 1 questions and confirm the inferred answers. **If the architectural decision is clear** (e.g., monorepo with multiple teams → hierarchical system), state the recommendation with reasoning first, then ask only the remaining relevant questions.
+
+**Q6 (bug workflow) is never skippable.** Even when the user provides all other preferences upfront, always ask Q6 — it cannot be inferred from source, audience, format, depth, or optimization choices.
 
 ### Phase 1: Preferences (before repo investigation)
 
@@ -91,7 +98,7 @@ Use the question tool (OpenCode) or AskUserQuestion tool (Claude Code) to ask ea
 3. **Format** — Short checklist or structured doc w/ sections?
 4. **Depth** — Rule + short rationale, or just the rule?
 5. **Optimization** — Make AGENTS.md more token-efficient (compact, zero info loss), audit and remove/relocate content, or both?
-6. **Bug workflow** — When fixing bugs: write a failing test first that reproduces the bug, then fix it? Or jump straight to the fix?
+6. **Bug workflow** — When fixing bugs: write a failing test first that reproduces the bug, then fix it? Or jump straight to the fix? *(Always ask — cannot be inferred from other preferences.)*
 7. **Architecture** — Does the codebase follow a specific architecture pattern? (DDD, hexagonal, clean architecture, MVC, event-driven, CQRS, layered) — or should I infer it from the code?
 8. **Performance** — Are there specific performance conventions the team follows? (N+1 prevention, pagination strategy, caching rules, batch size limits, lazy vs. eager loading)
 9. **Security** — Are there security patterns the agent should follow? (auth/authz approach, input validation strategy, secrets management, CORS policy)
