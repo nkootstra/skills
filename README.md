@@ -5,7 +5,7 @@ AI agent skills for Claude Code that extend your assistant's capabilities.
 ## Installation
 
 ```bash
-npx skills nkootstra/skills
+npx skills add nkootstra/skills
 ```
 
 Browse and install available skills into your project.
