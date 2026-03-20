@@ -18,6 +18,9 @@ Read on demand — do not load all reference files at once.
 | Monorepos, hierarchical systems, file size | `references/hierarchical.md` |
 | Flagging problems, reviewing quality | `references/anti-patterns.md` |
 | Compacting or optimizing an AGENTS.md | `references/compaction.md` |
+| Coverage, completeness, what topics to investigate | `references/coverage-checklist.md` |
+
+Load `references/coverage-checklist.md` after Phase 1 answers to guide repo investigation. Use during Phase 2 to structure gap presentation. Use during auditing for the gap analysis step.
 
 ## Core Principles
 
@@ -28,7 +31,7 @@ Read on demand — do not load all reference files at once.
 - **Don't ship auto-generated files unedited.** `/init` output (e.g. `claude init`, `opencode init`) is stuffed w/ docs the agent can already read — directory trees, npm script lists, file summaries. Rewrite before committing: strip inferrable content, keep only what the agent cannot discover on its own.
 - **Don't list inferrable commands.** Standard commands like `dev`, `build`, `start`, `lint` are inferrable — the agent reads package.json / Makefile / pyproject.toml directly. Only document commands whose names don't reveal purpose (e.g., `cf-typegen`, `db:migrate`). Listing inferrable commands is the "command dump" anti-pattern. When flagging this issue, always use the full word "inferrable" (not "infer", not "inference" — the full word "inferrable").
 - **Test through public interfaces.** Mock only at system boundaries — external APIs, databases, time, file system. Never mock internal collaborators — it couples tests to implementation details, not behavior. When advising on test rules, always use the phrase "system boundaries". See `references/tdd.md` for details.
-- **Architecture/overview sections have weak evidence** in root files. Exception: scoped sub-files can carry richer context.
+- **Architecture in root: one sentence.** Name the pattern + key top-level boundaries (e.g., "Hexagonal architecture. Domain in `src/domain/`, adapters in `src/adapters/`."). Deeper context — invariants, module responsibilities, where business logic lives — belongs in scoped sub-files where it loads only when relevant. Exception: scoped sub-files can carry rich architectural context for their area.
 
 ## Single File vs. Hierarchical System
 
@@ -51,6 +54,7 @@ One sentence: what it does and why it exists.
 
 ## Stack
 Tech stack. Package manager or build tool (be explicit — agents assume defaults).
+Architecture pattern + key top-level boundaries (1-2 lines max — e.g., "Hexagonal. Domain in `src/domain/`, adapters in `src/adapters/`." or "DDD, 3 bounded contexts: orders/, payments/, catalog/.").
 Path aliases if non-standard. Infrastructure if non-obvious (DB, cache, queue).
 Directory tree only if ownership boundaries aren't obvious. 1-2 levels max.
 
@@ -63,6 +67,9 @@ Include only non-obvious commands whose names don't reveal purpose
 ## Conventions
 Only things the agent can't infer from reading the code.
 No style rules — use a linter.
+Universal performance rules belong here (e.g., N+1 prevention, pagination requirements).
+Universal security rules belong here (e.g., secrets management, validation layer).
+Scoped or detailed rules (architecture boundaries, caching strategy, auth patterns) → sub-files.
 ```
 
 Add a Reference Docs section only if the agent genuinely needs it before working in that area.
@@ -85,18 +92,49 @@ Use the question tool (OpenCode) or AskUserQuestion tool (Claude Code) to ask ea
 4. **Depth** — Rule + short rationale, or just the rule?
 5. **Optimization** — Make AGENTS.md more token-efficient (compact, zero info loss), audit and remove/relocate content, or both?
 6. **Bug workflow** — When fixing bugs: write a failing test first that reproduces the bug, then fix it? Or jump straight to the fix?
+7. **Architecture** — Does the codebase follow a specific architecture pattern? (DDD, hexagonal, clean architecture, MVC, event-driven, CQRS, layered) — or should I infer it from the code?
+8. **Performance** — Are there specific performance conventions the team follows? (N+1 prevention, pagination strategy, caching rules, batch size limits, lazy vs. eager loading)
+9. **Security** — Are there security patterns the agent should follow? (auth/authz approach, input validation strategy, secrets management, CORS policy)
 
 **Conditional follow-ups:**
 - Repo discovery or both → summarize patterns or cite exact examples?
 - Both audiences → separate agent-facing and human-facing content into different sections?
 - Compact or both → load `references/compaction.md` and apply passes before presenting results.
 - Test-first bug workflow → use subagents for fix attempts (parallel candidates validated against the failing test), or single-pass fix? See `references/tdd.md` § "Test-First Bug Fixing" for the workflow to include.
+- Q7 names a specific pattern → "What are the key boundaries or modules? Where does business logic live vs. infrastructure/adapter code?"
+- Q7 = DDD → "What are the main bounded contexts? Any aggregates or domain events the agent should know about?"
+- Q7 = event-driven → "What's the event bus or message broker? What are the main event types?"
+- Q8 mentions ORM/database → "Which ORM? Any rules about eager vs. lazy loading or query patterns to avoid?"
+- Q8 mentions caching → "What's the caching strategy? (TTL-based, invalidation-based, cache-aside?) Any cache boundaries to respect?"
+- Q8 mentions pagination → "What pagination style? (cursor-based, offset-based?) Max page sizes?"
+- Q9 mentions auth → "What's the auth pattern? (JWT, session-based, OAuth?) Where does authorization logic live?"
+- Q9 mentions input validation → "Validation at which layer? (controller, domain, both?) Which library?"
+- Q9 mentions secrets → "How are secrets managed? Any rules about what must never be hardcoded?"
 
-Then investigate: scan for conventions, configs, linter rules, CI, directory structure, existing AGENTS.md files, and patterns worth codifying.
+Then investigate: scan for conventions, configs, linter rules, CI, directory structure, existing AGENTS.md files, and patterns worth codifying. Load `references/coverage-checklist.md` to guide the investigation — systematically check each relevant topic area (architecture, performance, security, error handling, data access, etc.) so gaps surface in Phase 2, not after the fact.
 
 ### Phase 2: Findings Review (after repo investigation)
 
 Present the 5-8 highest-impact discoveries and ask the developer to classify each one. Summarize the remainder (e.g., "13 additional lint rules found — handled by tooling; 4 path-scoped conventions moved to sub-files").
+
+**Also present gaps** — topics relevant to this repo that aren't covered anywhere in the AGENTS.md system. Use `references/coverage-checklist.md` to identify them. Format:
+
+```
+I found documented conventions for: [topics covered].
+
+These topics appear relevant but aren't covered:
+
+| Topic | Signal found | Suggested action |
+|---|---|---|
+| Architecture | [what code structure suggests] | Document in root + sub-file |
+| Performance | [what was found, e.g., pagination in controllers] | Ask: N+1 rules? Caching? |
+| Security | [auth middleware found / nothing found] | Ask about auth pattern |
+| Error handling | [nothing found] | Ask if strategy exists |
+
+Which of these gaps matter for your project? (add / not needed / handled elsewhere)
+```
+
+The user classifies each gap alongside the classification of existing content.
 
 **Placement decision (per finding):**
 - Keep in root AGENTS.md
@@ -114,8 +152,10 @@ Present the 5-8 highest-impact discoveries and ask the developer to classify eac
 ### Workflow
 
 ```
-Phase 1 (preferences) → Repo investigation → Phase 2 (findings review) → [Compact if selected] → Draft/Audit
+Phase 1 (preferences + architecture/perf/security questions) → Repo investigation (load coverage-checklist.md) → Phase 2 (findings review + gap presentation) → [Compact if selected] → Plan file structure → Draft/Audit
 ```
+
+**Planning file structure before writing:** Based on Phase 1 answers, Phase 2 findings, and the gap analysis, decide what sub-files are needed before writing anything. Simple projects write to root only. Complex projects plan root + sub-files, with each sub-file owning a clear boundary (e.g., `src/api/AGENTS.md`, `src/domain/AGENTS.md`). This avoids writing root content that then needs to be split.
 
 ## Auditing an Existing AGENTS.md
 
@@ -129,13 +169,14 @@ Phase 1 (preferences) → Repo investigation → Phase 2 (findings review) → [
    - *Correct but scoped* → **relocate** to sub-file (e.g., `src/api/AGENTS.md`) or path-scoped rule, add pointer from root
    - *Style/lint rule* → remove (use linter/hook)
    - *Redundant, stale, or inferrable* → remove
-3. **Relocate before removing.** When you find correct-but-scoped content, **relocate** it to the appropriate sub-file (e.g., `src/api/AGENTS.md`). Always say "relocate" — not "move", "extract", or "create a file for". Relocation is an atomic three-step sequence:
+3. **Gap analysis.** Load `references/coverage-checklist.md`. For each topic area relevant to this repo, check whether the AGENTS.md system (root + all sub-files) addresses it. Present a gap table to the user — what's missing that likely matters — and let them classify each as "add / not needed / handled elsewhere." See `references/audit-example.md` § "Gap Analysis" for a worked example and the gap table format.
+4. **Relocate before removing.** When you find correct-but-scoped content, **relocate** it to the appropriate sub-file (e.g., `src/api/AGENTS.md`). Always say "relocate" — not "move", "extract", or "create a file for". Relocation is an atomic three-step sequence:
    1. **Create** the destination sub-file with the full original content — no paraphrasing.
    2. **Verify** the destination contains every relocated instruction.
    3. **Replace** the original content in root with a pointer (e.g., "See `src/api/AGENTS.md`").
    Never delete from root until relocation is confirmed.
-4. **Hierarchical systems:** check if root content belongs in a sub-file, and if sub-files duplicate LCA knowledge.
-5. **Present results:** before/after line counts, what moved where, what removed and why, complete rewritten file(s).
+5. **Hierarchical systems:** check if root content belongs in a sub-file, and if sub-files duplicate LCA knowledge.
+6. **Present results:** before/after line counts, what moved where, what removed and why, what gaps were identified and how they were resolved, complete rewritten file(s).
 
 ## Maintenance
 

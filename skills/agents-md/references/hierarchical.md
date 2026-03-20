@@ -38,7 +38,7 @@ Match the mechanism to the harness. Move content to where it loads only when rel
 - `apps/api/AGENTS.md` — API server, auth, database access
 ```
 - **Build leaf-first** — deepest files first. Parents summarize children's AGENTS.md, not raw code.
-- **Scoped files can be richer** — entry points, invariants, pitfalls are appropriate when only loaded for one service.
+- **Scoped files can be richer** — entry points, invariants, pitfalls are appropriate when only loaded for one service. Architecture details (bounded contexts, module invariants, where business logic lives), performance conventions (N+1 rules, caching strategy, pagination), security patterns (auth/authz, validation layer), and error handling strategy are all good candidates for sub-files rather than root compression.
 
 ## Monorepo Exclusions
 

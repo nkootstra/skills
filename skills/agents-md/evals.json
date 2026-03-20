@@ -121,6 +121,39 @@
         "Response does NOT say 'this is good advice'"
       ],
       "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "I have a Python service using hexagonal architecture with DDD. The domain logic is in src/domain/, ports in src/ports/, and adapters in src/adapters/. My AGENTS.md just says 'Python service.' Should I add more about the architecture?",
+      "expected_output": "Should recommend documenting the architecture pattern in a scoped sub-file, not just root. Should mention that naming the pattern (hexagonal/DDD) plus key boundaries helps agents make correct placement decisions and avoid architectural violations. Root gets one line; depth goes in a sub-file.",
+      "expectations": [
+        "Response recommends documenting the architecture pattern beyond 'Python service'",
+        "Response suggests root gets one sentence naming the pattern + boundaries",
+        "Response recommends a scoped sub-file for detailed architectural context (invariants, where business logic lives)"
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Audit this AGENTS.md for our Node.js API:\n# User Service\nNode.js + Express API.\n## Development\nnpm test\n## Conventions\n- Use async/await\n- Prefer named exports",
+      "expected_output": "Should not only note that it's short — should surface gaps using the coverage checklist. Likely missing: architecture pattern, error handling, security (auth, validation), performance (N+1, pagination), data access patterns. Should present a gap table and ask which gaps matter for this repo.",
+      "expectations": [
+        "Response identifies missing topic areas beyond what's already there",
+        "Response mentions at least 2 of: architecture, performance, security, error handling as potential gaps",
+        "Response asks the user which gaps matter rather than silently ignoring them"
+      ],
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "My team's AGENTS.md covers conventions and commands well, but we keep running into issues where the AI agent makes N+1 queries and doesn't follow our pagination patterns. What should we add?",
+      "expected_output": "Should recommend adding performance conventions — specifically N+1 prevention rules and pagination standards — either to the root conventions section (if universal) or a scoped sub-file (if API/database-specific). Should provide concrete guidance on what to document.",
+      "expectations": [
+        "Response addresses N+1 query prevention and pagination specifically",
+        "Response suggests where to document these (root Conventions or scoped sub-file)",
+        "Response provides concrete examples of what performance rules to include"
+      ],
+      "files": []
     }
   ]
 }
