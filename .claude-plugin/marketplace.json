@@ -1,0 +1,25 @@
+{
+  "name": "nkootstra-skills",
+  "description": "Skills by Niels Kootstra",
+  "owner": {
+    "name": "Niels Kootstra"
+  },
+  "plugins": [
+    {
+      "name": "design-skills",
+      "description": "Critique, explore, prototype and polish interfaces",
+      "version": "1.0.0",
+      "author": {
+        "name": "Niels Kootstra"
+      },
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/design-critique",
+        "./skills/design-exploration",
+        "./skills/intentional-prototyping",
+        "./skills/interface-polish"
+      ]
+    }
+  ]
+}
