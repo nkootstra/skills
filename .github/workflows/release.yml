@@ -1,0 +1,122 @@
+name: Release
+
+# Run from Actions → Release → Run workflow on main. Raises the plugin's latest <plugin>-vX.Y.Z tag
+# by the chosen part, stamps the new version on the plugin in marketplace.json and on each of its
+# skills that changed, commits that to main, then tags the commit and creates a GitHub release
+# whose generated notes are the changelog. The first release of a plugin ships the version
+# already on main as is.
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: Plugin to release
+        type: choice
+        options: [design-skills]
+      bump:
+        description: Part of the version to raise
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+# Nothing by default; the release job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      # Commits the stamped versions, tags the commit and creates the GitHub release.
+      contents: write
+      # Reads CI's result for this commit.
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PLUGIN: ${{ inputs.plugin }}
+      BUMP: ${{ inputs.bump }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Require a green CI run for this commit
+        run: |
+          conclusion=$(gh run list --workflow ci.yml --commit "$GITHUB_SHA" --event push \
+            --json conclusion --jq '.[0].conclusion // ""')
+          if [ "$conclusion" != success ]; then
+            echo "::error::CI for $GITHUB_SHA is '${conclusion:-not run}', not success. Wait for it, or fix main."
+            exit 1
+          fi
+
+      - name: Last release
+        id: last
+        run: |
+          latest=$(git tag --list "$PLUGIN-v[0-9]*.[0-9]*.[0-9]*" --sort=-v:refname | head -n 1)
+          echo "${latest:-no release of $PLUGIN yet}"
+          echo "tag=$latest" >> "$GITHUB_OUTPUT"
+
+      - name: Require a change to the plugin's skills
+        if: steps.last.outputs.tag != ''
+        env:
+          LATEST: ${{ steps.last.outputs.tag }}
+        run: |
+          # Eval, docs and workflow changes don't reach installs; don't release a copy of the last version.
+          mapfile -t paths < <(jq -r --arg p "$PLUGIN" '.plugins[] | select(.name == $p) | .skills[]' .claude-plugin/marketplace.json)
+          if git diff --quiet "$LATEST" HEAD -- "${paths[@]}"; then
+            echo "::error::Nothing in $PLUGIN changed since $LATEST; there is nothing to release."
+            exit 1
+          fi
+
+      - name: Stamp the versions
+        id: stamp
+        env:
+          LATEST: ${{ steps.last.outputs.tag }}
+        run: |
+          python3 scripts/stamp_versions.py "$PLUGIN" "$BUMP" "$LATEST" > stamp.txt
+          cat stamp.txt
+          echo "version=$(head -n 1 stamp.txt)" >> "$GITHUB_OUTPUT"
+
+      # The version on main is what installs read, so it is committed before tagging. The GraphQL
+      # API signs the commit and refuses it if main moved since this run started.
+      - name: Commit the stamped versions to main
+        id: commit
+        env:
+          VERSION: ${{ steps.stamp.outputs.version }}
+        run: |
+          if [ "$(wc -l < stamp.txt)" -le 1 ]; then
+            echo "First release: nothing stamped, releasing $GITHUB_SHA."
+            echo "sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          additions=$(tail -n +2 stamp.txt | while read -r f; do
+            jq -n --arg path "$f" --arg contents "$(base64 -w0 "$f")" '{path: $path, contents: $contents}'
+          done | jq -s .)
+          jq -n --arg repo "$GITHUB_REPOSITORY" --arg head "$GITHUB_SHA" \
+                --arg msg "Release $PLUGIN $VERSION" --argjson additions "$additions" '{
+            query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }",
+            variables: { input: {
+              branch: { repositoryNameWithOwner: $repo, branchName: "main" },
+              expectedHeadOid: $head,
+              message: { headline: $msg },
+              fileChanges: { additions: $additions }
+            } }
+          }' > request.json
+          sha=$(gh api graphql --input request.json --jq '.data.createCommitOnBranch.commit.oid')
+          echo "Committed $sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Tag and create the GitHub release
+        env:
+          VERSION: ${{ steps.stamp.outputs.version }}
+          SHA: ${{ steps.commit.outputs.sha }}
+          LATEST: ${{ steps.last.outputs.tag }}
+        run: |
+          gh release create "$PLUGIN-v$VERSION" --target "$SHA" --title "$PLUGIN $VERSION" \
+            --generate-notes ${LATEST:+--notes-start-tag "$LATEST"}

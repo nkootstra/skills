@@ -10,7 +10,9 @@ skills/<name>/SKILL.md            the skill: frontmatter, workflow, load trigger
 skills/<name>/*.md                reference files, loaded on demand
 evals/triggering/                 does the right skill load, and only that one
 evals/results/                    run output (gitignored)
-CHANGELOG.md                      one entry per release
+scripts/check.py                  structural checks (CI runs it on every push and PR)
+scripts/stamp_versions.py         version stamping, used by the release workflow
+.github/workflows/                ci.yml (checks), release.yml (manual release)
 ```
 
 There is no `plugin.json`; each plugin entry uses `strict: false` and lists its skill paths explicitly. Skills stay flat in `skills/` whatever their category: the marketplace alone decides which plugin a skill belongs to. Don't nest skills in category folders; the skills CLI expects `skills/<name>/SKILL.md`.
@@ -41,8 +43,8 @@ There is no `plugin.json`; each plugin entry uses `strict: false` and lists its 
    - End with a "Companion skills" section that says when to hand off to each sibling skill in the same category.
 4. Add the skill path to its plugin's `skills` array in `.claude-plugin/marketplace.json` and a row to that category's README table. A skill belongs to exactly one plugin.
 5. Check:
-   - Run `claude plugin validate .` and `npx skills add . --list`.
-   - Confirm every linked reference file exists.
+   - Run `python3 scripts/check.py`, `claude plugin validate .` and `npx skills add . --list`.
+   - New skills start at `version: "1.0.0"`. Never bump versions by hand afterwards; the release workflow does it.
 6. Add eval cases (below) before calling the skill done.
 
 ## Adding a category
@@ -63,7 +65,7 @@ There is no `plugin.json`; each plugin entry uses `strict: false` and lists its 
 3. In the README:
    - Add a `### <Category> skills` section under Skills, with the plugin name and a table.
    - Add a row to the plugin table under Installation.
-4. Add a `## <category>-skills` section to `CHANGELOG.md`.
+4. Add the plugin name to the `plugin` options in `.github/workflows/release.yml`. `check.py` fails until you do.
 5. Add the skills to the triggering eval (below). It covers every skill in the repo, so prompts from one category also guard against skills from another firing.
 
 Writing style for skills:
@@ -106,22 +108,24 @@ python3 evals/triggering/summarize.py evals/results/<name>.json
   - Timeouts and "Reached maximum number of turns" are not failures by themselves: the skill has loaded by then and the graders still score.
 - Current baseline: 84/88 at the first full run; the two missed prompts pass after the description fixes, with no new false positives.
 
-## Versions
+## Versions and releases
 
-Two version numbers exist, and both use semver.
+Versions use semver at two levels, and nobody edits them by hand:
+- **Plugin**: `version` on the plugin's entry in `.claude-plugin/marketplace.json`. Claude Code uses it to decide when installed copies update. Plugins are versioned independently.
+- **Skill**: `metadata.version` in each `SKILL.md`.
 
-- **Skill version**: `metadata.version` in each `SKILL.md`. Bump it when that skill changes:
-  - **Patch** (`1.0.1`): wording, typos, clearer examples, no change in behavior or triggering.
-  - **Minor** (`1.1.0`): new guidance, a new reference file, or a description change that widens triggering.
-  - **Major** (`2.0.0`): renamed or removed skill, removed reference files, a narrowed description, or a workflow that produces different output.
-- **Plugin version**: `version` on the plugin's entry in `.claude-plugin/marketplace.json`. Each plugin is versioned on its own.
-  - Bump it in every release that changes any of its skills, using the highest level among the skill bumps.
-  - Claude Code uses this field to decide whether installed copies need an update, so a skill change without a plugin bump never reaches plugin users.
-- **Changelog**: add an entry under the plugin's section in `CHANGELOG.md` for each plugin version, listing each changed skill with its new version and a one-line reason.
-  - Note eval results when a description changed.
-  - No tool or model attribution lines.
-- **Releases**: tag the commit `<plugin>-v<version>` (for example `design-skills-v1.1.0`) after the change and its eval run are committed.
+To release, run Actions → Release → Run workflow on `main`, then pick the plugin and the part to raise:
+- **patch**: wording, typos, clearer examples; no change in behavior or triggering.
+- **minor**: new guidance, a new reference file, or a description change that widens triggering.
+- **major**: a renamed or removed skill or reference file, a narrowed description, or a workflow that produces different output.
 
-Eval-only changes and README edits don't bump any version.
+The workflow:
+1. Requires a green CI run on the commit.
+2. Refuses to release if none of the plugin's skills changed since its last `<plugin>-v<version>` tag. Eval, docs and workflow changes don't release.
+3. Raises the plugin version by the chosen part. It raises each changed skill by the same part, using `scripts/stamp_versions.py`.
+4. Commits the stamp to `main` (signed, through the GitHub API).
+5. Tags the commit `<plugin>-v<version>` and creates a GitHub release.
 
+The first release of a plugin ships the version already on `main`, unchanged.
 
+The release notes are generated from the commits and merged PRs since the last tag, so GitHub Releases is the changelog. Write commit subjects and PR titles for someone reading the release notes, without tool or model attribution lines. When a description changed, give the eval result in the PR description.

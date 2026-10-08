@@ -13,7 +13,7 @@ Each skill is a short workflow plus reference files that the agent loads only wh
 - **Progressive loading:** each `SKILL.md` stays under 80 lines. About 2,500 lines of rubrics, checklists, ranges and code live in reference files, and each file has an explicit trigger saying when to load it.
 - **Claude Code frontmatter:** `effort: high` on the skills that need deep reasoning, and `argument-hint` on the skills you call with a target.
 - **Tested triggering:** an eval checks that each skill loads for the right prompts and stays out of adjacent ones.
-- **Versioned:** semver per skill and per plugin, with a changelog per plugin.
+- **Versioned:** semver per skill and per plugin, stamped by a release workflow; [GitHub Releases](https://github.com/nkootstra/skills/releases) is the changelog.
 
 ## Table of contents
 
@@ -255,9 +255,14 @@ This keeps the cost of having the skills installed small, while the detail is th
 │   │   ├── cases.md            generated, readable table of all cases
 │   │   └── <case-id>/          generated: prompt.md + graders/
 │   └── results/                run output (gitignored)
+├── scripts/
+│   ├── check.py                structural checks, run by CI
+│   └── stamp_versions.py       version stamping, run by the release workflow
+├── .github/workflows/
+│   ├── ci.yml                  checks on every push and PR
+│   └── release.yml             manual release: stamp, tag, GitHub release
 ├── AGENTS.md                   instructions for agents working on this repo
 ├── CLAUDE.md                   imports AGENTS.md
-├── CHANGELOG.md
 └── LICENSE
 ```
 
@@ -275,6 +280,7 @@ cd skills
 Check that the plugin and skills are valid:
 
 ```bash
+python3 scripts/check.py        # frontmatter, marketplace, links, eval cases; same as CI
 claude plugin validate .        # expect: ✔ Validation passed
 npx skills add . --list         # lists every skill, grouped by plugin
 ```
@@ -296,7 +302,7 @@ After editing a skill, run `/plugin marketplace update nkootstra-skills` and sta
 2. Keep `SKILL.md` lean. Put detail in sibling reference files, each linked with a trigger saying when to load it.
 3. Add the path to its plugin's `skills` array in `.claude-plugin/marketplace.json` and a row to that category's table above. For a new category, add a new plugin entry (see [AGENTS.md](AGENTS.md)).
 4. Add eval cases and run the eval.
-5. Bump versions and add a changelog entry.
+5. Leave versions alone; the release workflow stamps them.
 
 ## Evals
 
@@ -366,17 +372,27 @@ Current baseline: the two prompts missed above, a brainstorm and a variations gr
 
 Versions use semver at two levels:
 
-| Version | Where | Bump when |
-|---|---|---|
-| Skill | `metadata.version` in each `SKILL.md` | That skill changes. **Patch:** wording only. **Minor:** new guidance, a new reference file, or wider triggering. **Major:** renamed or removed skills or files, narrower triggering, or different output. |
-| Plugin | `version` on the plugin's entry in `.claude-plugin/marketplace.json` | Any of its skills changes, using the highest level among that release's skill bumps. Claude Code uses this field to decide when installed copies update. Plugins are versioned independently. |
+| Version | Where |
+|---|---|
+| Plugin | `version` on the plugin's entry in `.claude-plugin/marketplace.json`. Claude Code uses it to decide when installed copies update. |
+| Skill | `metadata.version` in each `SKILL.md`. |
 
-To release:
-1. Bump the versions.
-2. Add an entry to [CHANGELOG.md](CHANGELOG.md) under the plugin, listing each changed skill, its new version and why.
-3. Commit, then tag `<plugin>-v<version>`, for example `design-skills-v1.1.0`.
+Nobody edits them by hand. To release, run **Actions → Release → Run workflow** on `main` and pick the plugin and the part to raise:
 
-Eval-only and README changes don't bump a version.
+| Part | When |
+|---|---|
+| patch | Wording only. |
+| minor | New guidance, a new reference file, or wider triggering. |
+| major | Renamed or removed skills or files, narrower triggering, or different output. |
+
+The workflow:
+1. Requires a green CI run.
+2. Refuses to release when none of the plugin's skills changed since its last tag.
+3. Stamps the new version on the plugin and on each changed skill, and commits that to `main`.
+4. Tags the commit `<plugin>-v<version>`, for example `design-skills-v1.1.0`.
+5. Creates a GitHub release with generated notes.
+
+[GitHub Releases](https://github.com/nkootstra/skills/releases) is the changelog.
 
 ## Troubleshooting
 
@@ -384,7 +400,7 @@ Eval-only and README changes don't bump a version.
 
 **`claude plugin validate .` fails.** Check that every path in each plugin's `skills` array exists, that no skill is listed in two plugins, and that each folder has a `SKILL.md` whose `name` matches the folder.
 
-**A plugin doesn't pick up changes.** Run `/plugin marketplace update nkootstra-skills` and start a new session. For published releases, check that the plugin `version` was bumped.
+**A plugin doesn't pick up changes.** Run `/plugin marketplace update nkootstra-skills` and start a new session. Updates only arrive after a release, because the release raises the plugin `version`.
 
 **Eval run scores 0 on every positive.** The plugin didn't load into the sandbox. Each case's `prompt.md` needs `plugins: ["../../.."]`. Regenerate with `make_cases.py`.
 
