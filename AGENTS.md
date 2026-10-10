@@ -152,4 +152,4 @@ The workflow:
 
 The first release of a plugin ships the version already on `main`, unchanged.
 
-The release notes are generated from the commits and merged PRs since the last tag, so GitHub Releases is the changelog. Write commit subjects and PR titles for someone reading the release notes, without tool or model attribution lines. When a description changed, give the eval result in the PR description.
+The release notes list each commit since the last tag that touched one of the plugin's skills, by subject, with a link to its PR, so GitHub Releases is the changelog and a PR that changes two plugins appears in each only with its own commits. Write commit subjects for someone reading the release notes, one plugin per commit, without tool or model attribution lines. When a description changed, give the eval result in the PR description.
