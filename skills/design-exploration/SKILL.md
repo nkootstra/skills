@@ -13,8 +13,8 @@ Two disciplines, done in order. **Range**: explore structurally different concep
 
 ## Reference files
 
-- Load [range-techniques.md](range-techniques.md) before generating directions, and whenever two directions start to share a mechanism. It has the job-to-be-done framing, the mechanism axes, a range-or-variant test, visual movements to borrow, the generic AI aesthetic to avoid, a prompt bank per technique, a worked example, and the presentation and recommendation format.
-- Load [depth-ladder.md](depth-ladder.md) once a direction is chosen, to show the climb. It has level descriptions, moves per band, a worked climb, a levels log template, ceiling signs, and the what-to-cut checklist.
+- Load [range-techniques.md](references/range-techniques.md) before generating directions, and whenever two directions start to share a mechanism. It has the job-to-be-done framing, the mechanism axes, a range-or-variant test, visual movements to borrow, the generic AI aesthetic to avoid, a prompt bank per technique, a worked example, and the presentation and recommendation format.
+- Load [depth-ladder.md](references/depth-ladder.md) once a direction is chosen, to show the climb. It has level descriptions, moves per band, a worked climb, a levels log template, ceiling signs, and the what-to-cut checklist.
 
 ## Part 1: Range
 

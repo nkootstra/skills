@@ -12,12 +12,12 @@ metadata:
 
 Load these when the matching step comes up; don't preload them all.
 
-- Load [platform-baselines.md](platform-baselines.md) for section 1: check the target platform's floor (navigation, type, hit targets, sheets, gestures, focus, dark mode, safe areas) before designing, and use its "how to exceed it" list for ideas.
-- Load [states-and-edges.md](states-and-edges.md) for the section 2 sweep; walk every component on screen through its state matrix, then run the edge sweep and check errors against the recovery formula.
-- Load [motion.md](motion.md) for section 3, and whenever adding, reviewing or tuning an animation: purpose test, origin, frequency, duration and easing defaults, springs, reduced motion, performance.
-- Load [visual-rules.md](visual-rules.md) whenever building or restyling a surface: the defaults to decide rather than inherit, and rules for surfaces, color, type, layout, actions and dark mode. Its quick defect scan is for section 4.
-- Load [ship-checklist.md](ship-checklist.md) for section 5, before calling any UI work done.
-- Load [react-components.md](react-components.md) when working in a React/TSX/Next.js codebase and building, reviewing or hardening a reusable component (API shape, states, keyboard and focus, motion tokens, per-frame performance).
+- Load [platform-baselines.md](references/platform-baselines.md) for section 1: check the target platform's floor (navigation, type, hit targets, sheets, gestures, focus, dark mode, safe areas) before designing, and use its "how to exceed it" list for ideas.
+- Load [states-and-edges.md](references/states-and-edges.md) for the section 2 sweep; walk every component on screen through its state matrix, then run the edge sweep and check errors against the recovery formula.
+- Load [motion.md](references/motion.md) for section 3, and whenever adding, reviewing or tuning an animation: purpose test, origin, frequency, duration and easing defaults, springs, reduced motion, performance.
+- Load [visual-rules.md](references/visual-rules.md) whenever building or restyling a surface: the defaults to decide rather than inherit, and rules for surfaces, color, type, layout, actions and dark mode. Its quick defect scan is for section 4.
+- Load [ship-checklist.md](references/ship-checklist.md) for section 5, before calling any UI work done.
+- Load [react-components.md](references/react-components.md) when working in a React/TSX/Next.js codebase and building, reviewing or hardening a reusable component (API shape, states, keyboard and focus, motion tokens, per-frame performance).
 
 ## 1. Start from the platform default, then improve
 
@@ -67,7 +67,7 @@ The short version:
 - Is there at least one place where it goes further than it had to?
 - Would anything be better removed?
 
-For the full, testable checklist load [ship-checklist.md](ship-checklist.md).
+For the full, testable checklist load [ship-checklist.md](references/ship-checklist.md).
 
 ## Companion skills
 
