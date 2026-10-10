@@ -30,9 +30,25 @@
 {"id": "pol-06", "expected": "interface-polish", "also_ok": [], "tags": ["interface-polish", "hard"], "prompt": "Build a settings page for notification preferences. It should feel native and high quality, not like a default template."}
 {"id": "pol-07", "expected": "interface-polish", "also_ok": [], "tags": ["interface-polish", "hard"], "prompt": "Make the modal in src/components/Modal.tsx feel right: how it opens, closes, focus, escape, all the details."}
 {"id": "pol-08", "expected": "interface-polish", "also_ok": [], "tags": ["interface-polish", "hard"], "prompt": "Clean up the dark mode on the marketing page, the cards look washed out and the screenshots glow. src/pages/Home.tsx"}
+{"id": "readme-01", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "direct"], "prompt": "Write a README for this repo."}
+{"id": "readme-02", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "indirect"], "prompt": "Our setup docs are out of date. Fix them so they match what the project actually does now."}
+{"id": "readme-03", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "indirect"], "prompt": "Document how to run this project locally, starting from a fresh clone."}
+{"id": "readme-04", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "indirect"], "prompt": "A new hire spent a whole day trying to get this running. Make sure the next one doesn't."}
+{"id": "readme-05", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "hard"], "prompt": "I renamed the npm scripts last week: dev is now start:dev and test is now test:unit. Make sure the docs keep up."}
+{"id": "readme-06", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "hard"], "prompt": "This is a pnpm monorepo with four packages and no top-level docs. What should someone see when they open the repo on GitHub? Write it."}
+{"id": "readme-07", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "hard"], "prompt": "We're open-sourcing this CLI next week and the repo landing page is just the project name. Sort it out."}
+{"id": "readme-08", "expected": "write-readme", "also_ok": [], "tags": ["write-readme", "direct"], "prompt": "Generate the docs for this library in the README: install, usage and an API overview."}
+{"id": "prose-01", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "direct"], "prompt": "I wrote this messy draft on our code-review process (notes/code-review.md) and want it turned into a proper blog post. Keep my voice as a working engineer and don't invent things I didn't say."}
+{"id": "prose-02", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "indirect"], "prompt": "Our about page (content/about.md) reads like an AI wrote it. Full of 'seamless', 'revolutionary', 'passionate team'. Rewrite it so it sounds like an actual person with a point of view, keeping the facts."}
+{"id": "prose-03", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "hard"], "prompt": "This article of mine (posts/caching.md) is grammatically clean but still feels machine-made. It narrates itself instead of arguing, and it resolves every open question by the end. Help."}
+{"id": "prose-04", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "hard"], "prompt": "Here are my raw notes on why churn spiked (notes/churn.md). The evidence is contradictory and I never reached a conclusion. Draft the blog post without writing a cleaner story than my notes support."}
+{"id": "prose-05", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "indirect"], "prompt": "My essay (drafts/essay.md) takes too long to get going; friends say the first half reads like a travel diary. Restructure it to start where it matters and cut the 'surprisingly, what I learned was' narration."}
+{"id": "prose-06", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "indirect"], "prompt": "We shipped a migration tool. I need a short changelog piece explaining what changed and why it matters, no marketing adjectives, under 300 words. The internal spec is in docs/migration-spec.md."}
+{"id": "prose-07", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "direct"], "prompt": "Write a commit message for the changes I just made. They fix a race in background sync."}
+{"id": "prose-08", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "hard"], "prompt": "Draft the PR description for this branch using our template in .github/pull_request_template.md. Unit tests passed; browser testing was not run."}
 {"id": "none-01", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Fix the TypeError in src/components/InvoiceTable.tsx: 'Cannot read properties of undefined (reading map)'."}
 {"id": "none-02", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Convert #4F46E5 to HSL and OKLCH."}
-{"id": "none-03", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Write a commit message for the changes I just made to the header."}
+{"id": "none-03", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Write three ad headlines for our launch and a punchy Twitter thread with hooks and hashtags."}
 {"id": "none-04", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Explain the difference between flexbox and CSS grid."}
 {"id": "none-05", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Rename the Button component's 'kind' prop to 'variant' everywhere."}
 {"id": "none-06", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Add a unit test for the formatCurrency util in src/utils/format.ts."}
@@ -42,3 +58,10 @@
 {"id": "none-10", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Write the API route that returns the list of invoices as JSON."}
 {"id": "none-11", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Update the copyright year in the footer to 2026."}
 {"id": "none-12", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Why is my Next.js build failing with 'Module not found: Can't resolve @/lib/db'?"}
+{"id": "none-13", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Translate the German docs in docs/de to English."}
+{"id": "none-14", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Summarize this article in three bullet points for my notes: https://example.com/post"}
+{"id": "none-15", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Commit these files and push the branch to GitHub."}
+{"id": "none-16", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Add a JSDoc comment to the formatCurrency function in src/utils/format.ts."}
+{"id": "none-17", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Fix the typo 'Instalation' in the README heading."}
+{"id": "none-18", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Generate an OpenAPI spec for the routes in src/api."}
+{"id": "none-19", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Write a press release announcing our Series A."}

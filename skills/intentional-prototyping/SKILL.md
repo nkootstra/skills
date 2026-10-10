@@ -13,10 +13,10 @@ metadata:
 
 Load these only when the step calls for them:
 
-- When building the control panel, load [tuning-panel.md](tuning-panel.md) and copy the module verbatim; adapt only the schema and the `onChange` binding. If the project already uses DialKit, Leva or Tweakpane, use that instead (the file says how to decide).
-- When choosing defaults and slider ranges for durations, easing, springs, stagger, scale, translate, shadows, blur, radius or opacity, load [parameter-ranges.md](parameter-ranges.md). Values already in the code take precedence.
-- When the user wants to recreate or understand an effect, load [recreation.md](recreation.md) for the observation checklist, technique decision table, frame-by-frame study tips and the comparison log template.
-- When the prototype lives in a React/TSX/Next.js codebase, load [react-prototypes.md](react-prototypes.md): isolating the question in one component, tuning values through `useTuner`, motion values for per-frame updates, and turning a validated prototype into a production component.
+- When building the control panel, load [tuning-panel.md](references/tuning-panel.md) and copy the module verbatim; adapt only the schema and the `onChange` binding. If the project already uses DialKit, Leva or Tweakpane, use that instead (the file says how to decide).
+- When choosing defaults and slider ranges for durations, easing, springs, stagger, scale, translate, shadows, blur, radius or opacity, load [parameter-ranges.md](references/parameter-ranges.md). Values already in the code take precedence.
+- When the user wants to recreate or understand an effect, load [recreation.md](references/recreation.md) for the observation checklist, technique decision table, frame-by-frame study tips and the comparison log template.
+- When the prototype lives in a React/TSX/Next.js codebase, load [react-prototypes.md](references/react-prototypes.md): isolating the question in one component, tuning values through `useTuner`, motion values for per-frame updates, and turning a validated prototype into a production component.
 
 ## 1. Separate concerns: name the question first
 

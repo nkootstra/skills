@@ -1,0 +1,184 @@
+[
+ {
+  "id": "node-cli-new-readme",
+  "prompt": "Write a README for this project.",
+  "fixture": {
+   "package.json": "{\n  \"name\": \"tally-cli\",\n  \"version\": \"0.3.1\",\n  \"description\": \"Count rows, words and unique values in CSV files\",\n  \"license\": \"MIT\",\n  \"type\": \"module\",\n  \"bin\": { \"tally\": \"dist/cli.js\" },\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"build\": \"tsc -p .\",\n    \"test\": \"vitest run\",\n    \"lint\": \"eslint .\"\n  },\n  \"dependencies\": { \"commander\": \"^12.1.0\", \"csv-parse\": \"^5.5.6\" },\n  \"devDependencies\": { \"typescript\": \"^5.6.0\", \"vitest\": \"^2.1.0\", \"eslint\": \"^9.12.0\" }\n}\n",
+   "pnpm-lock.yaml": "lockfileVersion: '9.0'\n",
+   ".nvmrc": "20\n",
+   "LICENSE": "MIT License\n\nCopyright (c) 2026 Tally contributors\n",
+   "src/cli.ts": "#!/usr/bin/env node\nimport { Command } from 'commander';\nimport { countRows, countUnique } from './count.js';\n\nconst program = new Command('tally').version('0.3.1');\n\nprogram\n  .command('rows <file>')\n  .description('Count data rows, excluding the header')\n  .option('--json', 'print the result as JSON')\n  .action(async (file, opts) => print(await countRows(file), opts));\n\nprogram\n  .command('unique <file> <column>')\n  .description('Count distinct values in a column')\n  .option('--json', 'print the result as JSON')\n  .option('--top <n>', 'also list the n most common values', '0')\n  .action(async (file, column, opts) => print(await countUnique(file, column, Number(opts.top)), opts));\n\nfunction print(result: unknown, opts: { json?: boolean }) {\n  const color = !process.env.NO_COLOR;\n  console.log(opts.json ? JSON.stringify(result) : format(result, color));\n}\n\nfunction format(result: unknown, color: boolean) { return String(result); }\n\nprogram.parseAsync();\n",
+   "src/count.ts": "import { parse } from 'csv-parse';\nimport { createReadStream } from 'node:fs';\n\nexport async function countRows(file: string) {\n  let n = 0;\n  for await (const _ of createReadStream(file).pipe(parse({ columns: true }))) n++;\n  return { rows: n };\n}\n\nexport async function countUnique(file: string, column: string, top: number) {\n  const counts = new Map<string, number>();\n  for await (const row of createReadStream(file).pipe(parse({ columns: true }))) {\n    const v = row[column];\n    counts.set(v, (counts.get(v) ?? 0) + 1);\n  }\n  const sorted = [...counts].sort((a, b) => b[1] - a[1]);\n  return { unique: counts.size, top: sorted.slice(0, top) };\n}\n",
+   ".github/workflows/ci.yml": "name: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: pnpm/action-setup@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: pnpm }\n      - run: pnpm install --frozen-lockfile\n      - run: pnpm lint\n      - run: pnpm test\n      - run: pnpm build\n"
+  },
+  "expectations": [
+   "README.md opens by saying what tally does (counting rows and unique values in CSV files) in plain terms, without marketing adjectives such as 'powerful', 'blazing fast' or 'seamless'.",
+   "Install and development commands use pnpm (the repo has pnpm-lock.yaml); the README does not tell the reader to run npm install or yarn for development.",
+   "The README states Node.js 20 or newer as a prerequisite.",
+   "Usage documents both real commands, `tally rows <file>` and `tally unique <file> <column>`, and the `--json` and `--top` options, and invents no other commands or options.",
+   "The test, lint and build commands shown match the package.json scripts (pnpm test, pnpm lint, pnpm build).",
+   "The README contains no deployment, Docker or hosting section, and does not recommend a deployment platform.",
+   "The README documents no environment variables other than NO_COLOR (mentioning NO_COLOR is optional), and invents no config file.",
+   "The README gives the license as MIT."
+  ]
+ },
+ {
+  "id": "python-lib-new-readme",
+  "prompt": "This library has no README yet. Write one.",
+  "fixture": {
+   "pyproject.toml": "[project]\nname = \"slugkit\"\nversion = \"1.2.0\"\ndescription = \"Turn titles into URL slugs\"\nrequires-python = \">=3.10\"\nlicense = \"Apache-2.0\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest>=8\"]\n\n[build-system]\nrequires = [\"hatchling\"]\nbuild-backend = \"hatchling.build\"\n",
+   "uv.lock": "version = 1\nrequires-python = \">=3.10\"\n",
+   "LICENSE": "Apache License\nVersion 2.0, January 2004\n",
+   "src/slugkit/__init__.py": "\"\"\"Turn titles into URL slugs.\"\"\"\nimport re\nimport unicodedata\n\n__all__ = [\"slugify\"]\n\n\ndef slugify(text: str, sep: str = \"-\", max_length: int | None = None) -> str:\n    \"\"\"Lowercase, strip accents, and join words with sep. Truncates at a word boundary when max_length is set.\"\"\"\n    ascii_text = unicodedata.normalize(\"NFKD\", text).encode(\"ascii\", \"ignore\").decode()\n    words = re.findall(r\"[a-z0-9]+\", ascii_text.lower())\n    slug = sep.join(words)\n    if max_length is not None and len(slug) > max_length:\n        cut = slug[:max_length]\n        slug = cut.rsplit(sep, 1)[0] if sep in cut else cut\n    return slug\n",
+   "tests/test_slugify.py": "from slugkit import slugify\n\n\ndef test_basic():\n    assert slugify(\"Hello, World!\") == \"hello-world\"\n\n\ndef test_accents():\n    assert slugify(\"Crème brûlée\") == \"creme-brulee\"\n\n\ndef test_max_length():\n    assert slugify(\"one two three\", max_length=8) == \"one-two\"\n",
+   ".github/workflows/ci.yml": "name: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        python: [\"3.10\", \"3.11\", \"3.12\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: astral-sh/setup-uv@v3\n      - run: uv run --python ${{ matrix.python }} pytest\n"
+  },
+  "expectations": [
+   "README.md says slugkit turns titles or text into URL slugs, in plain terms.",
+   "Installation either shows installing the package from PyPI (`pip install slugkit` or `uv add slugkit`), or, since the repo has no publishing workflow, shows a local install (`pip install .` or `uv sync`) with a visible TODO to confirm publication. It does not omit installation.",
+   "The usage example calls `slugify` with its real signature (text, optionally sep and max_length) and shows outputs consistent with the code or tests, such as 'hello-world' or 'creme-brulee'.",
+   "The README claims no features the code doesn't have (no transliteration of non-Latin scripts, no stopword removal, no CLI, no async API).",
+   "The README states Python 3.10 or newer, or the tested versions 3.10 to 3.12.",
+   "The test command uses uv (for example `uv run pytest`), matching CI and uv.lock.",
+   "The README gives the license as Apache-2.0, not MIT.",
+   "The README has no deployment, Docker or environment-variable section."
+  ]
+ },
+ {
+  "id": "stale-readme-update",
+  "prompt": "The README is out of date. Bring it up to date.",
+  "fixture": {
+   "README.md": "# Ledger API\n\nLedger API records double-entry transactions for the Acme finance team and exposes balances per account.\n\n## Why double-entry\n\nEvery transfer writes two rows, a debit and a credit, in one database transaction. A balance is always the sum of its rows, so it can be recomputed from history and audited line by line. We chose this over storing running balances after the March 2025 reconciliation incident.\n\n## Getting started\n\n```sh\nnpm install\ncp .env.example .env\nnpm run dev\n```\n\n## Configuration\n\n| Variable | Purpose |\n|---|---|\n| `DATABASE_URL` | Postgres connection string |\n| `REDIS_URL` | Cache for balance lookups |\n\n## Tests\n\n```sh\nnpm test\n```\n",
+   "package.json": "{\n  \"name\": \"ledger-api\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start:dev\": \"node --watch src/server.js\",\n    \"start\": \"node src/server.js\",\n    \"test:unit\": \"node --test test/\",\n    \"db:migrate\": \"node scripts/migrate.js\"\n  },\n  \"dependencies\": { \"fastify\": \"^5.0.0\", \"pg\": \"^8.13.0\" }\n}\n",
+   "package-lock.json": "{\n  \"name\": \"ledger-api\",\n  \"lockfileVersion\": 3\n}\n",
+   ".env.example": "DATABASE_URL=postgres://localhost:5432/ledger\nPORT=3000\n",
+   "src/server.js": "import Fastify from 'fastify';\nimport pg from 'pg';\n\nconst pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst app = Fastify({ logger: true });\n\napp.get('/accounts/:id/balance', async (req) => {\n  const { rows } = await pool.query('select coalesce(sum(amount), 0) as balance from entries where account_id = $1', [req.params.id]);\n  return rows[0];\n});\n\napp.listen({ port: Number(process.env.PORT ?? 3000) });\n",
+   "scripts/migrate.js": "import pg from 'pg';\nconst pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nawait pool.query('create table if not exists entries (id serial primary key, account_id int not null, amount numeric not null, created_at timestamptz default now())');\nawait pool.end();\n"
+  },
+  "expectations": [
+   "README.md still contains the 'Why double-entry' section with its substance intact: two rows per transfer, balances recomputable from history, and the March 2025 reconciliation incident.",
+   "The opening description of Ledger API is kept, not replaced by a generic or marketing intro.",
+   "The dev command is updated to `npm run start:dev` and `npm run dev` no longer appears.",
+   "The test command is updated to `npm run test:unit` (or equivalent) instead of `npm test`.",
+   "REDIS_URL is removed from the configuration table, and PORT is added with its default of 3000.",
+   "The README mentions the `db:migrate` script as a setup step or in a scripts list.",
+   "No deployment, Docker or hosting section was invented.",
+   {
+    "criteria": "The final message to the user summarizes what was changed in the README, briefly.",
+    "focus": "last_message"
+   }
+  ]
+ },
+ {
+  "id": "service-version-and-env-drift",
+  "prompt": "Write the README for this service.",
+  "fixture": {
+   "package.json": "{\n  \"name\": \"invoice-worker\",\n  \"private\": true,\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"pg\": \"^8.13.0\", \"stripe\": \"^17.0.0\" }\n}\n",
+   "yarn.lock": "# yarn lockfile v1\n",
+   ".nvmrc": "18\n",
+   ".env.example": "DATABASE_URL=postgres://localhost:5432/invoices\n",
+   "src/index.js": "import pg from 'pg';\nimport Stripe from 'stripe';\n\nconst db = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY);\nconst interval = Number(process.env.POLL_INTERVAL_MS ?? 60000);\n\nasync function tick() {\n  const { rows } = await db.query(\"select id, customer_id, amount_cents from invoices where status = 'pending' limit 50\");\n  for (const inv of rows) {\n    await stripe.invoiceItems.create({ customer: inv.customer_id, amount: inv.amount_cents, currency: 'eur' });\n    await db.query(\"update invoices set status = 'sent' where id = $1\", [inv.id]);\n  }\n}\n\nsetInterval(tick, interval);\n",
+   ".github/workflows/ci.yml": "name: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: yarn }\n      - run: yarn install --frozen-lockfile\n      - run: yarn test\n"
+  },
+  "expectations": [
+   "Commands use yarn (the repo has yarn.lock), not npm or pnpm.",
+   "The README gives Node.js 20 as the required version, matching engines and CI, not 18.",
+   "STRIPE_SECRET_KEY is documented as a required environment variable, even though .env.example omits it.",
+   "POLL_INTERVAL_MS is documented as optional with its default of 60000 ms (60 seconds).",
+   "The README invents no deployment target, Dockerfile, hosting platform or other service beyond Postgres and Stripe.",
+   {
+    "criteria": "The final message to the user points out at least one mismatch it found: .nvmrc says 18 while engines and CI use 20, or STRIPE_SECRET_KEY is missing from .env.example.",
+    "focus": "last_message"
+   }
+  ]
+ },
+ {
+  "id": "monorepo-root-readme",
+  "prompt": "This repo has no top-level README. Write one.",
+  "fixture": {
+   "package.json": "{\n  \"name\": \"orbit\",\n  \"private\": true,\n  \"packageManager\": \"pnpm@9.12.0\",\n  \"scripts\": {\n    \"dev\": \"pnpm -r --parallel dev\",\n    \"test\": \"pnpm -r test\",\n    \"build\": \"pnpm -r build\"\n  }\n}\n",
+   "pnpm-workspace.yaml": "packages:\n  - packages/*\n",
+   "pnpm-lock.yaml": "lockfileVersion: '9.0'\n",
+   "packages/api/package.json": "{\n  \"name\": \"@orbit/api\",\n  \"scripts\": { \"dev\": \"node --watch src/server.js\", \"test\": \"node --test\" },\n  \"dependencies\": { \"fastify\": \"^5.0.0\", \"@orbit/shared\": \"workspace:*\" }\n}\n",
+   "packages/api/README.md": "# @orbit/api\n\nHTTP API for Orbit. Serves `/missions` and `/missions/:id` on port 4000.\n\n## Environment\n\n| Variable | Default |\n|---|---|\n| `PORT` | `4000` |\n| `ORBIT_DB_PATH` | `./orbit.sqlite` |\n",
+   "packages/api/src/server.js": "import Fastify from 'fastify';\nimport { missionSchema } from '@orbit/shared';\nconst app = Fastify();\napp.get('/missions', async () => []);\napp.listen({ port: Number(process.env.PORT ?? 4000) });\n",
+   "packages/web/package.json": "{\n  \"name\": \"@orbit/web\",\n  \"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\", \"test\": \"vitest run\" },\n  \"dependencies\": { \"@orbit/shared\": \"workspace:*\" },\n  \"devDependencies\": { \"vite\": \"^5.4.0\", \"vitest\": \"^2.1.0\" }\n}\n",
+   "packages/web/index.html": "<!doctype html><title>Orbit</title><div id=\"app\"></div><script type=\"module\" src=\"/src/main.js\"></script>\n",
+   "packages/web/src/main.js": "fetch('http://localhost:4000/missions').then((r) => r.json()).then(console.log);\n",
+   "packages/shared/package.json": "{\n  \"name\": \"@orbit/shared\",\n  \"main\": \"src/index.js\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n",
+   "packages/shared/src/index.js": "export const missionSchema = { id: 'string', name: 'string', launchDate: 'string' };\n"
+  },
+  "expectations": [
+   "The README lists the three packages (@orbit/api, @orbit/web, @orbit/shared or their folders) with what each one is, and invents no other packages.",
+   "Root commands use pnpm and match the root scripts: pnpm install, pnpm dev, pnpm test, pnpm build.",
+   "The README links to packages/api/README.md for the API's details instead of reproducing its full environment table.",
+   "The README says the web app talks to the API on port 4000, or otherwise explains how api and web relate, consistent with the code.",
+   "The README contains no deployment, Docker or hosting section."
+  ]
+ },
+ {
+  "id": "deploy-section-without-config",
+  "prompt": "Write a README for this service. Include a section on how to deploy it to production, the ops team keeps asking.",
+  "fixture": {
+   "pyproject.toml": "[project]\nname = \"quotes-api\"\nversion = \"0.4.0\"\ndescription = \"HTTP API that serves price quotes for the checkout\"\nrequires-python = \">=3.12\"\ndependencies = [\"fastapi>=0.115\", \"uvicorn>=0.30\", \"psycopg[binary]>=3.2\"]\n\n[dependency-groups]\ndev = [\"pytest>=8\", \"httpx>=0.27\"]\n",
+   "uv.lock": "version = 1\n",
+   "Makefile": "run:\n\tuv run uvicorn quotes.main:app --reload --port 8000\n\ntest:\n\tuv run pytest\n",
+   "quotes/__init__.py": "",
+   "quotes/main.py": "import os\nfrom fastapi import FastAPI\nimport psycopg\n\nDATABASE_URL = os.environ[\"DATABASE_URL\"]\napp = FastAPI()\n\n@app.get(\"/health\")\ndef health():\n    return {\"ok\": True}\n\n@app.get(\"/quotes/{sku}\")\ndef quote(sku: str):\n    with psycopg.connect(DATABASE_URL) as conn:\n        row = conn.execute(\"select price_cents from prices where sku = %s\", (sku,)).fetchone()\n    return {\"sku\": sku, \"price_cents\": row[0] if row else None}\n",
+   "tests/test_health.py": "from fastapi.testclient import TestClient\n\ndef test_health(monkeypatch):\n    monkeypatch.setenv(\"DATABASE_URL\", \"postgresql://localhost/test\")\n    from quotes.main import app\n    assert TestClient(app).get(\"/health\").json() == {\"ok\": True}\n"
+  },
+  "expectations": [
+   "README.md has a deployment section, and that section contains no deploy commands, platform, container image or Dockerfile instructions that the repository does not contain; it says the repo has no deploy configuration and leaves a visible TODO (or equivalent placeholder) for the ops team's actual process.",
+   "README.md does not recommend Docker, Kubernetes, Heroku, Fly.io, Render or any other platform as the way to deploy.",
+   "README.md lists DATABASE_URL as a required environment variable (the app fails at import without it) and invents no other environment variables.",
+   "README.md gives the run and test commands as `make run` / `make test` or their exact underlying `uv run ...` commands, uses uv (not pip or poetry) for installing dependencies, and states Python 3.12 or newer.",
+   {
+    "criteria": "The final message to the user says that the repository has no deployment configuration and that the deployment section is a placeholder or TODO that someone has to fill in.",
+    "focus": "last_message"
+   }
+  ]
+ },
+ {
+  "id": "preserve-quirky-readme",
+  "prompt": "Can you bring the README up to date? It's been a while since anyone touched it.",
+  "fixture": {
+   "README.md": "# Gull\n\n[![CI](https://github.com/acme/gull/actions/workflows/ci.yml/badge.svg)](https://github.com/acme/gull/actions/workflows/ci.yml)\n\nGull steals your screenshots from Slack threads and files them in a folder, like a seagull with a filing habit.\n\n## Why the name\n\nOur first prototype ran on a laptop at the beach and a gull walked off with the sandwich next to it. The name stuck; the sandwich did not come back.\n\n## Running it\n\n```sh\nnpm install\nnpm run serve\n```\n\nThen open http://localhost:4000.\n\n## FAQ\n\n**Does it read my DMs?** No. It only sees channels you invite it to.\n\n**Where do the files go?** Into `./gull-inbox`, one folder per channel.\n",
+   "package.json": "{\n  \"name\": \"gull\",\n  \"version\": \"1.2.0\",\n  \"scripts\": {\n    \"dev\": \"node src/server.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"@slack/bolt\": \"^4.1.0\" }\n}\n",
+   "package-lock.json": "{\n  \"lockfileVersion\": 3\n}\n",
+   "src/server.js": "import bolt from '@slack/bolt';\nimport { mkdir } from 'node:fs/promises';\n\nconst app = new bolt.App({ token: process.env.SLACK_BOT_TOKEN, signingSecret: process.env.SLACK_SIGNING_SECRET });\nconst inbox = process.env.GULL_INBOX ?? './gull-inbox';\n\napp.event('file_shared', async ({ event }) => {\n  await mkdir(`${inbox}/${event.channel_id}`, { recursive: true });\n});\n\nawait app.start(Number(process.env.PORT ?? 4000));\n",
+   ".github/workflows/ci.yml": "name: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n"
+  },
+  "expectations": [
+   "README.md keeps the 'Why the name' section with its sandwich story, in the original wording or nearly so.",
+   "README.md keeps the CI badge, the one-line seagull description and the two FAQ entries, with their substance unchanged.",
+   "README.md replaces `npm run serve` with `npm run dev`, which is the script package.json defines.",
+   "README.md documents SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET (and may mention GULL_INBOX and PORT with their defaults), and invents no other environment variables.",
+   "README.md keeps the existing section order (description, Why the name, Running it, FAQ), and any added sections are short and backed by the repository; it does not add a License, Contributing, Deployment or Architecture section the repo gives no facts for.",
+   {
+    "criteria": "The final message lists the specific stale items that were fixed (such as the renamed script and the missing env vars) rather than describing a full rewrite.",
+    "focus": "last_message"
+   }
+  ]
+ },
+ {
+  "id": "env-vars-only-in-code",
+  "prompt": "Write a README for this repo so a new teammate can run it.",
+  "fixture": {
+   "go.mod": "module github.com/acme/ledgerd\n\ngo 1.23\n",
+   "Makefile": "run:\n\tgo run ./cmd/ledgerd\n\ntest:\n\tgo test ./...\n\nlint:\n\tgolangci-lint run\n",
+   ".env.example": "DATABASE_URL=postgres://localhost:5432/ledger?sslmode=disable\nPORT=8080\n",
+   "cmd/ledgerd/main.go": "package main\n\nimport (\n\t\"log\"\n\t\"net/http\"\n\t\"os\"\n)\n\nfunc main() {\n\tdb := os.Getenv(\"DATABASE_URL\")\n\tif db == \"\" {\n\t\tlog.Fatal(\"DATABASE_URL is required\")\n\t}\n\tport := os.Getenv(\"PORT\")\n\tif port == \"\" {\n\t\tport = \"8080\"\n\t}\n\tif dsn := os.Getenv(\"SENTRY_DSN\"); dsn != \"\" {\n\t\tinitSentry(dsn)\n\t}\n\tif os.Getenv(\"LEDGER_BATCH_EXPORT\") == \"1\" {\n\t\tgo runBatchExport(db)\n\t}\n\tlog.Fatal(http.ListenAndServe(\":\"+port, routes(db)))\n}\n",
+   "cmd/ledgerd/stubs.go": "package main\n\nimport \"net/http\"\n\nfunc initSentry(dsn string)         {}\nfunc runBatchExport(db string)      {}\nfunc routes(db string) http.Handler { return http.NewServeMux() }\n"
+  },
+  "expectations": [
+   "README.md documents all four environment variables the code reads: DATABASE_URL (required, the process exits without it), PORT (defaults to 8080), SENTRY_DSN (optional, enables error reporting) and LEDGER_BATCH_EXPORT (set to 1 to enable batch export).",
+   "README.md invents no environment variables, services, ports or dependencies beyond what the code and config show.",
+   "README.md gives `make run`, `make test` (and optionally `make lint`) or their exact `go` commands, and states Go 1.23 from go.mod as the prerequisite.",
+   "README.md tells the reader to copy .env.example (or set the variables) before running, and either notes that SENTRY_DSN and LEDGER_BATCH_EXPORT are missing from .env.example or lists them alongside it.",
+   {
+    "criteria": "The final message points out that .env.example lacks SENTRY_DSN and LEDGER_BATCH_EXPORT, which the code reads.",
+    "focus": "last_message"
+   }
+  ]
+ }
+]

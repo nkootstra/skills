@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.1",
+  "name": "quality-preserve-quirky-readme",
+  "tags": [
+    "quality",
+    "write-readme",
+    "quality-write-readme"
+  ],
+  "plugins": [
+    "../../.."
+  ],
+  "runs": 1,
+  "execution": {
+    "prompt": "Can you bring the README up to date? It's been a while since anyone touched it.",
+    "max_turns": 30,
+    "timeout_seconds": 900,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Write",
+      "Edit",
+      "Bash"
+    ]
+  },
+  "graders": [
+    {
+      "type": "tool_used",
+      "name": "loads-skill",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?write-readme\"",
+      "min": 1
+    },
+    {
+      "type": "llm",
+      "name": "check-01",
+      "criteria": "Claim: README.md keeps the 'Why the name' section with its sandwich story, in the original wording or nearly so.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nCan you bring the README up to date? It's been a while since anyone touched it.\n\nThe repository before the run:\n\n--- README.md ---\n# Gull\n\n[![CI](https://github.com/acme/gull/actions/workflows/ci.yml/badge.svg)](https://github.com/acme/gull/actions/workflows/ci.yml)\n\nGull steals your screenshots from Slack threads and files them in a folder, like a seagull with a filing habit.\n\n## Why the name\n\nOur first prototype ran on a laptop at the beach and a gull walked off with the sandwich next to it. The name stuck; the sandwich did not come back.\n\n## Running it\n\n```sh\nnpm install\nnpm run serve\n```\n\nThen open http://localhost:4000.\n\n## FAQ\n\n**Does it read my DMs?** No. It only sees channels you invite it to.\n\n**Where do the files go?** Into `./gull-inbox`, one folder per channel.\n\n\n--- package.json ---\n{\n  \"name\": \"gull\",\n  \"version\": \"1.2.0\",\n  \"scripts\": {\n    \"dev\": \"node src/server.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"@slack/bolt\": \"^4.1.0\" }\n}\n\n\n--- package-lock.json ---\n{\n  \"lockfileVersion\": 3\n}\n\n\n--- src/server.js ---\nimport bolt from '@slack/bolt';\nimport { mkdir } from 'node:fs/promises';\n\nconst app = new bolt.App({ token: process.env.SLACK_BOT_TOKEN, signingSecret: process.env.SLACK_SIGNING_SECRET });\nconst inbox = process.env.GULL_INBOX ?? './gull-inbox';\n\napp.event('file_shared', async ({ event }) => {\n  await mkdir(`${inbox}/${event.channel_id}`, { recursive: true });\n});\n\nawait app.start(Number(process.env.PORT ?? 4000));\n\n\n--- .github/workflows/ci.yml ---\nname: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-02",
+      "criteria": "Claim: README.md keeps the CI badge, the one-line seagull description and the two FAQ entries, with their substance unchanged.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nCan you bring the README up to date? It's been a while since anyone touched it.\n\nThe repository before the run:\n\n--- README.md ---\n# Gull\n\n[![CI](https://github.com/acme/gull/actions/workflows/ci.yml/badge.svg)](https://github.com/acme/gull/actions/workflows/ci.yml)\n\nGull steals your screenshots from Slack threads and files them in a folder, like a seagull with a filing habit.\n\n## Why the name\n\nOur first prototype ran on a laptop at the beach and a gull walked off with the sandwich next to it. The name stuck; the sandwich did not come back.\n\n## Running it\n\n```sh\nnpm install\nnpm run serve\n```\n\nThen open http://localhost:4000.\n\n## FAQ\n\n**Does it read my DMs?** No. It only sees channels you invite it to.\n\n**Where do the files go?** Into `./gull-inbox`, one folder per channel.\n\n\n--- package.json ---\n{\n  \"name\": \"gull\",\n  \"version\": \"1.2.0\",\n  \"scripts\": {\n    \"dev\": \"node src/server.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"@slack/bolt\": \"^4.1.0\" }\n}\n\n\n--- package-lock.json ---\n{\n  \"lockfileVersion\": 3\n}\n\n\n--- src/server.js ---\nimport bolt from '@slack/bolt';\nimport { mkdir } from 'node:fs/promises';\n\nconst app = new bolt.App({ token: process.env.SLACK_BOT_TOKEN, signingSecret: process.env.SLACK_SIGNING_SECRET });\nconst inbox = process.env.GULL_INBOX ?? './gull-inbox';\n\napp.event('file_shared', async ({ event }) => {\n  await mkdir(`${inbox}/${event.channel_id}`, { recursive: true });\n});\n\nawait app.start(Number(process.env.PORT ?? 4000));\n\n\n--- .github/workflows/ci.yml ---\nname: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-03",
+      "criteria": "Claim: README.md replaces `npm run serve` with `npm run dev`, which is the script package.json defines.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nCan you bring the README up to date? It's been a while since anyone touched it.\n\nThe repository before the run:\n\n--- README.md ---\n# Gull\n\n[![CI](https://github.com/acme/gull/actions/workflows/ci.yml/badge.svg)](https://github.com/acme/gull/actions/workflows/ci.yml)\n\nGull steals your screenshots from Slack threads and files them in a folder, like a seagull with a filing habit.\n\n## Why the name\n\nOur first prototype ran on a laptop at the beach and a gull walked off with the sandwich next to it. The name stuck; the sandwich did not come back.\n\n## Running it\n\n```sh\nnpm install\nnpm run serve\n```\n\nThen open http://localhost:4000.\n\n## FAQ\n\n**Does it read my DMs?** No. It only sees channels you invite it to.\n\n**Where do the files go?** Into `./gull-inbox`, one folder per channel.\n\n\n--- package.json ---\n{\n  \"name\": \"gull\",\n  \"version\": \"1.2.0\",\n  \"scripts\": {\n    \"dev\": \"node src/server.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"@slack/bolt\": \"^4.1.0\" }\n}\n\n\n--- package-lock.json ---\n{\n  \"lockfileVersion\": 3\n}\n\n\n--- src/server.js ---\nimport bolt from '@slack/bolt';\nimport { mkdir } from 'node:fs/promises';\n\nconst app = new bolt.App({ token: process.env.SLACK_BOT_TOKEN, signingSecret: process.env.SLACK_SIGNING_SECRET });\nconst inbox = process.env.GULL_INBOX ?? './gull-inbox';\n\napp.event('file_shared', async ({ event }) => {\n  await mkdir(`${inbox}/${event.channel_id}`, { recursive: true });\n});\n\nawait app.start(Number(process.env.PORT ?? 4000));\n\n\n--- .github/workflows/ci.yml ---\nname: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-04",
+      "criteria": "Claim: README.md documents SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET (and may mention GULL_INBOX and PORT with their defaults), and invents no other environment variables.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nCan you bring the README up to date? It's been a while since anyone touched it.\n\nThe repository before the run:\n\n--- README.md ---\n# Gull\n\n[![CI](https://github.com/acme/gull/actions/workflows/ci.yml/badge.svg)](https://github.com/acme/gull/actions/workflows/ci.yml)\n\nGull steals your screenshots from Slack threads and files them in a folder, like a seagull with a filing habit.\n\n## Why the name\n\nOur first prototype ran on a laptop at the beach and a gull walked off with the sandwich next to it. The name stuck; the sandwich did not come back.\n\n## Running it\n\n```sh\nnpm install\nnpm run serve\n```\n\nThen open http://localhost:4000.\n\n## FAQ\n\n**Does it read my DMs?** No. It only sees channels you invite it to.\n\n**Where do the files go?** Into `./gull-inbox`, one folder per channel.\n\n\n--- package.json ---\n{\n  \"name\": \"gull\",\n  \"version\": \"1.2.0\",\n  \"scripts\": {\n    \"dev\": \"node src/server.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"@slack/bolt\": \"^4.1.0\" }\n}\n\n\n--- package-lock.json ---\n{\n  \"lockfileVersion\": 3\n}\n\n\n--- src/server.js ---\nimport bolt from '@slack/bolt';\nimport { mkdir } from 'node:fs/promises';\n\nconst app = new bolt.App({ token: process.env.SLACK_BOT_TOKEN, signingSecret: process.env.SLACK_SIGNING_SECRET });\nconst inbox = process.env.GULL_INBOX ?? './gull-inbox';\n\napp.event('file_shared', async ({ event }) => {\n  await mkdir(`${inbox}/${event.channel_id}`, { recursive: true });\n});\n\nawait app.start(Number(process.env.PORT ?? 4000));\n\n\n--- .github/workflows/ci.yml ---\nname: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-05",
+      "criteria": "Claim: README.md keeps the existing section order (description, Why the name, Running it, FAQ), and any added sections are short and backed by the repository; it does not add a License, Contributing, Deployment or Architecture section the repo gives no facts for.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nCan you bring the README up to date? It's been a while since anyone touched it.\n\nThe repository before the run:\n\n--- README.md ---\n# Gull\n\n[![CI](https://github.com/acme/gull/actions/workflows/ci.yml/badge.svg)](https://github.com/acme/gull/actions/workflows/ci.yml)\n\nGull steals your screenshots from Slack threads and files them in a folder, like a seagull with a filing habit.\n\n## Why the name\n\nOur first prototype ran on a laptop at the beach and a gull walked off with the sandwich next to it. The name stuck; the sandwich did not come back.\n\n## Running it\n\n```sh\nnpm install\nnpm run serve\n```\n\nThen open http://localhost:4000.\n\n## FAQ\n\n**Does it read my DMs?** No. It only sees channels you invite it to.\n\n**Where do the files go?** Into `./gull-inbox`, one folder per channel.\n\n\n--- package.json ---\n{\n  \"name\": \"gull\",\n  \"version\": \"1.2.0\",\n  \"scripts\": {\n    \"dev\": \"node src/server.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"@slack/bolt\": \"^4.1.0\" }\n}\n\n\n--- package-lock.json ---\n{\n  \"lockfileVersion\": 3\n}\n\n\n--- src/server.js ---\nimport bolt from '@slack/bolt';\nimport { mkdir } from 'node:fs/promises';\n\nconst app = new bolt.App({ token: process.env.SLACK_BOT_TOKEN, signingSecret: process.env.SLACK_SIGNING_SECRET });\nconst inbox = process.env.GULL_INBOX ?? './gull-inbox';\n\napp.event('file_shared', async ({ event }) => {\n  await mkdir(`${inbox}/${event.channel_id}`, { recursive: true });\n});\n\nawait app.start(Number(process.env.PORT ?? 4000));\n\n\n--- .github/workflows/ci.yml ---\nname: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-06",
+      "criteria": "Claim: The final message lists the specific stale items that were fixed (such as the renamed script and the missing env vars) rather than describing a full rewrite.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nCan you bring the README up to date? It's been a while since anyone touched it.\n\nThe repository before the run:\n\n--- README.md ---\n# Gull\n\n[![CI](https://github.com/acme/gull/actions/workflows/ci.yml/badge.svg)](https://github.com/acme/gull/actions/workflows/ci.yml)\n\nGull steals your screenshots from Slack threads and files them in a folder, like a seagull with a filing habit.\n\n## Why the name\n\nOur first prototype ran on a laptop at the beach and a gull walked off with the sandwich next to it. The name stuck; the sandwich did not come back.\n\n## Running it\n\n```sh\nnpm install\nnpm run serve\n```\n\nThen open http://localhost:4000.\n\n## FAQ\n\n**Does it read my DMs?** No. It only sees channels you invite it to.\n\n**Where do the files go?** Into `./gull-inbox`, one folder per channel.\n\n\n--- package.json ---\n{\n  \"name\": \"gull\",\n  \"version\": \"1.2.0\",\n  \"scripts\": {\n    \"dev\": \"node src/server.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"@slack/bolt\": \"^4.1.0\" }\n}\n\n\n--- package-lock.json ---\n{\n  \"lockfileVersion\": 3\n}\n\n\n--- src/server.js ---\nimport bolt from '@slack/bolt';\nimport { mkdir } from 'node:fs/promises';\n\nconst app = new bolt.App({ token: process.env.SLACK_BOT_TOKEN, signingSecret: process.env.SLACK_SIGNING_SECRET });\nconst inbox = process.env.GULL_INBOX ?? './gull-inbox';\n\napp.event('file_shared', async ({ event }) => {\n  await mkdir(`${inbox}/${event.channel_id}`, { recursive: true });\n});\n\nawait app.start(Number(process.env.PORT ?? 4000));\n\n\n--- .github/workflows/ci.yml ---\nname: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n\n</task>",
+      "focus": "last_message"
+    }
+  ],
+  "context": {
+    "scaffold_script": "scaffold.sh"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.1",
+  "name": "quality-de-ai-slop-about-page",
+  "tags": [
+    "quality",
+    "write-prose",
+    "quality-write-prose"
+  ],
+  "plugins": [
+    "../../.."
+  ],
+  "runs": 1,
+  "execution": {
+    "prompt": "Our startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team",
+    "max_turns": 8,
+    "timeout_seconds": 400,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "type": "tool_used",
+      "name": "loads-skill",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?write-prose\"",
+      "min": 1
+    },
+    {
+      "type": "llm",
+      "name": "check-01",
+      "criteria": "Claim: The rewrite keeps all facts from the original (4 people, 2022, 2,000 users, 30 countries, collaboration tools) or explicitly changes them with a reason.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nOur startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-02",
+      "criteria": "Claim: The rewrite contains no banned AI-slop phrases: 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge', 'transformative', 'mission-driven'.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nOur startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-03",
+      "criteria": "Claim: The concrete details in the rewrite come from the original (team size, founding year, users, countries, what the company builds) and are stated plainly instead of wrapped in values statements. Where the source gives no point of view, the reply leaves it out or asks for one rather than inventing it.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nOur startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-04",
+      "criteria": "Claim: The about-page copy itself states its facts plainly and directly, without fake humility or corporate cheerleading.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nOur startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-05",
+      "criteria": "Claim: The piece has a clear structure with a purposeful ending rather than a generic 'Join us on our journey' closer.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nOur startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-06",
+      "criteria": "Claim: The rewrite does not manufacture quirky specificity, jokes, or personality as an antidote to generic prose; specificity comes from the given facts.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nOur startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-07",
+      "criteria": "Claim: Uses no em dashes in authored prose; exact direct quotations retain their original punctuation.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nOur startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:\n\nAbout Us\n\nWelcome to Acme! We're a passionate team of innovators on a mission to empower remote teams through seamless collaboration. Our cutting-edge platform revolutionizes the way distributed teams work together, leveraging state-of-the-art technology to deliver a truly transformative experience.\n\nAt Acme, we believe in pushing boundaries and breaking down silos. Our dynamic team of visionary engineers and designers work tirelessly to create solutions that are not just powerful, but also elegant and intuitive. We're not just building software — we're building the future of work.\n\nFounded in 2022 by four friends with a shared dream, we've grown to serve over 2,000 users across 30 countries. But numbers don't tell the whole story. What drives us is the everyday magic of watching teams go from chaos to clarity, from fragmented to fluid.\n\nJoin us on our journey as we continue to innovate, iterate, and inspire. The future is collaborative, and at Acme, we're making it seamless.\n\n- The Acme Team\n</task>",
+      "focus": "last_message"
+    }
+  ]
+}

@@ -6,6 +6,6 @@ plugins: ["../../.."]
 max_turns: 4
 timeout_seconds: 240
 allowed_tools: [Read, Glob, Grep, Skill]
-expected_outcome: Loads none of the design skills
+expected_outcome: Loads none of the skills
 ---
-Write a commit message for the changes I just made to the header.
+Write three ad headlines for our launch and a punchy Twitter thread with hooks and hashtags.

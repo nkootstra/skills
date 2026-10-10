@@ -2,15 +2,17 @@
 
 Agent skills by Niels Kootstra. They are written primarily for Claude Code and work with any agent that supports the [Agent Skills](https://agentskills.io) format.
 
-Skills are grouped into plugins by category. The first category is design: critiquing, exploring, prototyping and finishing interfaces.
+Skills are grouped into plugins by category:
+- **Design:** critiquing, exploring, prototyping and finishing interfaces.
+- **Writing:** prose with an argument and a voice, commit messages and PR descriptions, and READMEs built from what the repo contains.
 
 Each skill is a short workflow plus reference files that the agent loads only when a step needs them. The skills trigger on their own when a request matches, and they can also be called by name.
 
 ## Key features
 
-- **Grouped by category:** each category is its own Claude Code plugin in one marketplace, so you install only what you need. Today: `design-skills`.
+- **Grouped by category:** each category is its own Claude Code plugin in one marketplace, so you install only what you need: `design-skills` and `writing-skills`.
 - **Two ways to install:** with the skills CLI (`npx skills add`) for any compatible agent, or as Claude Code plugins.
-- **Progressive loading:** each `SKILL.md` stays under 80 lines. About 2,500 lines of rubrics, checklists, ranges and code live in reference files, and each file has an explicit trigger saying when to load it.
+- **Progressive loading:** each `SKILL.md` stays under 80 lines. Rubrics, checklists, ranges and code live in each skill's `references/` folder, and each file has an explicit trigger saying when to load it.
 - **Claude Code frontmatter:** `effort: high` on the skills that need deep reasoning, and `argument-hint` on the skills you call with a target.
 - **Tested triggering:** an eval checks that each skill loads for the right prompts and stays out of adjacent ones.
 - **Versioned:** semver per skill and per plugin, stamped by a release workflow; [GitHub Releases](https://github.com/nkootstra/skills/releases) is the changelog.
@@ -115,6 +117,45 @@ design-exploration ──► intentional-prototyping ──► design-critique �
   "which direction?"     "does this feel right?"    "what's weak?"      "make it finished"
 ```
 
+### Writing skills
+
+Plugin: `writing-skills`. Two skills: one for prose, one for READMEs.
+
+| Skill | What it does | Use it when |
+|---|---|---|
+| [write-prose](skills/write-prose) | Drafts and edits prose with a visible argument and a natural voice, without inventing evidence or overstating certainty. Also writes commit messages and PR descriptions. | You have notes to turn into a post, a draft that reads like AI wrote it, or a change that needs a commit message or PR description. |
+| [write-readme](skills/write-readme) | Writes or updates a README from what the repo actually contains: real commands, real env vars, no invented deploy steps. | A repo has no README, an outdated one, or setup docs a newcomer can't follow. |
+
+#### write-prose
+
+The skill infers audience, purpose and length from the request, then matches the work to it: a light edit fixes the affected wording, while a draft starts from what the reader should understand. Before drafting it writes down the tests the piece must pass (the spine, a source for every fact and reason, an ending that adds something), then checks the draft against them. Core rules: open on the subject, give each paragraph one job, keep claims within the evidence, and end on the consequence the material supports.
+
+| Reference file | Loaded when |
+|---|---|
+| `adaptation.md` | Choosing a structure for a genre, audience or length. |
+| `style-system.md` | Fixing a voice, pacing, explanation or argument problem. |
+| `residue-checks.md` | Cleaning up machine-drafted text: self-commentary, portable one-liners, unsupported closure, buried openings. |
+| `explaining.md` | Explaining how something works or why it was built that way: introducing concepts, tracing a mechanism, numbers that explain, tradeoffs, and shapes for deep-dives, system-design explainers and incident write-ups. |
+| `examples.md` | Calibrating a weak passage against stronger versions. |
+| `commits-and-prs.md` | Writing a commit message or PR description. |
+
+#### write-readme
+
+The workflow:
+1. Read the repo: manifests, lockfiles, scripts, CI, env reads, deploy config.
+2. If a README exists, update it instead of regenerating it.
+3. Choose sections for the project type, leaving out any the repo can't fill with facts.
+4. Write for a newcomer on a fresh machine.
+5. Verify commands, versions, env vars and links, then report the gaps as `TODO:` lines.
+
+| Reference file | Loaded when |
+|---|---|
+| `project-types.md` | Identifying the project type (app, library, CLI, monorepo, plugin repo, infra) and where each fact comes from. |
+| `sections.md` | Choosing and writing sections: when each belongs and what it must contain. |
+| `verification.md` | Before reporting back. |
+
+Argument hint: `[path to the project, if not the current repo]`.
+
 ## Prerequisites
 
 | For | You need |
@@ -144,11 +185,13 @@ Add the marketplace once, then install the plugins you want:
 ```
 /plugin marketplace add nkootstra/skills
 /plugin install design-skills@nkootstra-skills
+/plugin install writing-skills@nkootstra-skills
 ```
 
 | Plugin | Skills |
 |---|---|
 | `design-skills` | design-critique, design-exploration, intentional-prototyping, interface-polish |
+| `writing-skills` | write-prose, write-readme |
 
 The marketplace is `nkootstra-skills`. Plugin skills are namespaced, for example `/design-skills:design-critique`.
 
@@ -173,6 +216,10 @@ You don't need to name a skill; describe the task and the matching skill loads. 
 | "How did they do that menu animation? I want to recreate it." | intentional-prototyping |
 | "We launch Monday. Make the dashboard feel finished: empty, loading, error states." | interface-polish |
 | "Polish the settings page so it feels premium." | interface-polish |
+| "Our about page reads like an AI wrote it. Rewrite it so it sounds like a person." | write-prose |
+| "Write a commit message for the changes I just made." | write-prose |
+| "Write a README for this repo." | write-readme |
+| "A new hire spent a day getting this running. Fix the docs." | write-readme |
 
 Or call a skill directly, with a target:
 
@@ -183,7 +230,7 @@ Or call a skill directly, with a target:
 
 As a plugin, use the namespaced form: `/design-skills:design-critique src/pages/Checkout.tsx`.
 
-The skills stay out of tasks that only touch UI code, such as fixing a TypeError, renaming a prop, converting a color, or setting up Tailwind.
+The skills stay out of adjacent tasks: UI code that needs no design judgment (fixing a TypeError, renaming a prop, setting up Tailwind), and writing they don't cover (ad copy, press releases, translations, summaries, docstrings).
 
 ## How the skills work
 
@@ -213,7 +260,7 @@ Loading happens in three stages:
 
 1. **Always in context:** only the name and description of each installed skill.
 2. **When a request matches:** the agent loads `SKILL.md`, the workflow.
-3. **When a step needs it:** the agent loads a reference file. Each link in `SKILL.md` says when to load it, for example `Load [rubric.md](rubric.md) on the second and third passes.`
+3. **When a step needs it:** the agent loads a reference file. Each link in `SKILL.md` says when to load it, for example `Load [rubric.md](references/rubric.md) on the second and third passes.`
 
 This keeps the cost of having the skills installed small, while the detail is there when needed.
 
@@ -225,28 +272,13 @@ This keeps the cost of having the skills installed small, while the detail is th
 │   └── marketplace.json        marketplace; one plugin entry per category, each listing its skills
 ├── skills/                     all skills, flat, whatever their category
 │   ├── design-critique/
-│   │   ├── SKILL.md
-│   │   ├── rubric.md
-│   │   ├── facets.md
-│   │   └── output-template.md
-│   ├── design-exploration/
-│   │   ├── SKILL.md
-│   │   ├── range-techniques.md
-│   │   └── depth-ladder.md
+│   │   ├── SKILL.md            the workflow
+│   │   └── references/         rubric.md, facets.md, output-template.md
+│   ├── design-exploration/     SKILL.md, references/
 │   ├── intentional-prototyping/
-│   │   ├── SKILL.md
-│   │   ├── tuning-panel.md
-│   │   ├── parameter-ranges.md
-│   │   ├── recreation.md
-│   │   └── react-prototypes.md
-│   └── interface-polish/
-│       ├── SKILL.md
-│       ├── platform-baselines.md
-│       ├── states-and-edges.md
-│       ├── motion.md
-│       ├── visual-rules.md
-│       ├── ship-checklist.md
-│       └── react-components.md
+│   ├── interface-polish/
+│   ├── write-prose/
+│   └── write-readme/
 ├── evals/
 │   ├── triggering/
 │   │   ├── make_cases.py       source of truth for the cases; generates everything below
@@ -254,6 +286,10 @@ This keeps the cost of having the skills installed small, while the detail is th
 │   │   ├── cases.jsonl         generated
 │   │   ├── cases.md            generated, readable table of all cases
 │   │   └── <case-id>/          generated: prompt.md + graders/
+│   ├── quality/
+│   │   ├── make_cases.py       generates one case.yaml per case from the JSON files
+│   │   ├── <skill>.json        cases: prompt, input or fixture repo, expectations
+│   │   └── inputs/             drafts the writing cases start from
 │   └── results/                run output (gitignored)
 ├── scripts/
 │   ├── check.py                structural checks, run by CI
@@ -299,20 +335,22 @@ After editing a skill, run `/plugin marketplace update nkootstra-skills` and sta
 [AGENTS.md](AGENTS.md) has the full steps. In short:
 
 1. Create `skills/<name>/SKILL.md` with `name`, `description` and `metadata` (`author`, `version`).
-2. Keep `SKILL.md` lean. Put detail in sibling reference files, each linked with a trigger saying when to load it.
+2. Keep `SKILL.md` lean. Put detail in reference files under `references/`, each linked with a trigger saying when to load it.
 3. Add the path to its plugin's `skills` array in `.claude-plugin/marketplace.json` and a row to that category's table above. For a new category, add a new plugin entry (see [AGENTS.md](AGENTS.md)).
 4. Add eval cases and run the eval.
 5. Leave versions alone; the release workflow stamps them.
 
 ## Evals
 
-The eval checks **triggering**: which skill Claude loads for a prompt. It doesn't judge the quality of what Claude writes. It runs on `claude plugin eval`.
+Two evals run on `claude plugin eval`:
+- **Triggering** checks which skill Claude loads for a prompt, for every skill.
+- **Quality** checks the writing skills' output against concrete claims, judged by a separate model.
 
 ### What it tests
 
-The eval covers every skill in the repo, across categories, so it also catches a skill from one category firing on another's prompts. Today it has 44 synthesized prompts:
-- **32 positives**, 8 per skill: direct, indirect and hard phrasings.
-- **12 near-misses** that should load no skill.
+The eval covers every skill in the repo, across categories, so it also catches a skill from one category firing on another's prompts. Today it has 67 synthesized prompts:
+- **48 positives**, 8 per skill: direct, indirect and hard phrasings.
+- **19 near-misses** that should load no skill: UI code without design judgment, and writing the writing skills don't cover.
 
 Every case runs twice. A run passes when:
 - the expected skill loads (`loads-expected` grader), and
@@ -328,7 +366,7 @@ python3 evals/triggering/make_cases.py
 
 # 2. Run the eval
 claude plugin eval . --tag triggering --runs 2 --ablation none --model claude-opus-5-5 \
-  --trust-plugin --no-publish --threshold 0 --max-cost-usd 20 -j 4 \
+  --trust-plugin --no-publish --threshold 0 --max-cost-usd 30 -j 4 \
   --json evals/results/run.json
 
 # 3. Summarize
@@ -339,22 +377,24 @@ python3 evals/triggering/summarize.py evals/results/run.json
 |---|---|
 | `--tag triggering` | All cases. Use `--tag <skill-name>` for one skill's cases, or `--case triggering-<id>` for one case. |
 | `--ablation none` | Skip the run without the plugin; the graders already cover "nothing loaded". |
-| `--max-cost-usd` | Hard spending cap. A full run costs about $13 on Opus 5.5. |
+| `--max-cost-usd` | Hard spending cap. A full run costs about $20 on Opus 5.5. |
 | `-j 4` | Four cases in parallel. |
 | `--no-publish` | Keep the HTML report local. |
 
-Output of the first full run:
+Output of the latest full run (67 cases, both categories):
 
 ```
-pass rate 95% over 88 runs (±4% 95% CI)
+pass rate 100% over 134 runs (±0% 95% CI)
 skill                      recall      precision
 design-critique            16/16       16/16
-design-exploration         14/16       14/14
-intentional-prototyping    14/16       14/14
+design-exploration         16/16       16/16
+intentional-prototyping    16/16       16/16
 interface-polish           16/16       16/16
-negatives specificity      24/24
-cost/run   median $0.079  max $0.741  total $12.56
-turns/run  median 5.0  max 9   seconds/run median 12.0  max 240
+write-readme               16/16       16/16
+write-prose                16/16       16/16
+negatives specificity      38/38
+cost/run   median $0.080  max $1.081  total $18.38
+turns/run  median 5.0  max 9   seconds/run median 13.0  max 240
 ```
 
 Any failures are listed below it, with the skill that loaded instead.
@@ -363,10 +403,33 @@ Any failures are listed below it, with the skill that loaded instead.
 
 - **Recall:** how often the skill loads on its own prompts. The target is 16/16 per skill.
 - **Precision:** how often a load was correct. The target is 100%.
-- **Negatives specificity:** near-misses where nothing loaded. The target is 24/24.
+- **Negatives specificity:** near-miss runs where nothing loaded. The target is all of them (38/38).
 - **Timeouts and turn limits:** "Reached maximum number of turns" or a timeout on long prototyping runs isn't a failure by itself, because the skill has loaded by then and the graders still score.
 
-Current baseline: the two prompts missed above, a brainstorm and a variations grid, pass after description fixes, with no new false positives.
+
+### Quality
+
+Each quality case gives Claude a realistic writing task and checks the result claim by claim, with one LLM grader per claim:
+- **write-prose** (17 cases): explaining for a given audience (a performance deep-dive, a system explainer for newcomers, an incident write-up, a concept for non-engineers), tightening a draft without cutting what earns its place, turning notes into a post without inventing facts, de-slopping an about page, keeping uncertainty a source leaves open, a light edit that preserves an exact quote, a PR body from given facts, a commit subject.
+- **write-readme** (8 cases, each with a small fixture repo): a Node CLI, a Python library, an existing README with stale commands, a service whose version files and env example disagree with the code, a pnpm monorepo, a requested deploy section with no deploy config, an existing README with personality to preserve, and env vars read only in code. The checks cover the right package manager, real commands and options, no invented env vars or deploy sections, and keeping accurate content when updating.
+
+```bash
+python3 evals/quality/make_cases.py
+claude plugin eval . --tag quality --ablation none --model claude-opus-5-5 --judge-model sonnet \
+  --scaffold --allow-tools Write Edit Bash --trust-plugin --no-publish --threshold 0 --max-cost-usd 15 -j 4 \
+  --json evals/results/quality.json
+```
+
+`--scaffold` writes the fixture repos; `--allow-tools` lets the README cases write files. Add `--ablation with-without` to compare against Claude without the plugin.
+
+Latest run with `--ablation with-without`, 3 runs per case (Opus 5.5, Sonnet as judge, about $50 for both arms):
+
+| Skill | With the plugin | Without |
+|---|---|---|
+| write-prose | 277/345 checks (80%) | 234/345 (68%) |
+| write-readme | 152/153 | 151/153 |
+
+write-prose gains most on explaining and on drafts with residue to remove: tightening a draft 21/21 against 14/21, the incident write-up 20/24 against 15/24, the performance deep-dive 21/27 against 16/27, and the data report 23/30 against 16/30. Plain Opus already writes good READMEs for these fixture repos; the skill's value there is that it reads the repo, runs the tests and reports gaps as `TODO:` lines instead of guessing. Compare totals at 3 runs: a single case swings by ±4 checks between runs.
 
 ## Versioning and releases
 
@@ -383,7 +446,7 @@ Nobody edits them by hand. To release, run **Actions → Release → Run workflo
 |---|---|
 | patch | Wording only. |
 | minor | New guidance, a new reference file, or wider triggering. |
-| major | Renamed or removed skills or files, narrower triggering, or different output. |
+| major | Renamed or removed skills, removed guidance, narrower triggering, or different output. Moving a reference file is not major on its own. |
 
 The workflow:
 1. Requires a green CI run.

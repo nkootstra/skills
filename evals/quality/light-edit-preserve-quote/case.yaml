@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.1",
+  "name": "quality-light-edit-preserve-quote",
+  "tags": [
+    "quality",
+    "write-prose",
+    "quality-write-prose"
+  ],
+  "plugins": [
+    "../../.."
+  ],
+  "runs": 1,
+  "execution": {
+    "prompt": "Lightly edit these two sentences. Keep it short and keep the direct quote exactly: We completed the migration on Tuesday and it was done without any errors. Mira said, “The rollback worked—keep that test.” Return only the edited text.",
+    "max_turns": 8,
+    "timeout_seconds": 400,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill"
+    ]
+  },
+  "graders": [
+    {
+      "type": "tool_used",
+      "name": "loads-skill",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?write-prose\"",
+      "min": 1
+    },
+    {
+      "type": "llm",
+      "name": "check-01",
+      "criteria": "Claim: Returns a concise light edit that preserves Tuesday, error-free completion, and the exact quote “The rollback worked—keep that test.”\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nLightly edit these two sentences. Keep it short and keep the direct quote exactly: We completed the migration on Tuesday and it was done without any errors. Mira said, “The rollback worked—keep that test.” Return only the edited text.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-02",
+      "criteria": "Claim: Adds no facts, headings, article structure, or explanation of revision passes.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nLightly edit these two sentences. Keep it short and keep the direct quote exactly: We completed the migration on Tuesday and it was done without any errors. Mira said, “The rollback worked—keep that test.” Return only the edited text.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-03",
+      "criteria": "Claim: Does not use em dashes outside the preserved direct quote.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nLightly edit these two sentences. Keep it short and keep the direct quote exactly: We completed the migration on Tuesday and it was done without any errors. Mira said, “The rollback worked—keep that test.” Return only the edited text.\n</task>",
+      "focus": "last_message"
+    }
+  ]
+}

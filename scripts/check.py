@@ -64,12 +64,14 @@ for md in sorted(root.glob("skills/*/SKILL.md")):
     if lines >= 500:
         fail(f"{folder}: SKILL.md is {lines} lines, keep it under 500")
     linked = set(re.findall(r"\]\(([^)#:\s]+\.md)\)", re.sub(r"`[^`]*`", "", text)))
-    for ref in sorted(p.name for p in md.parent.glob("*.md") if p.name != "SKILL.md"):
-        if ref not in linked:
-            fail(f"{folder}: {ref} is not linked from SKILL.md")
+    for stray in sorted(p.name for p in md.parent.glob("*.md") if p.name != "SKILL.md"):
+        fail(f"{folder}: {stray} belongs in references/")
+    for ref in sorted(p.name for p in (md.parent / "references").glob("*.md")):
+        if f"references/{ref}" not in linked:
+            fail(f"{folder}: references/{ref} is not linked from SKILL.md")
 
 # relative links resolve (inline code and fenced blocks ignored)
-docs = list(root.glob("skills/*/*.md")) + [root / "README.md", root / "AGENTS.md"]
+docs = list(root.glob("skills/*/*.md")) + list(root.glob("skills/*/references/*.md")) + [root / "README.md", root / "AGENTS.md"]
 for doc in docs:
     text = re.sub(r"```.*?```", "", doc.read_text(), flags=re.S)
     text = re.sub(r"`[^`]*`", "", text)
@@ -94,6 +96,13 @@ for script in ("make_cases.py", "summarize.py"):
     for name in skill_names:
         if name not in listed:
             fail(f"evals: {name} is missing from SKILLS in evals/triggering/{script}")
+
+qual = root / "evals/quality"
+qids = set((qual / "cases.txt").read_text().split())
+qdirs = {p.name for p in qual.iterdir() if (p / "case.yaml").is_file()}
+if qids != qdirs:
+    fail(f"evals: quality case folders differ from cases.txt (missing {sorted(qids - qdirs)}, extra {sorted(qdirs - qids)}); "
+         "rerun python3 evals/quality/make_cases.py")
 
 # release workflow offers every plugin
 release = (root / ".github/workflows/release.yml").read_text()

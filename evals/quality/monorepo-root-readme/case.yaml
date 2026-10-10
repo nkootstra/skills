@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.1",
+  "name": "quality-monorepo-root-readme",
+  "tags": [
+    "quality",
+    "write-readme",
+    "quality-write-readme"
+  ],
+  "plugins": [
+    "../../.."
+  ],
+  "runs": 1,
+  "execution": {
+    "prompt": "This repo has no top-level README. Write one.",
+    "max_turns": 30,
+    "timeout_seconds": 900,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Write",
+      "Edit",
+      "Bash"
+    ]
+  },
+  "graders": [
+    {
+      "type": "tool_used",
+      "name": "loads-skill",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?write-readme\"",
+      "min": 1
+    },
+    {
+      "type": "llm",
+      "name": "check-01",
+      "criteria": "Claim: The README lists the three packages (@orbit/api, @orbit/web, @orbit/shared or their folders) with what each one is, and invents no other packages.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nThis repo has no top-level README. Write one.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"orbit\",\n  \"private\": true,\n  \"packageManager\": \"pnpm@9.12.0\",\n  \"scripts\": {\n    \"dev\": \"pnpm -r --parallel dev\",\n    \"test\": \"pnpm -r test\",\n    \"build\": \"pnpm -r build\"\n  }\n}\n\n\n--- pnpm-workspace.yaml ---\npackages:\n  - packages/*\n\n\n--- pnpm-lock.yaml ---\nlockfileVersion: '9.0'\n\n\n--- packages/api/package.json ---\n{\n  \"name\": \"@orbit/api\",\n  \"scripts\": { \"dev\": \"node --watch src/server.js\", \"test\": \"node --test\" },\n  \"dependencies\": { \"fastify\": \"^5.0.0\", \"@orbit/shared\": \"workspace:*\" }\n}\n\n\n--- packages/api/README.md ---\n# @orbit/api\n\nHTTP API for Orbit. Serves `/missions` and `/missions/:id` on port 4000.\n\n## Environment\n\n| Variable | Default |\n|---|---|\n| `PORT` | `4000` |\n| `ORBIT_DB_PATH` | `./orbit.sqlite` |\n\n\n--- packages/api/src/server.js ---\nimport Fastify from 'fastify';\nimport { missionSchema } from '@orbit/shared';\nconst app = Fastify();\napp.get('/missions', async () => []);\napp.listen({ port: Number(process.env.PORT ?? 4000) });\n\n\n--- packages/web/package.json ---\n{\n  \"name\": \"@orbit/web\",\n  \"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\", \"test\": \"vitest run\" },\n  \"dependencies\": { \"@orbit/shared\": \"workspace:*\" },\n  \"devDependencies\": { \"vite\": \"^5.4.0\", \"vitest\": \"^2.1.0\" }\n}\n\n\n--- packages/web/index.html ---\n<!doctype html><title>Orbit</title><div id=\"app\"></div><script type=\"module\" src=\"/src/main.js\"></script>\n\n\n--- packages/web/src/main.js ---\nfetch('http://localhost:4000/missions').then((r) => r.json()).then(console.log);\n\n\n--- packages/shared/package.json ---\n{\n  \"name\": \"@orbit/shared\",\n  \"main\": \"src/index.js\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n\n\n--- packages/shared/src/index.js ---\nexport const missionSchema = { id: 'string', name: 'string', launchDate: 'string' };\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-02",
+      "criteria": "Claim: Root commands use pnpm and match the root scripts: pnpm install, pnpm dev, pnpm test, pnpm build.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nThis repo has no top-level README. Write one.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"orbit\",\n  \"private\": true,\n  \"packageManager\": \"pnpm@9.12.0\",\n  \"scripts\": {\n    \"dev\": \"pnpm -r --parallel dev\",\n    \"test\": \"pnpm -r test\",\n    \"build\": \"pnpm -r build\"\n  }\n}\n\n\n--- pnpm-workspace.yaml ---\npackages:\n  - packages/*\n\n\n--- pnpm-lock.yaml ---\nlockfileVersion: '9.0'\n\n\n--- packages/api/package.json ---\n{\n  \"name\": \"@orbit/api\",\n  \"scripts\": { \"dev\": \"node --watch src/server.js\", \"test\": \"node --test\" },\n  \"dependencies\": { \"fastify\": \"^5.0.0\", \"@orbit/shared\": \"workspace:*\" }\n}\n\n\n--- packages/api/README.md ---\n# @orbit/api\n\nHTTP API for Orbit. Serves `/missions` and `/missions/:id` on port 4000.\n\n## Environment\n\n| Variable | Default |\n|---|---|\n| `PORT` | `4000` |\n| `ORBIT_DB_PATH` | `./orbit.sqlite` |\n\n\n--- packages/api/src/server.js ---\nimport Fastify from 'fastify';\nimport { missionSchema } from '@orbit/shared';\nconst app = Fastify();\napp.get('/missions', async () => []);\napp.listen({ port: Number(process.env.PORT ?? 4000) });\n\n\n--- packages/web/package.json ---\n{\n  \"name\": \"@orbit/web\",\n  \"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\", \"test\": \"vitest run\" },\n  \"dependencies\": { \"@orbit/shared\": \"workspace:*\" },\n  \"devDependencies\": { \"vite\": \"^5.4.0\", \"vitest\": \"^2.1.0\" }\n}\n\n\n--- packages/web/index.html ---\n<!doctype html><title>Orbit</title><div id=\"app\"></div><script type=\"module\" src=\"/src/main.js\"></script>\n\n\n--- packages/web/src/main.js ---\nfetch('http://localhost:4000/missions').then((r) => r.json()).then(console.log);\n\n\n--- packages/shared/package.json ---\n{\n  \"name\": \"@orbit/shared\",\n  \"main\": \"src/index.js\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n\n\n--- packages/shared/src/index.js ---\nexport const missionSchema = { id: 'string', name: 'string', launchDate: 'string' };\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-03",
+      "criteria": "Claim: The README links to packages/api/README.md for the API's details instead of reproducing its full environment table.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nThis repo has no top-level README. Write one.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"orbit\",\n  \"private\": true,\n  \"packageManager\": \"pnpm@9.12.0\",\n  \"scripts\": {\n    \"dev\": \"pnpm -r --parallel dev\",\n    \"test\": \"pnpm -r test\",\n    \"build\": \"pnpm -r build\"\n  }\n}\n\n\n--- pnpm-workspace.yaml ---\npackages:\n  - packages/*\n\n\n--- pnpm-lock.yaml ---\nlockfileVersion: '9.0'\n\n\n--- packages/api/package.json ---\n{\n  \"name\": \"@orbit/api\",\n  \"scripts\": { \"dev\": \"node --watch src/server.js\", \"test\": \"node --test\" },\n  \"dependencies\": { \"fastify\": \"^5.0.0\", \"@orbit/shared\": \"workspace:*\" }\n}\n\n\n--- packages/api/README.md ---\n# @orbit/api\n\nHTTP API for Orbit. Serves `/missions` and `/missions/:id` on port 4000.\n\n## Environment\n\n| Variable | Default |\n|---|---|\n| `PORT` | `4000` |\n| `ORBIT_DB_PATH` | `./orbit.sqlite` |\n\n\n--- packages/api/src/server.js ---\nimport Fastify from 'fastify';\nimport { missionSchema } from '@orbit/shared';\nconst app = Fastify();\napp.get('/missions', async () => []);\napp.listen({ port: Number(process.env.PORT ?? 4000) });\n\n\n--- packages/web/package.json ---\n{\n  \"name\": \"@orbit/web\",\n  \"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\", \"test\": \"vitest run\" },\n  \"dependencies\": { \"@orbit/shared\": \"workspace:*\" },\n  \"devDependencies\": { \"vite\": \"^5.4.0\", \"vitest\": \"^2.1.0\" }\n}\n\n\n--- packages/web/index.html ---\n<!doctype html><title>Orbit</title><div id=\"app\"></div><script type=\"module\" src=\"/src/main.js\"></script>\n\n\n--- packages/web/src/main.js ---\nfetch('http://localhost:4000/missions').then((r) => r.json()).then(console.log);\n\n\n--- packages/shared/package.json ---\n{\n  \"name\": \"@orbit/shared\",\n  \"main\": \"src/index.js\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n\n\n--- packages/shared/src/index.js ---\nexport const missionSchema = { id: 'string', name: 'string', launchDate: 'string' };\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-04",
+      "criteria": "Claim: The README says the web app talks to the API on port 4000, or otherwise explains how api and web relate, consistent with the code.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nThis repo has no top-level README. Write one.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"orbit\",\n  \"private\": true,\n  \"packageManager\": \"pnpm@9.12.0\",\n  \"scripts\": {\n    \"dev\": \"pnpm -r --parallel dev\",\n    \"test\": \"pnpm -r test\",\n    \"build\": \"pnpm -r build\"\n  }\n}\n\n\n--- pnpm-workspace.yaml ---\npackages:\n  - packages/*\n\n\n--- pnpm-lock.yaml ---\nlockfileVersion: '9.0'\n\n\n--- packages/api/package.json ---\n{\n  \"name\": \"@orbit/api\",\n  \"scripts\": { \"dev\": \"node --watch src/server.js\", \"test\": \"node --test\" },\n  \"dependencies\": { \"fastify\": \"^5.0.0\", \"@orbit/shared\": \"workspace:*\" }\n}\n\n\n--- packages/api/README.md ---\n# @orbit/api\n\nHTTP API for Orbit. Serves `/missions` and `/missions/:id` on port 4000.\n\n## Environment\n\n| Variable | Default |\n|---|---|\n| `PORT` | `4000` |\n| `ORBIT_DB_PATH` | `./orbit.sqlite` |\n\n\n--- packages/api/src/server.js ---\nimport Fastify from 'fastify';\nimport { missionSchema } from '@orbit/shared';\nconst app = Fastify();\napp.get('/missions', async () => []);\napp.listen({ port: Number(process.env.PORT ?? 4000) });\n\n\n--- packages/web/package.json ---\n{\n  \"name\": \"@orbit/web\",\n  \"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\", \"test\": \"vitest run\" },\n  \"dependencies\": { \"@orbit/shared\": \"workspace:*\" },\n  \"devDependencies\": { \"vite\": \"^5.4.0\", \"vitest\": \"^2.1.0\" }\n}\n\n\n--- packages/web/index.html ---\n<!doctype html><title>Orbit</title><div id=\"app\"></div><script type=\"module\" src=\"/src/main.js\"></script>\n\n\n--- packages/web/src/main.js ---\nfetch('http://localhost:4000/missions').then((r) => r.json()).then(console.log);\n\n\n--- packages/shared/package.json ---\n{\n  \"name\": \"@orbit/shared\",\n  \"main\": \"src/index.js\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n\n\n--- packages/shared/src/index.js ---\nexport const missionSchema = { id: 'string', name: 'string', launchDate: 'string' };\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-05",
+      "criteria": "Claim: The README contains no deployment, Docker or hosting section.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nThis repo has no top-level README. Write one.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"orbit\",\n  \"private\": true,\n  \"packageManager\": \"pnpm@9.12.0\",\n  \"scripts\": {\n    \"dev\": \"pnpm -r --parallel dev\",\n    \"test\": \"pnpm -r test\",\n    \"build\": \"pnpm -r build\"\n  }\n}\n\n\n--- pnpm-workspace.yaml ---\npackages:\n  - packages/*\n\n\n--- pnpm-lock.yaml ---\nlockfileVersion: '9.0'\n\n\n--- packages/api/package.json ---\n{\n  \"name\": \"@orbit/api\",\n  \"scripts\": { \"dev\": \"node --watch src/server.js\", \"test\": \"node --test\" },\n  \"dependencies\": { \"fastify\": \"^5.0.0\", \"@orbit/shared\": \"workspace:*\" }\n}\n\n\n--- packages/api/README.md ---\n# @orbit/api\n\nHTTP API for Orbit. Serves `/missions` and `/missions/:id` on port 4000.\n\n## Environment\n\n| Variable | Default |\n|---|---|\n| `PORT` | `4000` |\n| `ORBIT_DB_PATH` | `./orbit.sqlite` |\n\n\n--- packages/api/src/server.js ---\nimport Fastify from 'fastify';\nimport { missionSchema } from '@orbit/shared';\nconst app = Fastify();\napp.get('/missions', async () => []);\napp.listen({ port: Number(process.env.PORT ?? 4000) });\n\n\n--- packages/web/package.json ---\n{\n  \"name\": \"@orbit/web\",\n  \"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\", \"test\": \"vitest run\" },\n  \"dependencies\": { \"@orbit/shared\": \"workspace:*\" },\n  \"devDependencies\": { \"vite\": \"^5.4.0\", \"vitest\": \"^2.1.0\" }\n}\n\n\n--- packages/web/index.html ---\n<!doctype html><title>Orbit</title><div id=\"app\"></div><script type=\"module\" src=\"/src/main.js\"></script>\n\n\n--- packages/web/src/main.js ---\nfetch('http://localhost:4000/missions').then((r) => r.json()).then(console.log);\n\n\n--- packages/shared/package.json ---\n{\n  \"name\": \"@orbit/shared\",\n  \"main\": \"src/index.js\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n\n\n--- packages/shared/src/index.js ---\nexport const missionSchema = { id: 'string', name: 'string', launchDate: 'string' };\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    }
+  ],
+  "context": {
+    "scaffold_script": "scaffold.sh"
+  }
+}

@@ -1,14 +1,15 @@
 # AGENTS.md
 
-This repo holds agent skills by Niels Kootstra. They install with `npx skills add nkootstra/skills` or as Claude Code plugins, one per category. Today there is one category, design (`design-skills`); more will follow. They are written for Claude Code first and stay compatible with the Agent Skills format.
+This repo holds agent skills by Niels Kootstra. They install with `npx skills add nkootstra/skills` or as Claude Code plugins, one per category. Today there are two categories, design (`design-skills`) and writing (`writing-skills`); more will follow. They are written for Claude Code first and stay compatible with the Agent Skills format.
 
 ## Layout
 
 ```
 .claude-plugin/marketplace.json   marketplace: one plugin entry per category, each listing its skills
 skills/<name>/SKILL.md            the skill: frontmatter, workflow, load triggers
-skills/<name>/*.md                reference files, loaded on demand
+skills/<name>/references/*.md     reference files, loaded on demand
 evals/triggering/                 does the right skill load, and only that one
+evals/quality/                    is the output good: LLM-graded checks per case (writing skills)
 evals/results/                    run output (gitignored)
 scripts/check.py                  structural checks (CI runs it on every push and PR)
 scripts/stamp_versions.py         version stamping, used by the release workflow
@@ -38,8 +39,8 @@ There is no `plugin.json`; each plugin entry uses `strict: false` and lists its 
      - `disable-model-invocation: true` for skills that should run only when called by name.
 3. Body:
    - Keep `SKILL.md` under 500 lines (ours are 65 to 80).
-   - Put catalogs, templates, checklists and code in sibling reference files, one level deep.
-   - Link each reference file under a "Reference files" heading, with a trigger that says when to load it (`When building the control panel, load [tuning-panel.md](tuning-panel.md)`).
+   - Put catalogs, templates, checklists and code in `references/`, one level deep. Nothing but `SKILL.md` sits at the skill's root.
+   - Link each reference file under a "Reference files" heading, with a trigger that says when to load it (`When building the control panel, load [tuning-panel.md](references/tuning-panel.md)`).
    - End with a "Companion skills" section that says when to hand off to each sibling skill in the same category.
 4. Add the skill path to its plugin's `skills` array in `.claude-plugin/marketplace.json` and a row to that category's README table. A skill belongs to exactly one plugin.
 5. Check:
@@ -76,7 +77,9 @@ Writing style for skills:
 
 ## Evals
 
-The eval measures triggering only: which skill Claude loads, not the quality of what it writes. It runs on `claude plugin eval`.
+Two evals, both on `claude plugin eval`:
+- **Triggering** (`evals/triggering/`): which skill Claude loads. Every skill needs it.
+- **Quality** (`evals/quality/`): whether the output meets concrete checks. The writing skills have it, because their output can be checked claim by claim.
 
 - Defined in `evals/triggering/make_cases.py` as `CASES` tuples: `(id, expected, also_ok, difficulty, prompt)`.
   - `expected` is a skill name or `none`.
@@ -97,16 +100,35 @@ The eval measures triggering only: which skill Claude loads, not the quality of 
 ```sh
 python3 evals/triggering/make_cases.py
 claude plugin eval . --tag triggering --runs 2 --ablation none --model claude-opus-5-5 \
-  --trust-plugin --no-publish --threshold 0 --max-cost-usd 20 -j 4 --json evals/results/<name>.json
+  --trust-plugin --no-publish --threshold 0 --max-cost-usd 30 -j 4 --json evals/results/<name>.json
 python3 evals/triggering/summarize.py evals/results/<name>.json
 ```
 
 - Use `--tag <skill>` to run one skill's cases, or `--case <name>` for a single case; only the last `--case` flag counts.
-- Cost on Opus 5.5 is about $13 for a full triggering run. Prototyping cases are the slowest and most expensive.
+- Cost on Opus 5.5 was about $13 for a full triggering run at 44 cases; expect about $20 at 67. Prototyping cases are the slowest and most expensive.
 - Get approval before spending on a full run. After a description change, rerun the affected skill's cases plus the `none` cases.
-- A run passes when every skill's recall is 16/16, its precision is 100%, and negatives are 24/24.
+- A run passes when every skill's recall is full (8 prompts × 2 runs = 16/16), its precision is 100%, and every negative run loads nothing.
   - Timeouts and "Reached maximum number of turns" are not failures by themselves: the skill has loaded by then and the graders still score.
-- Current baseline: 84/88 at the first full run; the two missed prompts pass after the description fixes, with no new false positives.
+- Current baseline: 134/134 runs at 67 cases (all six skills 16/16, negatives 38/38), $18.38.
+
+### Quality eval
+
+- Defined in `evals/quality/<skill>.json`: per case an `id`, a `prompt`, and `expectations`, one concrete, checkable claim each.
+  - write-prose cases inline their input text from `evals/quality/inputs/`.
+  - write-readme cases carry a `fixture` (path → contents). A scaffold script writes it into the run's workspace, and the claims are judged against the `README.md` the run leaves behind.
+  - An expectation can be `{"criteria": ..., "focus": "last_message"}` to judge the reply instead of the file.
+- `python3 evals/quality/make_cases.py` regenerates one `case.yaml` per case: a `loads-skill` grader plus one LLM grader per expectation. Never edit the case folders by hand.
+- Run with a judge that is not the agent model:
+  ```sh
+  python3 evals/quality/make_cases.py
+  claude plugin eval . --tag quality --ablation none --model claude-opus-5-5 --judge-model sonnet \
+    --scaffold --allow-tools Write Edit Bash --trust-plugin --no-publish --threshold 0 --max-cost-usd 15 -j 4 \
+    --json evals/results/<name>.json
+  ```
+- `--ablation with-without` adds a run without the plugin, which shows what the skill adds over the bare model. It doubles the cost.
+- Get approval before a run. After changing a skill's guidance, rerun that skill's cases with `--tag quality-<skill>`. Repeated `--tag` flags match any of the tags, not all of them, so `--tag quality --tag <skill>` also runs that skill's triggering cases.
+- Current baseline (3 runs per case): write-prose 277/345 against 234/345 without the plugin, write-readme 152/153 against 151/153. Judge a change by the with/without gap over all cases at 3 runs, never by one case: a single case swings by ±4 checks between runs of the same skill.
+- The judge's votes come without reasons, so a score alone can't tell a weak output from a bad check. Before changing a skill to fix a check that keeps failing, re-judge one failing output with `claude -p --model sonnet`, asking for a verdict, a reason and whether the claim is satisfiable from the source. A check that can only pass by inventing content (a reason the notes never give, a point of view the source lacks) is a bad check: reword it, then rerun both arms, since that changes the baseline.
 
 ## Versions and releases
 
@@ -117,7 +139,9 @@ Versions use semver at two levels, and nobody edits them by hand:
 To release, run Actions → Release → Run workflow on `main`, then pick the plugin and the part to raise:
 - **patch**: wording, typos, clearer examples; no change in behavior or triggering.
 - **minor**: new guidance, a new reference file, or a description change that widens triggering.
-- **major**: a renamed or removed skill or reference file, a narrowed description, or a workflow that produces different output.
+- **major**: a renamed or removed skill, removed guidance, a narrowed description, or a workflow that produces different output.
+
+Reference-file paths are internal: nobody calls them, so moving or renaming one counts by what changed in its content, not by the move.
 
 The workflow:
 1. Requires a green CI run on the commit.

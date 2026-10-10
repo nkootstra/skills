@@ -14,9 +14,9 @@ Good critique turns a vague reaction ("it feels nice", "something's wrong") into
 
 ## Reference files
 
-- Load [rubric.md](rubric.md) on the second and third passes, and whenever a finding needs a concrete check, a number, a severity level, or phrasing. It ends with a Nielsen heuristics sweep, the dark patterns to flag, and what not to file.
-- Load [facets.md](facets.md) when drafting facets from what the user said, when the user's facets need sharpening, and before scoring or drawing the facet chart.
-- Load [output-template.md](output-template.md) when writing the final report, when comparing two versions, or when feedback reads vague and needs rewriting.
+- Load [rubric.md](references/rubric.md) on the second and third passes, and whenever a finding needs a concrete check, a number, a severity level, or phrasing. It ends with a Nielsen heuristics sweep, the dark patterns to flag, and what not to file.
+- Load [facets.md](references/facets.md) when drafting facets from what the user said, when the user's facets need sharpening, and before scoring or drawing the facet chart.
+- Load [output-template.md](references/output-template.md) when writing the final report, when comparing two versions, or when feedback reads vague and needs rewriting.
 
 ## 1. Look longer than feels necessary
 
