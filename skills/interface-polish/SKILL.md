@@ -3,7 +3,7 @@ name: interface-polish
 description: Raise UI work from functional to genuinely crafted, by meeting platform baseline expectations first and then exceeding them through care in details, edge cases and purposeful motion. Use whenever the user is building or reviewing a UI, app, website, component or user flow and wants it to feel polished, premium, delightful, native, high-quality or "not generic", or is preparing something for launch, a demo, a portfolio or stakeholders. Use it for ordinary UI builds too whenever quality matters.
 metadata:
   author: Niels Kootstra
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Interface Polish

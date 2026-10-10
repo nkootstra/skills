@@ -4,7 +4,7 @@ description: Workflow for building interaction and UI prototypes with clear inte
 argument-hint: "[interaction to prototype]"
 metadata:
   author: Niels Kootstra
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Intentional Prototyping

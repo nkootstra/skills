@@ -5,7 +5,7 @@ argument-hint: "[screen, file, or URL]"
 effort: high
 metadata:
   author: Niels Kootstra
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Design Critique

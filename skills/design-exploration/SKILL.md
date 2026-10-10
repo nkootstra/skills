@@ -4,7 +4,7 @@ description: Generate genuinely different design directions, then refine the cho
 effort: high
 metadata:
   author: Niels Kootstra
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Design Exploration: Range, then Depth
