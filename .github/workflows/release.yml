@@ -2,9 +2,9 @@ name: Release
 
 # Run from Actions → Release → Run workflow on main. Raises the plugin's latest <plugin>-vX.Y.Z tag
 # by the chosen part, stamps the new version on the plugin in marketplace.json and on each of its
-# skills that changed, commits that to main, then tags the commit and creates a GitHub release
-# whose generated notes are the changelog. The first release of a plugin ships the version
-# already on main as is.
+# skills that changed, commits that to main, then tags the commit and creates a GitHub release.
+# The notes list the commits that touched the plugin's skills, so they are its changelog. The first
+# release of a plugin ships the version already on main as is.
 
 on:
   workflow_dispatch:
@@ -36,6 +36,8 @@ jobs:
       contents: write
       # Reads CI's result for this commit.
       actions: read
+      # Links each commit in the release notes to the PR that merged it.
+      pull-requests: read
     env:
       GH_TOKEN: ${{ github.token }}
       PLUGIN: ${{ inputs.plugin }}
@@ -112,11 +114,35 @@ jobs:
           echo "Committed $sha"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
+      # The notes list only the commits that touched this plugin's skills, so a PR that changes
+      # several plugins doesn't show up in each one's release.
+      - name: Write the release notes
+        env:
+          VERSION: ${{ steps.stamp.outputs.version }}
+          LATEST: ${{ steps.last.outputs.tag }}
+        run: |
+          mapfile -t paths < <(jq -r --arg p "$PLUGIN" '.plugins[] | select(.name == $p) | .skills[]' .claude-plugin/marketplace.json)
+          url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          {
+            echo "## What's Changed"
+            git log --no-merges --format='%H %s' ${LATEST:+"$LATEST..HEAD"} -- "${paths[@]}" |
+              while read -r sha subject; do
+                case "$subject" in "Release $PLUGIN "*) continue ;; esac
+                pr=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/pulls" --jq '.[0].number // empty' 2>/dev/null || true)
+                echo "* $subject ([${sha:0:7}]($url/commit/$sha))${pr:+ in #$pr}"
+              done
+            echo
+            if [ -n "$LATEST" ]; then
+              echo "**Full Changelog**: $url/compare/$LATEST...$PLUGIN-v$VERSION"
+            else
+              echo "**Full Changelog**: $url/commits/$PLUGIN-v$VERSION"
+            fi
+          } > notes.md
+          cat notes.md
+
       - name: Tag and create the GitHub release
         env:
           VERSION: ${{ steps.stamp.outputs.version }}
           SHA: ${{ steps.commit.outputs.sha }}
-          LATEST: ${{ steps.last.outputs.tag }}
         run: |
-          gh release create "$PLUGIN-v$VERSION" --target "$SHA" --title "$PLUGIN $VERSION" \
-            --generate-notes ${LATEST:+--notes-start-tag "$LATEST"}
+          gh release create "$PLUGIN-v$VERSION" --target "$SHA" --title "$PLUGIN $VERSION" --notes-file notes.md
