@@ -20,6 +20,20 @@
         "./skills/intentional-prototyping",
         "./skills/interface-polish"
       ]
+    },
+    {
+      "name": "writing-skills",
+      "description": "Write prose, commit messages, PR descriptions and READMEs",
+      "version": "1.0.0",
+      "author": {
+        "name": "Niels Kootstra"
+      },
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/write-prose",
+        "./skills/write-readme"
+      ]
     }
   ]
 }

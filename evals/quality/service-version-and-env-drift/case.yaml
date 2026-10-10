@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.1",
+  "name": "quality-service-version-and-env-drift",
+  "tags": [
+    "quality",
+    "write-readme",
+    "quality-write-readme"
+  ],
+  "plugins": [
+    "../../.."
+  ],
+  "runs": 1,
+  "execution": {
+    "prompt": "Write the README for this service.",
+    "max_turns": 30,
+    "timeout_seconds": 900,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Write",
+      "Edit",
+      "Bash"
+    ]
+  },
+  "graders": [
+    {
+      "type": "tool_used",
+      "name": "loads-skill",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?write-readme\"",
+      "min": 1
+    },
+    {
+      "type": "llm",
+      "name": "check-01",
+      "criteria": "Claim: Commands use yarn (the repo has yarn.lock), not npm or pnpm.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nWrite the README for this service.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"invoice-worker\",\n  \"private\": true,\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"pg\": \"^8.13.0\", \"stripe\": \"^17.0.0\" }\n}\n\n\n--- yarn.lock ---\n# yarn lockfile v1\n\n\n--- .nvmrc ---\n18\n\n\n--- .env.example ---\nDATABASE_URL=postgres://localhost:5432/invoices\n\n\n--- src/index.js ---\nimport pg from 'pg';\nimport Stripe from 'stripe';\n\nconst db = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY);\nconst interval = Number(process.env.POLL_INTERVAL_MS ?? 60000);\n\nasync function tick() {\n  const { rows } = await db.query(\"select id, customer_id, amount_cents from invoices where status = 'pending' limit 50\");\n  for (const inv of rows) {\n    await stripe.invoiceItems.create({ customer: inv.customer_id, amount: inv.amount_cents, currency: 'eur' });\n    await db.query(\"update invoices set status = 'sent' where id = $1\", [inv.id]);\n  }\n}\n\nsetInterval(tick, interval);\n\n\n--- .github/workflows/ci.yml ---\nname: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: yarn }\n      - run: yarn install --frozen-lockfile\n      - run: yarn test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-02",
+      "criteria": "Claim: The README gives Node.js 20 as the required version, matching engines and CI, not 18.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nWrite the README for this service.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"invoice-worker\",\n  \"private\": true,\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"pg\": \"^8.13.0\", \"stripe\": \"^17.0.0\" }\n}\n\n\n--- yarn.lock ---\n# yarn lockfile v1\n\n\n--- .nvmrc ---\n18\n\n\n--- .env.example ---\nDATABASE_URL=postgres://localhost:5432/invoices\n\n\n--- src/index.js ---\nimport pg from 'pg';\nimport Stripe from 'stripe';\n\nconst db = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY);\nconst interval = Number(process.env.POLL_INTERVAL_MS ?? 60000);\n\nasync function tick() {\n  const { rows } = await db.query(\"select id, customer_id, amount_cents from invoices where status = 'pending' limit 50\");\n  for (const inv of rows) {\n    await stripe.invoiceItems.create({ customer: inv.customer_id, amount: inv.amount_cents, currency: 'eur' });\n    await db.query(\"update invoices set status = 'sent' where id = $1\", [inv.id]);\n  }\n}\n\nsetInterval(tick, interval);\n\n\n--- .github/workflows/ci.yml ---\nname: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: yarn }\n      - run: yarn install --frozen-lockfile\n      - run: yarn test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-03",
+      "criteria": "Claim: STRIPE_SECRET_KEY is documented as a required environment variable, even though .env.example omits it.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nWrite the README for this service.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"invoice-worker\",\n  \"private\": true,\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"pg\": \"^8.13.0\", \"stripe\": \"^17.0.0\" }\n}\n\n\n--- yarn.lock ---\n# yarn lockfile v1\n\n\n--- .nvmrc ---\n18\n\n\n--- .env.example ---\nDATABASE_URL=postgres://localhost:5432/invoices\n\n\n--- src/index.js ---\nimport pg from 'pg';\nimport Stripe from 'stripe';\n\nconst db = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY);\nconst interval = Number(process.env.POLL_INTERVAL_MS ?? 60000);\n\nasync function tick() {\n  const { rows } = await db.query(\"select id, customer_id, amount_cents from invoices where status = 'pending' limit 50\");\n  for (const inv of rows) {\n    await stripe.invoiceItems.create({ customer: inv.customer_id, amount: inv.amount_cents, currency: 'eur' });\n    await db.query(\"update invoices set status = 'sent' where id = $1\", [inv.id]);\n  }\n}\n\nsetInterval(tick, interval);\n\n\n--- .github/workflows/ci.yml ---\nname: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: yarn }\n      - run: yarn install --frozen-lockfile\n      - run: yarn test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-04",
+      "criteria": "Claim: POLL_INTERVAL_MS is documented as optional with its default of 60000 ms (60 seconds).\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nWrite the README for this service.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"invoice-worker\",\n  \"private\": true,\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"pg\": \"^8.13.0\", \"stripe\": \"^17.0.0\" }\n}\n\n\n--- yarn.lock ---\n# yarn lockfile v1\n\n\n--- .nvmrc ---\n18\n\n\n--- .env.example ---\nDATABASE_URL=postgres://localhost:5432/invoices\n\n\n--- src/index.js ---\nimport pg from 'pg';\nimport Stripe from 'stripe';\n\nconst db = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY);\nconst interval = Number(process.env.POLL_INTERVAL_MS ?? 60000);\n\nasync function tick() {\n  const { rows } = await db.query(\"select id, customer_id, amount_cents from invoices where status = 'pending' limit 50\");\n  for (const inv of rows) {\n    await stripe.invoiceItems.create({ customer: inv.customer_id, amount: inv.amount_cents, currency: 'eur' });\n    await db.query(\"update invoices set status = 'sent' where id = $1\", [inv.id]);\n  }\n}\n\nsetInterval(tick, interval);\n\n\n--- .github/workflows/ci.yml ---\nname: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: yarn }\n      - run: yarn install --frozen-lockfile\n      - run: yarn test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-05",
+      "criteria": "Claim: The README invents no deployment target, Dockerfile, hosting platform or other service beyond Postgres and Stripe.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nWrite the README for this service.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"invoice-worker\",\n  \"private\": true,\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"pg\": \"^8.13.0\", \"stripe\": \"^17.0.0\" }\n}\n\n\n--- yarn.lock ---\n# yarn lockfile v1\n\n\n--- .nvmrc ---\n18\n\n\n--- .env.example ---\nDATABASE_URL=postgres://localhost:5432/invoices\n\n\n--- src/index.js ---\nimport pg from 'pg';\nimport Stripe from 'stripe';\n\nconst db = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY);\nconst interval = Number(process.env.POLL_INTERVAL_MS ?? 60000);\n\nasync function tick() {\n  const { rows } = await db.query(\"select id, customer_id, amount_cents from invoices where status = 'pending' limit 50\");\n  for (const inv of rows) {\n    await stripe.invoiceItems.create({ customer: inv.customer_id, amount: inv.amount_cents, currency: 'eur' });\n    await db.query(\"update invoices set status = 'sent' where id = $1\", [inv.id]);\n  }\n}\n\nsetInterval(tick, interval);\n\n\n--- .github/workflows/ci.yml ---\nname: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: yarn }\n      - run: yarn install --frozen-lockfile\n      - run: yarn test\n\n</task>",
+      "focus": {
+        "source": "file",
+        "path": "README.md"
+      }
+    },
+    {
+      "type": "llm",
+      "name": "check-06",
+      "criteria": "Claim: The final message to the user points out at least one mismatch it found: .nvmrc says 18 while engines and CI use 20, or STRIPE_SECRET_KEY is missing from .env.example.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nWrite the README for this service.\n\nThe repository before the run:\n\n--- package.json ---\n{\n  \"name\": \"invoice-worker\",\n  \"private\": true,\n  \"engines\": { \"node\": \">=20\" },\n  \"scripts\": {\n    \"dev\": \"node --watch src/index.js\",\n    \"start\": \"node src/index.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": { \"pg\": \"^8.13.0\", \"stripe\": \"^17.0.0\" }\n}\n\n\n--- yarn.lock ---\n# yarn lockfile v1\n\n\n--- .nvmrc ---\n18\n\n\n--- .env.example ---\nDATABASE_URL=postgres://localhost:5432/invoices\n\n\n--- src/index.js ---\nimport pg from 'pg';\nimport Stripe from 'stripe';\n\nconst db = new pg.Pool({ connectionString: process.env.DATABASE_URL });\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY);\nconst interval = Number(process.env.POLL_INTERVAL_MS ?? 60000);\n\nasync function tick() {\n  const { rows } = await db.query(\"select id, customer_id, amount_cents from invoices where status = 'pending' limit 50\");\n  for (const inv of rows) {\n    await stripe.invoiceItems.create({ customer: inv.customer_id, amount: inv.amount_cents, currency: 'eur' });\n    await db.query(\"update invoices set status = 'sent' where id = $1\", [inv.id]);\n  }\n}\n\nsetInterval(tick, interval);\n\n\n--- .github/workflows/ci.yml ---\nname: CI\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: yarn }\n      - run: yarn install --frozen-lockfile\n      - run: yarn test\n\n</task>",
+      "focus": "last_message"
+    }
+  ],
+  "context": {
+    "scaffold_script": "scaffold.sh"
+  }
+}

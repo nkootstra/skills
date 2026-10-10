@@ -1,6 +1,6 @@
 # Triggering eval cases
 
-44 cases. `expected` is the skill that should load (or `none`); `also ok` lists other skills that may load without counting as a false positive.
+67 cases. `expected` is the skill that should load (or `none`); `also ok` lists other skills that may load without counting as a false positive.
 
 | id | expected | also ok | difficulty | prompt |
 |---|---|---|---|---|
@@ -36,9 +36,25 @@
 | pol-06 | interface-polish |  | hard | Build a settings page for notification preferences. It should feel native and high quality, not like a default template. |
 | pol-07 | interface-polish |  | hard | Make the modal in src/components/Modal.tsx feel right: how it opens, closes, focus, escape, all the details. |
 | pol-08 | interface-polish |  | hard | Clean up the dark mode on the marketing page, the cards look washed out and the screenshots glow. src/pages/Home.tsx |
+| readme-01 | write-readme |  | direct | Write a README for this repo. |
+| readme-02 | write-readme |  | indirect | Our setup docs are out of date. Fix them so they match what the project actually does now. |
+| readme-03 | write-readme |  | indirect | Document how to run this project locally, starting from a fresh clone. |
+| readme-04 | write-readme |  | indirect | A new hire spent a whole day trying to get this running. Make sure the next one doesn't. |
+| readme-05 | write-readme |  | hard | I renamed the npm scripts last week: dev is now start:dev and test is now test:unit. Make sure the docs keep up. |
+| readme-06 | write-readme |  | hard | This is a pnpm monorepo with four packages and no top-level docs. What should someone see when they open the repo on GitHub? Write it. |
+| readme-07 | write-readme |  | hard | We're open-sourcing this CLI next week and the repo landing page is just the project name. Sort it out. |
+| readme-08 | write-readme |  | direct | Generate the docs for this library in the README: install, usage and an API overview. |
+| prose-01 | write-prose |  | direct | I wrote this messy draft on our code-review process (notes/code-review.md) and want it turned into a proper blog post. Keep my voice as a working engineer and don't invent things I didn't say. |
+| prose-02 | write-prose |  | indirect | Our about page (content/about.md) reads like an AI wrote it. Full of 'seamless', 'revolutionary', 'passionate team'. Rewrite it so it sounds like an actual person with a point of view, keeping the facts. |
+| prose-03 | write-prose |  | hard | This article of mine (posts/caching.md) is grammatically clean but still feels machine-made. It narrates itself instead of arguing, and it resolves every open question by the end. Help. |
+| prose-04 | write-prose |  | hard | Here are my raw notes on why churn spiked (notes/churn.md). The evidence is contradictory and I never reached a conclusion. Draft the blog post without writing a cleaner story than my notes support. |
+| prose-05 | write-prose |  | indirect | My essay (drafts/essay.md) takes too long to get going; friends say the first half reads like a travel diary. Restructure it to start where it matters and cut the 'surprisingly, what I learned was' narration. |
+| prose-06 | write-prose |  | indirect | We shipped a migration tool. I need a short changelog piece explaining what changed and why it matters, no marketing adjectives, under 300 words. The internal spec is in docs/migration-spec.md. |
+| prose-07 | write-prose |  | direct | Write a commit message for the changes I just made. They fix a race in background sync. |
+| prose-08 | write-prose |  | hard | Draft the PR description for this branch using our template in .github/pull_request_template.md. Unit tests passed; browser testing was not run. |
 | none-01 | none |  | near-miss | Fix the TypeError in src/components/InvoiceTable.tsx: 'Cannot read properties of undefined (reading map)'. |
 | none-02 | none |  | near-miss | Convert #4F46E5 to HSL and OKLCH. |
-| none-03 | none |  | near-miss | Write a commit message for the changes I just made to the header. |
+| none-03 | none |  | near-miss | Write three ad headlines for our launch and a punchy Twitter thread with hooks and hashtags. |
 | none-04 | none |  | near-miss | Explain the difference between flexbox and CSS grid. |
 | none-05 | none |  | near-miss | Rename the Button component's 'kind' prop to 'variant' everywhere. |
 | none-06 | none |  | near-miss | Add a unit test for the formatCurrency util in src/utils/format.ts. |
@@ -48,3 +64,10 @@
 | none-10 | none |  | near-miss | Write the API route that returns the list of invoices as JSON. |
 | none-11 | none |  | near-miss | Update the copyright year in the footer to 2026. |
 | none-12 | none |  | near-miss | Why is my Next.js build failing with 'Module not found: Can't resolve @/lib/db'? |
+| none-13 | none |  | near-miss | Translate the German docs in docs/de to English. |
+| none-14 | none |  | near-miss | Summarize this article in three bullet points for my notes: https://example.com/post |
+| none-15 | none |  | near-miss | Commit these files and push the branch to GitHub. |
+| none-16 | none |  | near-miss | Add a JSDoc comment to the formatCurrency function in src/utils/format.ts. |
+| none-17 | none |  | near-miss | Fix the typo 'Instalation' in the README heading. |
+| none-18 | none |  | near-miss | Generate an OpenAPI spec for the routes in src/api. |
+| none-19 | none |  | near-miss | Write a press release announcing our Series A. |

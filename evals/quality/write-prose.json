@@ -1,0 +1,264 @@
+[
+ {
+  "id": "rewrite-draft-into-article",
+  "prompt": "I wrote this messy draft about how our team does code review and I want to turn it into a proper blog post. Keep my voice — I'm a working engineer, not a marketing person. Make it read like a real article with a clear through-line, but don't invent things I didn't say. Here's my draft:",
+  "input": [
+   "code-review-draft.md"
+  ],
+  "expectations": [
+   "The output is a coherent article with a clear central claim about code review.",
+   "The opening starts with a concrete observation or claim, not a generic lead like 'In today's world'.",
+   "The piece uses concrete details from the draft (the race condition Sarah caught, the 'open one, review one' rule) rather than abstract praise.",
+   "The author's informal, working-engineer voice is preserved (e.g., 'it was fine when it was 2 of us') rather than sanded into generic corporate prose.",
+   "The piece does not invent facts, quotes, or experiences not present in the draft.",
+   "The article's ending (not counting any notes to the user after it) lands a consequence or insight rather than summarizing the article or restating its title.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "product-feature-explanation",
+  "prompt": "We just shipped background sync for our offline notes app, Acme Notes. My boss wants a short piece (under 300 words) for the changelog and website explaining what it does and why it matters to users. Don't make it sound like marketing — no 'seamless', 'revolutionary', or 'empowering'. Just explain it clearly. Here's the internal spec:",
+  "input": [
+   "feature-spec.md"
+  ],
+  "expectations": [
+   "The piece is under 300 words.",
+   "The piece explains the user-visible change (automatic sync, no manual step) clearly.",
+   "The mechanism is explained at the right depth (e.g., edits queue and sync when back online, conflicts don't silently overwrite) without marketing fluff.",
+   "The piece does not use promotional filler like 'seamless', 'revolutionary', 'empowering', or 'transformative'.",
+   "Facts from the spec (offline-first, version history, 30-day tombstones) are used accurately or omitted — none are invented.",
+   "The piece's last paragraph (not counting any notes to the user after the piece) states a concrete consequence for users, such as no longer losing edits or having to check which copy is current, rather than a vague call to action or a bare metric.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "de-ai-slop-about-page",
+  "prompt": "Our startup's about page reads like an AI wrote it — full of 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge'. Rewrite it to sound like a real person with an actual point of view. Keep the facts: 4-person team, founded in 2022, collaboration tools for remote teams, 2,000 users across 30 countries. Make it human and substantive. Here's the current text:",
+  "input": [
+   "about-page.md"
+  ],
+  "expectations": [
+   "The rewrite keeps all facts from the original (4 people, 2022, 2,000 users, 30 countries, collaboration tools) or explicitly changes them with a reason.",
+   "The rewrite contains no banned AI-slop phrases: 'seamless', 'revolutionary', 'empowering', 'passionate team', 'cutting-edge', 'transformative', 'mission-driven'.",
+   "The concrete details in the rewrite come from the original (team size, founding year, users, countries, what the company builds) and are stated plainly instead of wrapped in values statements. Where the source gives no point of view, the reply leaves it out or asks for one rather than inventing it.",
+   "The about-page copy itself states its facts plainly and directly, without fake humility or corporate cheerleading.",
+   "The piece has a clear structure with a purposeful ending rather than a generic 'Join us on our journey' closer.",
+   "The rewrite does not manufacture quirky specificity, jokes, or personality as an antidote to generic prose; specificity comes from the given facts.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "data-report-from-raw-findings",
+  "prompt": "We ran a six-month analysis of how customers adopt our public API at Relay, a developer tools company. I want to publish it on our engineering blog as a data report: findings up front, methodology at the end, the honest kind, not a marketing post. Keep my voice plain and factual, and push back if any interpretation is stronger than the data. Here are my raw findings:",
+  "input": [
+   "research-findings.md"
+  ],
+  "expectations": [
+   "The report opens with a scope statement covering what the data measures and what it cannot see (e.g., gateway-only visibility).",
+   "Section headings state findings (e.g., 'Time to first successful call dropped from 11 days to 4') rather than topics ('Time to first call').",
+   "Every headline number is anchored to a stated baseline, cohort, or time window: 18% to 31% among the 1,240 accounts active in both months; SDK adopters against non-adopters (medians 5 vs 2); time to first call before and after the May quickstart launch. Dropping or questioning the 2.4x ratio, which does not match the medians, is fine.",
+   "Sample sizes (N = 1,240; N = 318 vs 902; 41 enterprise accounts) appear near the claims they qualify, and the enterprise tier is handled as too small for a published percentage.",
+   "The 2.4x integrations comparison keeps the size-selection caveat with the finding and stays a correlation; the report does not claim the SDK causes more integrations.",
+   "The flattery in the time-to-first-call metric (failed attempts excluded) is disclosed in the paragraph that presents that finding, not only in a methodology section, and the finding is stated no more strongly than a before-and-after drop.",
+   "Methodology and definitions (gateway source, period, visibility limit, calendar-day counting, activity and adopter definitions) appear in a dedicated section after the findings. Where the notes give no reason for a choice, the report invents none.",
+   "The closing interpretation matches the strength of the notes (quickstart as apparent driver, SDK as compounding), not stronger.",
+   "No data, quotes, or results beyond the raw notes are invented.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "strip-self-commentary",
+  "prompt": "This draft of my engineering essay is clean AI-wise, no slop words, and I want to keep exactly this plain, short-sentence voice. But it reads like it's narrating itself instead of making its points. Tighten it without adding fluency or new signature moves, and keep my actual argument and evidence intact. Here it is:",
+  "input": [
+   "self-commentary-draft.md"
+  ],
+  "expectations": [
+   "Evidence self-rating sentences (e.g., 'the cleanest thing we found', 'the good part is measurable', 'the artifact that convinced me') are deleted or converted into substantive statements.",
+   "Structural signposting sentences (e.g., 'then there's the map', 'the other half of the read') are removed or replaced with the actual claim.",
+   "Epistemic-labeling sentences (e.g., 'the open question is') are converted into the concrete fact that limits the claim rather than restated as labels.",
+   "Quotes are delivered with the person and the task, without pre-interpretation like 'Nadia put it best' or 'the complaint was unanimous'.",
+   "Adjudication between findings that is a claim about the world (e.g., which check could change the decision) is preserved or strengthened, not cut as scaffolding.",
+   "The plain, short-sentence voice is preserved and the revision adds no new flourishes, punchlines, or manufactured personality.",
+   "Facts, numbers, names, and outcomes from the draft are unchanged.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "notes-with-uncertain-evidence",
+  "prompt": "Here are my notes from two months digging into why our onboarding conversion dropped. I want an honest first draft of a blog post for our engineering blog. Important: the evidence is messy. Some findings point in different directions, and I never reached a final conclusion. Do not write a cleaner story than my notes support. Here are the notes:",
+  "input": [
+   "engineering-notes-gaps.md"
+  ],
+  "expectations": [
+   "The piece does not impose one causal explanation on findings the notes present as pointing in different directions.",
+   "Contradictory or negative results from the notes are kept rather than smoothed into support for the thesis.",
+   "The writer's degree of certainty is preserved: findings the notes mark as suspected, partial, or possibly coincidental stay scaled claims in the piece.",
+   "No invented evidence, interviews, metrics, timelines, or resolutions appear; inferential leaps are marked or phrased as the notes' hunches.",
+   "The piece's ending (not counting any notes to the user after the piece) does not resolve the open question for closure or recap the hunches; it ends on the strongest earned consequence, cost, or specific unresolved question.",
+   "The draft is written from an explicit spine (what the reader should hold by the end) without ceremonial introductions or generic scene-setting.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "buried-lede-essay",
+  "prompt": "This essay feels like it takes too long to get going, and friends say the first half reads like a travel diary. Please restructure it so it starts where it matters and drop the journey-log narration. Keep the substance and argument, and keep my voice. Here it is:",
+  "input": [
+   "warm-up-essay.md"
+  ],
+  "expectations": [
+   "The piece opens on the substantive observation, claim, or scene currently buried in the middle paragraphs, not on the running start.",
+   "Arrival-sequence narration (e.g., 'after months of restless digging I finally saw it') is removed; the finding stands on its own.",
+   "Discovery narration ('surprisingly', 'what I did not expect', 'I began to wonder') is removed even if the sentence is otherwise well written.",
+   "The 'in hindsight' hedge on the fix's outcome is gone or turned into a plain statement. Any 'I think' or 'I believe' that remains sits on the generalization about other teams, which the essay cannot prove, not on the essay's own findings.",
+   "Transitions narrating removed scaffolding do not remain (e.g., references to sections or steps that no longer exist).",
+   "The argument, examples, and evidence survive the restructure unchanged; no conclusions are added that the essay does not reach.",
+   "The author's voice (casual, personal, incomplete sentences kept) is preserved rather than sanded down.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "portable-aphorisms-pitch",
+  "prompt": "I wrote a piece arguing for shipping in stages rather than attempting audacious rewrites. Reviewers marked several lines as tweet-bait. Every paragraph ends with a quotable one-liner and some don't carry the argument. Keep the ones that are earned and make them carry their weight; reattach the rest to the concrete details of my draft or cut them. Here's the draft:",
+  "input": [
+   "pitch-draft.md"
+  ],
+  "expectations": [
+   "Tweet-shaped equations (e.g., 'A plan without a rollback is just a wish', 'The safest big change is the one you never make') survive only when attached to the concrete example or cost in the draft, and are otherwise cut or made direct.",
+   "The lines that carry weight are reattached to the specific artifact, decision, person, numeric cost, or incident they come from rather than left as topic-swappable aphorisms.",
+   "The same idea is not restated twice at different registers; where the quotable line repeats the literal claim, only one survives.",
+   "Philosophical framing does not substitute for evidence: numbers and examples from the draft remain the argument's spine.",
+   "The final paragraph does not manufacture a portable ending line that the piece above it has not earned.",
+   "The draft's honest, small-claims register stays in the writer's voice.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "reader-assignment-oped",
+  "prompt": "Here's my draft essay about crashing a startup and what I learned. A reader said it made claims about her ('you know the feeling', 'we've all been there') that don't land for her. Please rework it so it stays personal and only offers recognition, without stating what every reader has done or felt. Here it is:",
+  "input": [
+   "you-claims-oped.md"
+  ],
+  "expectations": [
+   "The rewrite does not have 'you' state or imply particular reader experiences (e.g., what the reader has built, feared, or felt at 3 a.m.).",
+   "Experience generalized to 'we' is scoped to what the draft actually documents; collective claims without corroboration are softened to the writer's own account or rephrased as an offered observation.",
+   "Personal evidence stays in the first person; the essay does not convert the writer's experience into a reader's experience.",
+   "Lessons are phrased as invitations or factual observations, not commandments about what the reader will face.",
+   "The substance, story, and central claim from the draft are preserved; the rewrite adds no new scenes or outcomes.",
+   "Uses no em dashes in authored prose; exact direct quotations retain their original punctuation."
+  ]
+ },
+ {
+  "id": "light-edit-preserve-quote",
+  "prompt": "Lightly edit these two sentences. Keep it short and keep the direct quote exactly: We completed the migration on Tuesday and it was done without any errors. Mira said, “The rollback worked—keep that test.” Return only the edited text.",
+  "input": [],
+  "expectations": [
+   "Returns a concise light edit that preserves Tuesday, error-free completion, and the exact quote “The rollback worked—keep that test.”",
+   "Adds no facts, headings, article structure, or explanation of revision passes.",
+   "Does not use em dashes outside the preserved direct quote."
+  ]
+ },
+ {
+  "id": "pr-template-facts",
+  "prompt": "Draft a PR body using exactly these sections: Problem, Change, Validation. Facts: canceling an upload could leave the spinner visible; the change clears pending state on cancellation; unit tests passed; browser testing was not run. Do not run git commands or add attribution.",
+  "input": [],
+  "expectations": [
+   "Uses the requested sections and explains the cancellation bug and resulting spinner behavior.",
+   "Reports unit tests passed and browser testing not run without inventing other validation.",
+   "Returns PR text without git operations or generated-by attribution."
+  ]
+ },
+ {
+  "id": "concise-commit-subject",
+  "prompt": "Write only a concise commit subject for this change: export now quotes fields containing commas so exported CSV keeps the correct number of columns. No issue number or conventional-commit prefix is required.",
+  "input": [],
+  "expectations": [
+   "Returns one concise commit subject describing the CSV quoting fix or its user-visible result.",
+   "Adds no body, invented issue reference, or attribution.",
+   "Does not perform git operations."
+  ]
+ },
+ {
+  "id": "explain-performance-deep-dive",
+  "prompt": "Turn these notes into a post for our engineering blog about how we made search faster. The readers are backend engineers on other teams. Don't add anything that isn't in the notes.",
+  "input": [
+   "search-latency-notes.md"
+  ],
+  "expectations": [
+   "The piece defines what the latency number measures (server receiving the request to the last byte sent, p99 over 24 hours, client network excluded) at or before the first latency figure.",
+   "The N+1 problem is explained as a mechanism (one tags query per result, 40 results per page, about 6 ms each) before or in the same passage that gives it a name or presents the fix.",
+   "At least one derived number shows its arithmetic inline, such as 40 queries × about 6 ms ≈ 240 ms, 40 Redis lookups × about 2 ms ≈ 80 ms, or about 12,000 tags × about 60 bytes ≈ 720 KB.",
+   "The Redis attempt is kept, and the reason it barely helped is stated as a fact about the system (each lookup is still a network round trip, 40 per request), not as a story of the writer discovering it.",
+   "The piece reports what did not regress: memory per process (310 MB to 311 MB) and throughput unchanged within about 3% noise.",
+   "The piece says why the work stopped: about 70 ms of the remaining 90 ms is search-engine ranking, owned by another team.",
+   "The piece states the tradeoff that was accepted (a renamed tag can show its old name for up to 5 minutes) and the rollout status (batch loading on for everyone, the in-process map behind a flag that is on by default since 3.2).",
+   "No numbers, causes, tools or results beyond the notes are invented.",
+   "The piece's ending (not counting any notes to the user after it) does not recap the post or call the reader to action."
+  ]
+ },
+ {
+  "id": "explain-system-for-newcomers",
+  "prompt": "Write the onboarding wiki page that explains how our background jobs run, from these notes. Some readers have never worked on a backend. Use only what's in the notes.",
+  "input": [
+   "job-leases-notes.md"
+  ],
+  "expectations": [
+   "The page explains what a lease is in plain terms (a claim on a job that runs out unless renewed) at or before the point where it relies on the word, without assuming backend knowledge.",
+   "The page traces one job in order through its life: claimed with a 30 second lease, the lease renewed every 10 seconds while it runs, and what happens when the worker crashes (the lease runs out, another worker claims the job and runs it again).",
+   "The page states the rule the design relies on, that a job's effect happens once even if the job runs twice, and connects it to idempotency keyed by job id with the invoice example.",
+   "The long-pause edge case is walked through as a sequence (a worker freezes past 30 seconds, a second worker claims the job, both run it) before the explanation of how the idempotency key prevents a second invoice.",
+   "The page names the alternative that was turned down (a message broker with ack-on-completion) and why: handlers would still need to be idempotent, and it is one more system to operate.",
+   "The page says when this design stops fitting (jobs that take many minutes, such as the roughly 25 minute nightly export) and what is done for those (chunks with progress recorded per chunk).",
+   "Specialist terms (lease, heartbeat, idempotent) are each explained in a clause at first use.",
+   "No components, numbers or behaviors beyond the notes are invented."
+  ]
+ },
+ {
+  "id": "incident-writeup-by-mechanism",
+  "prompt": "Write the public blog post about last week's login attack from these notes. They're in the order things happened, but the post should help our customers' engineers understand what happened and why our defenses worked or didn't. Stick to the notes.",
+  "input": [
+   "login-incident-notes.md"
+  ],
+  "expectations": [
+   "The first paragraph states what happened and its scale against the normal baseline (about 42,000 login requests per minute against a normal peak of about 1,500).",
+   "The post is organized by mechanism (what the attack was, then each defense and why it did or did not work), not as a timestamp-by-timestamp log; any chronology is limited to the escalation where one step triggered the next.",
+   "Each defense mentioned (per-IP rate limit, blocking hosting-provider networks, per-account limit) gets a verdict on whether it worked and why.",
+   "The post names the option that was turned down (a CAPTCHA on every login), why (mobile app and partner API clients use the same endpoint and cannot solve it) and the cost accepted instead (absorbing the attack load, autoscaling to about 3x for two days).",
+   "The impact numbers are stated accurately: 2,310 accounts had a matching password tried and were reset; 37 accounts were logged into before 11:15 and had sessions revoked and owners emailed; no evidence of logins without the second step after 11:15.",
+   "Credential stuffing is explained in plain terms at or before first use.",
+   "The post ends on the current state and a bounded claim about the future (the per-account limit is permanent and does not depend on traffic source; the attack may not be over), not on a lessons-learned list that restates the sections.",
+   "No numbers, dates, tools or events beyond the notes are invented."
+  ]
+ },
+ {
+  "id": "explain-concept-to-nontechnical",
+  "prompt": "Write a short explainer (under 400 words) for our sales team about why we report p99 instead of average response time, from these notes. They're not engineers.",
+  "input": [
+   "p99-notes.md"
+  ],
+  "expectations": [
+   "The piece shows the problem (an average can look fast while some requests are slow) before or in the same passage where it introduces the term p99, and defines p99 in plain words as how long 99 out of 100 requests take at most.",
+   "The piece walks through why a 1-in-100 slow request matters, using the page that makes about 30 calls so that about 26% (roughly 1 in 4) of page loads hit a slow call, in steps a non-engineer can follow.",
+   "The piece connects the idea to a situation the sales team will meet: a customer saying the product is slow while the average looks fine, or a prospect comparing average response times.",
+   "The piece tells the reader what to say (quote p99 as 99 out of 100 requests finishing within a time) and mentions the SLA commitment of p99 under 2 seconds.",
+   "The piece uses no unexplained technical jargon (such as percentile, latency distribution, tail latency or SLA) without a plain-language gloss.",
+   "Any comparison or analogy used is introduced to clarify the 1-in-100 idea and is not presented as a fact about the product; no numbers beyond the notes are invented.",
+   "The piece is under 400 words, not counting any notes to the user after it."
+  ]
+ },
+ {
+  "id": "tighten-keeps-earned-devices",
+  "prompt": "Can you tighten this draft for our engineering blog? It reads a bit like AI wrote it. Keep the substance and the numbers.",
+  "input": [
+   "query-draft.md"
+  ],
+  "expectations": [
+   "The question 'Why not just add an index?' and its immediate answer (no plain index on a key inside JSON; an expression index would need rebuilding when the meta format changes) are kept, as a question or as a direct statement of the same reasoning.",
+   "The failed materialized-view attempt is kept together with the reason it failed (refreshing locked the orders table for 6 minutes and checkout writes queued behind it).",
+   "Discovery and arrival narration is removed: 'After months of digging, I finally understood', 'It turned out', and 'Surprisingly' do not survive as narration.",
+   "The 'Lessons learned' list, which restates the body, is removed or reduced to a lesson the body does not already state.",
+   "The closing claim that every data team is clearly heading away from JSON columns is cut or scaled down to what this one case shows.",
+   "All numbers and technical facts are unchanged: 40 minutes to 3, 18 million rows, 37 of 40 minutes in the scan, 6-minute lock, two days, the remaining 3 minutes in PDF rendering.",
+   "No new facts, numbers or claims are added."
+  ]
+ }
+]

@@ -6,6 +6,6 @@ plugins: ["../../.."]
 max_turns: 4
 timeout_seconds: 240
 allowed_tools: [Read, Glob, Grep, Skill]
-expected_outcome: Loads none of the design skills
+expected_outcome: Loads none of the skills
 ---
 Fix the TypeError in src/components/InvoiceTable.tsx: 'Cannot read properties of undefined (reading map)'.
