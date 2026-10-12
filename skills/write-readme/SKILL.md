@@ -4,7 +4,7 @@ description: Write or update a project's README from what the repository actuall
 argument-hint: "[path to the project, if not the current repo]"
 metadata:
   author: Niels Kootstra
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Write README

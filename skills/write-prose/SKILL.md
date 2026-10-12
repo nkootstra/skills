@@ -3,7 +3,7 @@ name: write-prose
 description: Draft or edit substantive prose with a clear argument and a natural voice, including articles, explanations, data reports, commit messages and PR descriptions. Use whenever the user wants a draft, rewrite or edit of a blog post, essay, explanation, report, changelog piece, commit message or pull request description; says a text reads like AI wrote it, sounds generic, buries the point or overclaims; or hands over notes to turn into prose without inventing facts. Not for ad copy, social posts, press releases, translations, summaries or code.
 metadata:
   author: Niels Kootstra
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Write Prose
