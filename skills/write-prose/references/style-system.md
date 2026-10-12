@@ -6,6 +6,16 @@ Sound like a thoughtful practitioner explaining something they understand. Be co
 
 Avoid sales language, inflated stakes, empty superlatives, false inevitability, and claims that something is “revolutionary,” “seamless,” or “powerful” without showing the underlying fact. Avoid reflexive hedging too: qualify the claim precisely instead of surrounding it with timid language.
 
+## Word choice
+
+Residue is mostly structural, but a word-level pass still catches what it misses. Run it on every draft:
+
+- **Plain word first.** Take the everyday word over the impressive synonym: "use" for "leverage", "look at" for "delve into", "strong" or the actual property for "robust". Treat these as suspect by default: delve, leverage, robust, pivotal, seamless, unlock, elevate, game-changer, cutting-edge. A precise domain term stays even when it sits on that list ("robust statistics", "a cutting-edge tool" in a machining manual).
+- **No empty emphasis.** Words that add weight without information go: "really", "truly", "honestly", "notably", "it's worth noting", "speaks volumes". Replace each with the fact that would make the reader care, or cut it.
+- **One name per thing.** Once the piece calls something "the job", it stays "the job". Rotating synonyms (document, file, record) for variety makes the reader wonder whether there are three things.
+- **No coined compounds.** Don't glue words with hyphens into a label that sounds compact but appears in no dictionary ("a fetch-ahead cache", "a trust-first rollout"). Say what the thing does. Common compounds ("well-known", "read-only") are fine, and a coinage the source itself uses stays, marked as local the way [explaining.md](explaining.md) describes.
+- **Define at first use.** A specialist term the reader may not know gets a short gloss by its job in the same sentence; see "Define by job" in [explaining.md](explaining.md).
+
 ## Openings
 
 A strong opening creates useful forward pressure. Begin with one of these when appropriate:
@@ -25,7 +35,7 @@ Let syntax reflect thought. Use longer sentences to connect dependent ideas and 
 
 Use fragments rarely and intentionally. Avoid strings of one-line paragraphs, repeated rhetorical questions, slogan-like triads, and the predictable cadence of claim-colon-list. Read aloud for accidental repetition and synthetic punchiness.
 
-Do not use em dashes. They are the most visible signature of AI-flavored prose and mechanical pacing: they let a sentence avoid deciding how two thoughts relate, so the writing reads as a series of dramatic beats instead of reasoned steps. Write the relationship with a period to separate, a colon to introduce, a comma to attach, or a restructure that makes the connection explicit. Preserve an em dash only inside a direct quotation that the source actually wrote.
+Do not use em dashes. They are the most visible signature of AI-flavored prose and mechanical pacing: they let a sentence avoid deciding how two thoughts relate, so the writing reads as a series of dramatic beats instead of reasoned steps. Write the relationship with a period to separate, a colon to introduce, a comma to attach, or a restructure that makes the connection explicit. Preserve an em dash only inside a direct quotation that the source actually wrote. The same goes for an en dash used to join clauses; in prose, write a number range with "to" ("3 to 5 retries"). Don't use a middle dot (·) as a separator in running text: use a comma, "and", or separate lines.
 
 ## Paragraph construction
 
@@ -103,14 +113,17 @@ Avoid “in conclusion,” generic inspiration, sudden calls to action, a closin
 ## Editing rules
 
 - Replace abstract nominalizations with actors and actions when accuracy permits.
+- Give the change to whoever made it. When a person or process did the work, don't make the object the actor: "the invoices turn themselves into payment runs" becomes "the billing job groups the invoices into payment runs". Plain verbs for what a system does ("the parser rejects the row", "the scheduler starts the backup") are fine.
 - Cut openings that delay the first meaningful sentence.
 - Remove tautological sentences: ones that repeat the previous sentence or the paragraph's point in other words without extending it.
 - Turn vague intensifiers into evidence or delete them.
-- Resolve ambiguous pronouns and buried antecedents.
+- Resolve ambiguous pronouns and buried antecedents. A paragraph that opens with "This", "That" or "These" names what it points at ("This cache…", not "This means…"), because the reader has just crossed a paragraph break and may not share your referent.
+- Walk a sequence in the order it happens, one step per sentence or a numbered list, instead of packing three steps into one sentence.
 - Keep parallel ideas grammatically parallel.
 - Prefer positive statements, while preserving necessary exceptions.
 - Check that headings name real distinctions and are not excessive.
-- Prefer a heading that states the finding over one that only names the topic.
+- Prefer a heading that states the finding over one that only names the topic. Write headings in sentence case, and don't use bold for decoration.
+- Keep a list to items the reader needs to compare or act on. Past about five items, group them under nested points; in an essay, prefer prose.
 - Retain useful texture, wit, and individual phrasing; clarity is not sterility.
 
 ## Anti-patterns

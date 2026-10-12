@@ -26,6 +26,18 @@ Stronger:
 
 Why it works: it replaces praise with behavior and sequence.
 
+## Word-level residue
+
+Weak:
+
+> Three takeaways. The new importer leverages a robust validation layer, and the spreadsheet transforms into clean records. This really matters for finance.
+
+Stronger:
+
+> The importer now rejects a row with a missing account number and names the row in the error, so finance fixes the spreadsheet before anything is saved.
+
+Why it works: the count opener, the impressive verbs, the object acting on its own and the empty emphasis all give way to who does what and what it prevents. Any takeaway the notes actually support gets its own sentence where it applies; the rest go.
+
 ## Fair comparison
 
 Weak:

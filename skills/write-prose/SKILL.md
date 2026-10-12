@@ -12,7 +12,7 @@ Infer audience, purpose, format, length, and factual constraints from the reques
 
 ## Match the work to the request
 
-For a light edit (wording, a passage, a quote), make the minimal diff: change only the sentences a rule below hits, the way a good code review touches only the lines at fault, and leave every other sentence as the writer wrote it. When the user asks to restructure a draft or strip its narration, the minimal diff still holds for sentences no rule hits, but every match of the sweep goes, including clauses inside sentences you otherwise keep: a kept sentence that still narrates the journey has not been fixed. Apply Chesterton's fence before cutting: know what a sentence does for the piece (a judgment, an adjudication, a voice move) before deciding it is residue. For a draft or substantial rewrite, establish what the reader should understand, then choose a structure that fits the material. Do not force a problem-solution story or resolve uncertainty the source leaves open.
+For a light edit (wording, a passage, a quote), make the minimal diff: change only the sentences a rule below or in the "Word choice" section of [Style system](references/style-system.md) hits, the way a good code review touches only the lines at fault, and leave every other sentence as the writer wrote it. When the user asks to restructure a draft or strip its narration, the minimal diff still holds for sentences no rule hits, but every match of the sweep goes, including clauses inside sentences you otherwise keep: a kept sentence that still narrates the journey has not been fixed. Apply Chesterton's fence before cutting: know what a sentence does for the piece (a judgment, an adjudication, a voice move) before deciding it is residue. For a draft or substantial rewrite, establish what the reader should understand, then choose a structure that fits the material. Do not force a problem-solution story or resolve uncertainty the source leaves open.
 
 ## Write the tests first
 
@@ -34,7 +34,7 @@ Draft, then run each test against the text and fix what fails before returning i
 | A piece that explains how something works or why it was built that way: an engineering article, system-design explainer, deep-dive, incident write-up, concept essay | [Explaining](references/explaining.md) |
 | A commit message or PR description | [Commits and PRs](references/commits-and-prs.md) |
 
-For a draft or a rewrite of existing text, always read [Residue checks](references/residue-checks.md) before returning the result. When the piece is a genre with its own structure (a data report, an explainer, a technical article, an essay, a changelog piece), also read [Adaptation](references/adaptation.md) before drafting. When the piece's job is to make a reader understand a system, mechanism, result, or concept, also read [Explaining](references/explaining.md) before drafting and use its checks as part of test 4. Read the other references when they help with the specific writing decision. This skill covers substantive prose, commit messages and PR descriptions, not ad copy, social posts, press releases, translations, summaries, or code.
+For a draft or a rewrite of existing text, always read [Residue checks](references/residue-checks.md) and the "Word choice" section of [Style system](references/style-system.md) before returning the result. When the piece is a genre with its own structure (a data report, an explainer, a technical article, an essay, a changelog piece), also read [Adaptation](references/adaptation.md) before drafting. When the piece's job is to make a reader understand a system, mechanism, result, or concept, also read [Explaining](references/explaining.md) before drafting and use its checks as part of test 4. Read the other references when they help with the specific writing decision. This skill covers substantive prose, commit messages and PR descriptions, not ad copy, social posts, press releases, translations, summaries, or code.
 
 ## Core writing rules
 
@@ -43,7 +43,8 @@ For a draft or a rewrite of existing text, always read [Residue checks](referenc
 - Give each paragraph one job. Vary sentence length naturally. Cut lines that only repeat the previous point in a more quotable form; keep a striking line when concrete evidence earns it.
 - Add examples and technical detail when they improve understanding. Keep claims within the evidence, and represent alternatives fairly.
 - Keep personal evidence with “I.” Do not assign experiences to the reader through “you” or “we.”
-- Use no em dashes in authored prose. Preserve the punctuation of exact direct quotations.
+- Use no em dashes in authored prose, no en dashes between clauses or numbers (write "3 to 5"), and no middle dots (·) as separators, headings included. Preserve the punctuation of exact direct quotations.
+- Call one thing by one name throughout, and replace a coined label from the draft with what it refers to when the reader would have to guess.
 - End on the consequence, decision, or uncertainty that the material supports.
 
 ## Check and return
@@ -57,6 +58,8 @@ Before returning a draft or rewrite, sweep it sentence by sentence and delete or
 - thinking out loud: "one might wonder", "this raises the question", "I used to wonder". A question that voices the reader's objection and is answered by the next sentence is not thinking out loud; keep it
 - leftover hedges: "I think", "I believe", "in hindsight" on the writer's own findings and their explanation of them. Uncertainty the source has (suspected, partial, possibly coincidental) stays, stated precisely, and so does a hedge on a generalization about other people or teams
 - metadiscourse, text about the text: self-rating ("the cleanest finding", "the good part is"), signposting ("then there's", "the deeper half of this") and epistemic labels ("the open question is", "two things stay provisional"). Replace each with the fact it points at
+- count announcements: "Three takeaways.", "A few things stand out." State the first item instead
+- filler tails: trailing clauses that add no fact, such as "in the long run", "at the end of the day", "when all is said and done"
 - tautology: a sentence that restates the previous one in other words or at a higher register, including a quotable line after the literal claim. Keep one version
 - quote characterization: "X put it best", "the complaint was unanimous"
 - lessons assigned to the reader: "you will", "every team faces", "do X". Phrase a lesson as what the writer saw or would offer, not as an instruction
