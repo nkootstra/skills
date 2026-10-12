@@ -15,6 +15,7 @@ explain-system-for-newcomers
 incident-writeup-by-mechanism
 explain-concept-to-nontechnical
 tighten-keeps-earned-devices
+plain-words-engineering-update
 node-cli-new-readme
 python-lib-new-readme
 stale-readme-update

@@ -127,7 +127,7 @@ python3 evals/triggering/summarize.py evals/results/<name>.json
   ```
 - `--ablation with-without` adds a run without the plugin, which shows what the skill adds over the bare model. It doubles the cost.
 - Get approval before a run. After changing a skill's guidance, rerun that skill's cases with `--tag quality-<skill>`. Repeated `--tag` flags match any of the tags, not all of them, so `--tag quality --tag <skill>` also runs that skill's triggering cases.
-- Current baseline (3 runs per case): write-prose 277/345 against 234/345 without the plugin, write-readme 152/153 against 151/153. Judge a change by the with/without gap over all cases at 3 runs, never by one case: a single case swings by ±4 checks between runs of the same skill.
+- Current baseline (3 runs per case): write-prose 311/375 against 230/375 without the plugin (18 cases), write-readme 152/153 against 151/153. Judge a change by the with/without gap over all cases at 3 runs, never by one case: a single case swings by ±4 checks between runs of the same skill.
 - The judge's votes come without reasons, so a score alone can't tell a weak output from a bad check. Before changing a skill to fix a check that keeps failing, re-judge one failing output with `claude -p --model sonnet`, asking for a verdict, a reason and whether the claim is satisfiable from the source. A check that can only pass by inventing content (a reason the notes never give, a point of view the source lacks) is a bad check: reword it, then rerun both arms, since that changes the baseline.
 
 ## Versions and releases
