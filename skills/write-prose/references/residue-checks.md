@@ -1,6 +1,6 @@
 # Residue checks
 
-Use this reference when text was machine-drafted or feels more polished than the material behind it. Plain vocabulary, short sentences, and clean grammar produce good prose; residue is what survives them because it is structural rather than lexical. Run these checks before the style pass, because a scannable scaffold and a performed voice both masquerade as good writing.
+Use this reference when text was machine-drafted or feels more polished than the material behind it. Plain vocabulary, short sentences, and clean grammar produce good prose; residue is what survives them because it is structural rather than lexical. Run these checks before the style pass, including its word-choice checks in [style-system.md](style-system.md), because a scannable scaffold and a performed voice both masquerade as good writing.
 
 ## Argument self-commentary
 

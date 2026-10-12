@@ -45,6 +45,7 @@ Pick the sections the project type needs (project-types.md) and the repo can sup
 ## 4. Write
 
 - Open with what the project is and who it is for, in two or three sentences. No marketing adjectives: say what it does instead of calling it powerful or seamless.
+- Use plain words and one name per thing: if the CLI is `acme`, don't also call it "the tool" and "the binary". Write headings in sentence case and keep bold for the rare warning, not decoration.
 - Assume a fresh machine. State prerequisites with versions taken from the repo.
 - Make every command copy-pasteable, in a fenced block with a language hint, using the package manager the lockfile shows. Say what a command does when that isn't obvious, and show expected output when it helps the reader confirm success.
 - Use tables for reference material: env vars, scripts, options.

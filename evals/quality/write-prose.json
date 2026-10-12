@@ -260,5 +260,24 @@
    "All numbers and technical facts are unchanged: 40 minutes to 3, 18 million rows, 37 of 40 minutes in the scan, 6-minute lock, two days, the remaining 3 minutes in PDF rendering.",
    "No new facts, numbers or claims are added."
   ]
+ },
+ {
+  "id": "plain-words-engineering-update",
+  "prompt": "Can you clean up this weekly engineering update before I post it in our team channel? It reads like marketing copy. Keep every number and fact.",
+  "input": [
+   "thumbnail-update-draft.md"
+  ],
+  "expectations": [
+   "In the edited update (not counting notes to the user about what changed), none of these words appear: pivotal, leverages, robust, excited, honestly, speaks volumes.",
+   "The cached thumbnail is referred to by one consistent term; the draft's rotation of 'cached preview', 'stored tile' and 'saved snapshot' for the same thing does not survive.",
+   "The draft's label 'cache-first pipeline' does not appear in the edited update; the CPU result is attributed to the cache in plain words.",
+   "The thumbnail is not described as transforming itself ('transforms into a reusable asset'); the text says what happens in plain terms, such as the first render being stored and reused.",
+   "No paragraph opens with 'This means' or another bare 'This'/'That' followed directly by a verb.",
+   "The text does not announce a count of points ('Two open risks.') before giving them; the two limits (old entries linger until the 30-day cleanup; boards over 2,000 images not yet measured) are stated directly.",
+   "The closing line about the render path is cut or replaced by a fact from the draft, and 'in the long run' does not survive.",
+   "All numbers are unchanged: 400 to 600 images, 9 to 12 seconds, about 2 seconds median, 63% CPU at the Tuesday peak, 30-day cleanup, 2,000 images.",
+   "No new facts, numbers, causes or claims are added.",
+   "The edited update (not counting notes to the user) contains no em dashes, no en dashes and no middle dots (·), including in the heading; ranges are written with 'to'."
+  ]
  }
 ]
