@@ -12,7 +12,7 @@ on:
       plugin:
         description: Plugin to release
         type: choice
-        options: [design-skills, writing-skills]
+        options: [design-skills, writing-skills, engineering-skills]
       bump:
         description: Part of the version to raise
         type: choice

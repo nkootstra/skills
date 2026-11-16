@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repo holds agent skills by Niels Kootstra. They install with `npx skills add nkootstra/skills` or as Claude Code plugins, one per category. Today there are two categories, design (`design-skills`) and writing (`writing-skills`); more will follow. They are written for Claude Code first and stay compatible with the Agent Skills format.
+This repo holds agent skills by Niels Kootstra. They install with `npx skills add nkootstra/skills` or as Claude Code plugins, one per category. Today there are three categories: design (`design-skills`), writing (`writing-skills`) and engineering (`engineering-skills`); more will follow. They are written for Claude Code first and stay compatible with the Agent Skills format.
 
 ## Layout
 
@@ -9,7 +9,7 @@ This repo holds agent skills by Niels Kootstra. They install with `npx skills ad
 skills/<name>/SKILL.md            the skill: frontmatter, workflow, load triggers
 skills/<name>/references/*.md     reference files, loaded on demand
 evals/triggering/                 does the right skill load, and only that one
-evals/quality/                    is the output good: LLM-graded checks per case (writing skills)
+evals/quality/                    is the output good: LLM-graded checks per case (writing skills, improve-codebase)
 evals/results/                    run output (gitignored)
 scripts/check.py                  structural checks (CI runs it on every push and PR)
 scripts/stamp_versions.py         version stamping, used by the release workflow
@@ -79,7 +79,7 @@ Writing style for skills:
 
 Two evals, both on `claude plugin eval`:
 - **Triggering** (`evals/triggering/`): which skill Claude loads. Every skill needs it.
-- **Quality** (`evals/quality/`): whether the output meets concrete checks. The writing skills have it, because their output can be checked claim by claim.
+- **Quality** (`evals/quality/`): whether the output meets concrete checks. The writing skills have it, because their output can be checked claim by claim, and improve-codebase has it, with a script that measures the repos its runs leave behind.
 
 - Defined in `evals/triggering/make_cases.py` as `CASES` tuples: `(id, expected, also_ok, difficulty, prompt)`.
   - `expected` is a skill name or `none`.
@@ -104,12 +104,12 @@ claude plugin eval . --tag triggering --runs 2 --ablation none --model claude-op
 python3 evals/triggering/summarize.py evals/results/<name>.json
 ```
 
-- Use `--tag <skill>` to run one skill's cases, or `--case <name>` for a single case; only the last `--case` flag counts.
-- Cost on Opus 5.5 was about $13 for a full triggering run at 44 cases; expect about $20 at 67. Prototyping cases are the slowest and most expensive.
+- Use `--tag triggering-<skill>` to run one skill's triggering cases and `--tag triggering-none` for the near-misses, or `--case <name>` for a single case; only the last `--case` flag counts. A bare `--tag <skill>` also matches that skill's quality cases.
+- Cost on Opus 5.5 was about $13 for a full triggering run at 44 cases; expect about $20 at 67 and about $22 at 80. Prototyping cases are the slowest and most expensive.
 - Get approval before spending on a full run. After a description change, rerun the affected skill's cases plus the `none` cases.
 - A run passes when every skill's recall is full (8 prompts × 2 runs = 16/16), its precision is 100%, and every negative run loads nothing.
   - Timeouts and "Reached maximum number of turns" are not failures by themselves: the skill has loaded by then and the graders still score.
-- Current baseline: 134/134 runs at 67 cases (all six skills 16/16, negatives 38/38), $18.38.
+- Current baseline: 134/134 runs at 67 cases (all six design and writing skills 16/16, negatives 38/38), $18.38. The 13 improve-codebase cases (80 in total) were run afterwards with the near-misses: improve-codebase 16/16 recall and precision, near-misses 48/48, $4.82.
 
 ### Quality eval
 
@@ -117,17 +117,19 @@ python3 evals/triggering/summarize.py evals/results/<name>.json
   - write-prose cases inline their input text from `evals/quality/inputs/`.
   - write-readme cases carry a `fixture` (path → contents). A scaffold script writes it into the run's workspace, and the claims are judged against the `README.md` the run leaves behind.
   - An expectation can be `{"criteria": ..., "focus": "last_message"}` to judge the reply instead of the file.
+  - improve-codebase cases name a `fixture` in `evals/quality/fixtures/`: `files/` (the repo), `history.json` (commits as text replacements on those files), `checks.json` (how to measure a run) and `golden.json` (recorded outputs). The claims are judged against the final report.
 - `python3 evals/quality/make_cases.py` regenerates one `case.yaml` per case: a `loads-skill` grader plus one LLM grader per expectation. Never edit the case folders by hand.
 - Run with a judge that is not the agent model:
   ```sh
   python3 evals/quality/make_cases.py
-  claude plugin eval . --tag quality --ablation none --model claude-opus-5-5 --judge-model sonnet \
+  claude plugin eval . --tag quality-write-prose --tag quality-write-readme --ablation none --model claude-opus-5-5 --judge-model sonnet \
     --scaffold --allow-tools Write Edit Bash --trust-plugin --no-publish --threshold 0 --max-cost-usd 15 -j 4 \
     --json evals/results/<name>.json
   ```
+- For improve-codebase, add `--keep-temp` and score the kept workspaces afterwards: `python3 evals/quality/score.py score <fixture> <label>=<kept dir> ...`. It reports whether the recorded CLI outputs are unchanged, whether the planted bug was left for the user, and the count of each planted problem. Open a kept directory with the `chmod` the eval prints, and never run git inside it. After changing a fixture's files or `checks.json`, run `score.py record <fixture>`; `python3 evals/quality/fixture_repo.py <fixture>` checks that its history still replays.
 - `--ablation with-without` adds a run without the plugin, which shows what the skill adds over the bare model. It doubles the cost.
-- Get approval before a run. After changing a skill's guidance, rerun that skill's cases with `--tag quality-<skill>`. Repeated `--tag` flags match any of the tags, not all of them, so `--tag quality --tag <skill>` also runs that skill's triggering cases.
-- Current baseline (3 runs per case): write-prose 311/375 against 230/375 without the plugin (18 cases), write-readme 152/153 against 151/153. Judge a change by the with/without gap over all cases at 3 runs, never by one case: a single case swings by ±4 checks between runs of the same skill.
+- Get approval before a run. After changing a skill's guidance, rerun that skill's cases with `--tag quality-<skill>`. Repeated `--tag` flags match any of the tags, not all of them, so `--tag quality --tag <skill>` also runs that skill's triggering cases. `--tag quality` alone runs every quality case, improve-codebase's included, which need `--keep-temp` and a higher cost cap.
+- Current baseline (3 runs per case): write-prose 311/375 against 230/375 without the plugin (18 cases), write-readme 152/153 against 151/153. improve-codebase 52/54 judge checks (3 cases, no without-arm yet; every failure passed on re-judging, and the audit case's "claims no changes" check is noisy at about one run in three), and `score.py` showed the recorded outputs unchanged and the planted bug left for the user in every run, about $11.50. Judge a change by the with/without gap over all cases at 3 runs, never by one case: a single case swings by ±4 checks between runs of the same skill.
 - The judge's votes come without reasons, so a score alone can't tell a weak output from a bad check. Before changing a skill to fix a check that keeps failing, re-judge one failing output with `claude -p --model sonnet`, asking for a verdict, a reason and whether the claim is satisfiable from the source. A check that can only pass by inventing content (a reason the notes never give, a point of view the source lacks) is a bad check: reword it, then rerun both arms, since that changes the baseline.
 
 ## Versions and releases

@@ -5,14 +5,15 @@ Agent skills by Niels Kootstra. They are written primarily for Claude Code and w
 Skills are grouped into plugins by category:
 - **Design:** critiquing, exploring, prototyping and finishing interfaces.
 - **Writing:** prose with an argument and a voice, commit messages and PR descriptions, and READMEs built from what the repo contains.
+- **Engineering:** improving the structure of a codebase in small verified steps, ranked by evidence from git history.
 
 Each skill is a short workflow plus reference files that the agent loads only when a step needs them. The skills trigger on their own when a request matches, and they can also be called by name.
 
 ## Key features
 
-- **Grouped by category:** each category is its own Claude Code plugin in one marketplace, so you install only what you need: `design-skills` and `writing-skills`.
+- **Grouped by category:** each category is its own Claude Code plugin in one marketplace, so you install only what you need: `design-skills`, `writing-skills` and `engineering-skills`.
 - **Two ways to install:** with the skills CLI (`npx skills add`) for any compatible agent, or as Claude Code plugins.
-- **Progressive loading:** each `SKILL.md` stays under 80 lines. Rubrics, checklists, ranges and code live in each skill's `references/` folder, and each file has an explicit trigger saying when to load it.
+- **Progressive loading:** each `SKILL.md` stays under 80 lines. Rubrics, checklists, catalogs, ranges and code live in each skill's `references/` folder, and each file has an explicit trigger saying when to load it.
 - **Claude Code frontmatter:** `effort: high` on the skills that need deep reasoning, and `argument-hint` on the skills you call with a target.
 - **Tested triggering:** an eval checks that each skill loads for the right prompts and stays out of adjacent ones.
 - **Versioned:** semver per skill and per plugin, stamped by a release workflow; [GitHub Releases](https://github.com/nkootstra/skills/releases) is the changelog.
@@ -156,13 +157,43 @@ The workflow:
 
 Argument hint: `[path to the project, if not the current repo]`.
 
+### Engineering skills
+
+Plugin: `engineering-skills`. One skill so far.
+
+| Skill | What it does | Use it when |
+|---|---|---|
+| [improve-codebase](skills/improve-codebase) | Finds what makes a codebase hard to change, ranks it with evidence from git history, and fixes it in small verified steps without changing behavior. | The code is a mess, every change touches many files, you want to pay down tech debt, or you want an audit that says what to refactor first. |
+
+#### improve-codebase
+
+Quality is measured as what the next change costs. Structure changes and behavior changes never share a commit: anything that would alter behavior, a public interface, a data shape or a dependency is reported as a decision for you, and the run continues without it.
+
+The workflow:
+1. Set the mode: **audit** (a ledger and a ranked plan, no changes) or **improve** (carry the work through to a stop rule).
+2. Record a baseline: tests, type check, lint, build. Areas no check covers are report-only until their behavior is pinned with tests.
+3. Map the codebase: a skeleton, the dependency edges, and from git the files that change most and the files that change together.
+4. Fill a ledger with five questions: where does a change land, what does this lean on, can the reader trust it, does each piece earn its place, will a break be noticed. Every entry needs evidence.
+5. Give each entry a disposition (FIX, REDESIGN, LEAVE or ASK), group entries under a shared cause, and rank the groups by churn times entries resolved.
+6. Change in verified steps, one cause per commit, running the checks after each step.
+7. Look again with fresh eyes (three passes at most), stop when nothing ranked is left, and report with before-and-after numbers.
+
+| Reference file | Loaded when |
+|---|---|
+| `mapping.md` | Mapping the codebase. Commands and three short scripts for size, a declaration skeleton, import edges and cycles, churn, hotspots and co-change. |
+| `problem-catalog.md` | Looking for problems. Per question: the shapes a bad answer takes, how to confirm each one, the usual fix, and what is not a finding. |
+| `ledger.md` | Writing findings, choosing dispositions, grouping under a cause, ranking, and writing the report. Includes a worked example. |
+| `safe-changes.md` | Before changing code. Pinning behavior with characterization tests, step sequences that stay green (move, expand-migrate-contract, merge duplicates, break a cycle), and the rules for comments and tests. |
+
+`effort: high`. Argument hint: `[area or concern to focus on, or 'audit' for a report only]`.
+
 ## Prerequisites
 
 | For | You need |
 |---|---|
 | Installing with the skills CLI | Node.js with `npx` |
 | Installing as a plugin | [Claude Code](https://claude.com/claude-code) |
-| Running the evals | Claude Code (`claude plugin eval`) and Python 3.9 or newer |
+| Running the evals | Claude Code (`claude plugin eval`) and Python 3.9 or newer; Node.js 20 or newer to score the improve-codebase cases |
 
 ## Installation
 
@@ -186,12 +217,14 @@ Add the marketplace once, then install the plugins you want:
 /plugin marketplace add nkootstra/skills
 /plugin install design-skills@nkootstra-skills
 /plugin install writing-skills@nkootstra-skills
+/plugin install engineering-skills@nkootstra-skills
 ```
 
 | Plugin | Skills |
 |---|---|
 | `design-skills` | design-critique, design-exploration, intentional-prototyping, interface-polish |
 | `writing-skills` | write-prose, write-readme |
+| `engineering-skills` | improve-codebase |
 
 The marketplace is `nkootstra-skills`. Plugin skills are namespaced, for example `/design-skills:design-critique`.
 
@@ -220,6 +253,8 @@ You don't need to name a skill; describe the task and the matching skill loads. 
 | "Write a commit message for the changes I just made." | write-prose |
 | "Write a README for this repo." | write-readme |
 | "A new hire spent a day getting this running. Fix the docs." | write-readme |
+| "Every time we add a payment method we touch nine files. Sort out the structure." | improve-codebase |
+| "Do a code quality audit and tell me what to refactor first." | improve-codebase |
 
 Or call a skill directly, with a target:
 
@@ -230,7 +265,7 @@ Or call a skill directly, with a target:
 
 As a plugin, use the namespaced form: `/design-skills:design-critique src/pages/Checkout.tsx`.
 
-The skills stay out of adjacent tasks: UI code that needs no design judgment (fixing a TypeError, renaming a prop, setting up Tailwind), and writing they don't cover (ad copy, press releases, translations, summaries, docstrings).
+The skills stay out of adjacent tasks: UI code that needs no design judgment (fixing a TypeError, renaming a prop, setting up Tailwind), writing they don't cover (ad copy, press releases, translations, summaries, docstrings), and code changes that aren't about structure across a codebase (a one-function refactor, a dependency upgrade, lint fixes, making one endpoint faster, reviewing a diff).
 
 ## How the skills work
 
@@ -278,7 +313,8 @@ This keeps the cost of having the skills installed small, while the detail is th
 │   ├── intentional-prototyping/
 │   ├── interface-polish/
 │   ├── write-prose/
-│   └── write-readme/
+│   ├── write-readme/
+│   └── improve-codebase/
 ├── evals/
 │   ├── triggering/
 │   │   ├── make_cases.py       source of truth for the cases; generates everything below
@@ -289,7 +325,10 @@ This keeps the cost of having the skills installed small, while the detail is th
 │   ├── quality/
 │   │   ├── make_cases.py       generates one case.yaml per case from the JSON files
 │   │   ├── <skill>.json        cases: prompt, input or fixture repo, expectations
-│   │   └── inputs/             drafts the writing cases start from
+│   │   ├── inputs/             drafts the writing cases start from
+│   │   ├── fixtures/           repos with a commit history for the improve-codebase cases
+│   │   ├── fixture_repo.py     turns a fixture into the script that rebuilds it, history included
+│   │   └── score.py            measures behavior and structure of improve-codebase runs
 │   └── results/                run output (gitignored)
 ├── scripts/
 │   ├── check.py                structural checks, run by CI
@@ -344,13 +383,13 @@ After editing a skill, run `/plugin marketplace update nkootstra-skills` and sta
 
 Two evals run on `claude plugin eval`:
 - **Triggering** checks which skill Claude loads for a prompt, for every skill.
-- **Quality** checks the writing skills' output against concrete claims, judged by a separate model.
+- **Quality** checks output against concrete claims, judged by a separate model. The writing skills and improve-codebase have it; for improve-codebase a script also measures behavior and structure on the repos the runs leave behind.
 
 ### What it tests
 
-The eval covers every skill in the repo, across categories, so it also catches a skill from one category firing on another's prompts. Today it has 67 synthesized prompts:
-- **48 positives**, 8 per skill: direct, indirect and hard phrasings.
-- **19 near-misses** that should load no skill: UI code without design judgment, and writing the writing skills don't cover.
+The eval covers every skill in the repo, across categories, so it also catches a skill from one category firing on another's prompts. Today it has 80 synthesized prompts:
+- **56 positives**, 8 per skill: direct, indirect and hard phrasings.
+- **24 near-misses** that should load no skill: UI code without design judgment, writing the writing skills don't cover, and code changes that aren't about structure across a codebase.
 
 Every case runs twice. A run passes when:
 - the expected skill loads (`loads-expected` grader), and
@@ -375,13 +414,13 @@ python3 evals/triggering/summarize.py evals/results/run.json
 
 | Flag | Why |
 |---|---|
-| `--tag triggering` | All cases. Use `--tag <skill-name>` for one skill's cases, or `--case triggering-<id>` for one case. |
+| `--tag triggering` | All cases. Use `--tag triggering-<skill-name>` for one skill's cases, `--tag triggering-none` for the near-misses, or `--case triggering-<id>` for one case. |
 | `--ablation none` | Skip the run without the plugin; the graders already cover "nothing loaded". |
-| `--max-cost-usd` | Hard spending cap. A full run costs about $20 on Opus 5.5. |
+| `--max-cost-usd` | Hard spending cap. A full run cost about $18 on Opus 5.5 at 67 cases; expect about $22 at 80. |
 | `-j 4` | Four cases in parallel. |
 | `--no-publish` | Keep the HTML report local. |
 
-Output of the latest full run (67 cases, both categories):
+Output of the latest full run (67 cases, design and writing). The 13 improve-codebase cases were run on their own with the near-misses: recall 16/16, precision 16/16, near-misses 48/48, $4.82.
 
 ```
 pass rate 100% over 134 runs (±0% 95% CI)
@@ -403,19 +442,23 @@ Any failures are listed below it, with the skill that loaded instead.
 
 - **Recall:** how often the skill loads on its own prompts. The target is 16/16 per skill.
 - **Precision:** how often a load was correct. The target is 100%.
-- **Negatives specificity:** near-miss runs where nothing loaded. The target is all of them (38/38).
+- **Negatives specificity:** near-miss runs where nothing loaded. The target is all of them (38/38 in that run; 48/48 with the current 24 near-misses).
 - **Timeouts and turn limits:** "Reached maximum number of turns" or a timeout on long prototyping runs isn't a failure by itself, because the skill has loaded by then and the graders still score.
 
 
 ### Quality
 
-Each quality case gives Claude a realistic writing task and checks the result claim by claim, with one LLM grader per claim:
+Each quality case gives Claude a realistic task and checks the result claim by claim, with one LLM grader per claim. The writing skills and improve-codebase have quality cases.
+
+#### Writing skills
+
+Each case is a realistic writing task:
 - **write-prose** (17 cases): explaining for a given audience (a performance deep-dive, a system explainer for newcomers, an incident write-up, a concept for non-engineers), tightening a draft without cutting what earns its place, turning notes into a post without inventing facts, de-slopping an about page, keeping uncertainty a source leaves open, a light edit that preserves an exact quote, a PR body from given facts, a commit subject.
 - **write-readme** (8 cases, each with a small fixture repo): a Node CLI, a Python library, an existing README with stale commands, a service whose version files and env example disagree with the code, a pnpm monorepo, a requested deploy section with no deploy config, an existing README with personality to preserve, and env vars read only in code. The checks cover the right package manager, real commands and options, no invented env vars or deploy sections, and keeping accurate content when updating.
 
 ```bash
 python3 evals/quality/make_cases.py
-claude plugin eval . --tag quality --ablation none --model claude-opus-5-5 --judge-model sonnet \
+claude plugin eval . --tag quality-write-prose --tag quality-write-readme --ablation none --model claude-opus-5-5 --judge-model sonnet \
   --scaffold --allow-tools Write Edit Bash --trust-plugin --no-publish --threshold 0 --max-cost-usd 15 -j 4 \
   --json evals/results/quality.json
 ```
@@ -430,6 +473,40 @@ Latest run with `--ablation with-without`, 3 runs per case (Opus 5.5, Sonnet as 
 | write-readme | 152/153 | 151/153 |
 
 write-prose gains most on explaining and on drafts with residue to remove: tightening a draft 21/21 against 14/21, the incident write-up 20/24 against 15/24, the performance deep-dive 21/27 against 16/27, and the data report 23/30 against 16/30. Plain Opus already writes good READMEs for these fixture repos; the skill's value there is that it reads the repo, runs the tests and reports gaps as `TODO:` lines instead of guessing. Compare totals at 3 runs: a single case swings by ±4 checks between runs.
+
+#### improve-codebase
+
+Three cases on two fixture repos, each with planted structural problems, a commit history and a small test suite:
+- **parcel**, a Python CLI for shipping quotes: the same carrier `if` chain in three files, an import cycle, a global flag one module sets for another, a discount known in three places, a rule copied four times, unused code. Two cases use it: one asks for the improvement, one asks for an audit only.
+- **deskline**, a Node CLI for help-desk tickets, organised by technical layer: priorities defined in four folders, scattered status checks, code reaching into the store's internals, a global clock, an import cycle.
+
+The judge checks the final report: tests were run, behavior was kept or the changes are named, the planted bug is reported as a decision and not fixed, and decisions are listed apart from changes. What the judge can't check is measured afterwards by `evals/quality/score.py` on the repos the runs leave behind:
+- **Behavior:** each fixture has about 70 recorded CLI outputs the agent never sees. Any difference is a behavior change.
+- **Planted bug:** three more outputs exercise a real bug whose fix changes output. Unchanged means the run left the decision to the user.
+- **Structure:** counts of each planted problem, before and after.
+
+```bash
+python3 evals/quality/make_cases.py
+claude plugin eval . --tag quality-improve-codebase --runs 3 --ablation none --model claude-opus-5-5 --judge-model sonnet \
+  --scaffold --allow-tools Write Edit Bash --keep-temp --trust-plugin --no-publish --threshold 0 --max-cost-usd 30 -j 3 \
+  --json evals/results/improve-codebase.json
+
+# --keep-temp prints "kept /private/tmp/e-..." per run, with the chmod that opens it. Then:
+python3 evals/quality/score.py score parcel run1=/private/tmp/e-AAAA run2=/private/tmp/e-BBBB
+python3 evals/quality/score.py score deskline run1=/private/tmp/e-CCCC
+```
+
+`score.py` copies each repo out before running anything; never run git inside a kept directory. After changing a fixture, run `python3 evals/quality/score.py record <fixture>` to record its outputs again.
+
+Latest runs, 3 per case (Opus 5.5, Sonnet as judge, $11.50 in total):
+
+| Case | Judge checks | Behavior unchanged | Planted bug left for the user | Structure |
+|---|---|---|---|---|
+| improve-python-cli | 18/18 | 74/74 in all 3 | 3/3 | carrier branches 14 → 0, import cycle gone, rule copies 4 → 1, unused code removed; global flag uses 8 → 0 in two runs, 8 → 4 in one |
+| audit-python-cli | 17/18 | 0 files changed in all 3 | 3/3 | unchanged, as asked |
+| improve-layered-node-cli | 17/18 | 70/70 in all 3 | 3/3 | files defining priorities 4 → 1, status checks 9 → 2–4, import cycle gone, swallowed errors gone |
+
+Every failed check passed when re-judged with a reason. The audit row is from a rerun after two of its checks were reworded. Its first check, "claims no changes", still fails about one run in three when a reply mentions an experiment run in memory or a scratch copy; `score.py` is the reliable signal there and has shown 0 files changed in all 7 audit runs. The parcel run that kept a global flag did so on purpose: the flag is tangled with the planted report bug, so removing it changes output, and the run reported the fix as a decision. "Behavior unchanged" covers the recorded outputs only; one deskline run disclosed an edge case outside them that it did change (a priority literally named `constructor`). On deskline, all three runs left the store internals, the global clock and the unused CSV export in place, each with a stated reason. That is a choice the skill allows, not a miss. The two improve rows were measured before a scaffold fix that keeps the fixture's build script out of its history; the only visible effect was that runs mentioned a stray uncommitted deletion.
 
 ## Versioning and releases
 
