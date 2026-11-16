@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.1",
+  "name": "quality-audit-python-cli",
+  "tags": [
+    "quality",
+    "improve-codebase",
+    "quality-improve-codebase"
+  ],
+  "plugins": [
+    "../../.."
+  ],
+  "runs": 1,
+  "execution": {
+    "prompt": "Do a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.",
+    "max_turns": 150,
+    "timeout_seconds": 2700,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Write",
+      "Edit",
+      "Bash"
+    ]
+  },
+  "graders": [
+    {
+      "type": "tool_used",
+      "name": "loads-skill",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?improve-codebase\"",
+      "min": 1
+    },
+    {
+      "type": "llm",
+      "name": "check-01",
+      "criteria": "Claim: The reply does not claim to have changed, moved, deleted or committed any file in the repository; it presents findings and a plan only. Experiments described as run in memory, in a temporary copy or in a scratch folder (reproducing a bug, breaking code to see whether a test notices) are not changes to the repository.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nDo a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.\n\nAbout the repository (the agent was not told this):\nparcel is a Python command-line tool for shipping quotes, labels and a report. Its README says the command line is the public interface. Planted in it: the same if/elif chain over the carriers postnl, dhl and ups in quote.py, label.py and report.py; an import cycle between quote.py and label.py; a global SKIP_SURCHARGE flag that report.py sets for quote.py to read, and a global CURRENT_REGION set by the CLI; the ACME-001 contract discount known in three files; the half-kilo rounding rule copied in three carrier files and once more in utils.py; unused code (QuoteService pass-through, round_half_kilo, legacy_zone_lookup, quote.describe); report.py swallows every exception and counts the row as skipped; one test only asserts that a mock was called; report.py has no tests. Two real bugs: label.py compares the zone with 'remote ' (trailing space), so the remote surcharge line never prints; and when an internal row fails in report.py the SKIP_SURCHARGE flag stays on for the next row. Fixing either changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-02",
+      "criteria": "Claim: The reply ranks what to refactor and says which refactor comes first. A preparatory step before it, such as adding tests, is fine.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nDo a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.\n\nAbout the repository (the agent was not told this):\nparcel is a Python command-line tool for shipping quotes, labels and a report. Its README says the command line is the public interface. Planted in it: the same if/elif chain over the carriers postnl, dhl and ups in quote.py, label.py and report.py; an import cycle between quote.py and label.py; a global SKIP_SURCHARGE flag that report.py sets for quote.py to read, and a global CURRENT_REGION set by the CLI; the ACME-001 contract discount known in three files; the half-kilo rounding rule copied in three carrier files and once more in utils.py; unused code (QuoteService pass-through, round_half_kilo, legacy_zone_lookup, quote.describe); report.py swallows every exception and counts the row as skipped; one test only asserts that a mock was called; report.py has no tests. Two real bugs: label.py compares the zone with 'remote ' (trailing space), so the remote surcharge line never prints; and when an internal row fails in report.py the SKIP_SURCHARGE flag stays on for the next row. Fixing either changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-03",
+      "criteria": "Claim: The reply names the carrier if/elif chain repeated across quote.py, label.py and report.py (or says that adding a carrier touches several files) as a finding.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nDo a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.\n\nAbout the repository (the agent was not told this):\nparcel is a Python command-line tool for shipping quotes, labels and a report. Its README says the command line is the public interface. Planted in it: the same if/elif chain over the carriers postnl, dhl and ups in quote.py, label.py and report.py; an import cycle between quote.py and label.py; a global SKIP_SURCHARGE flag that report.py sets for quote.py to read, and a global CURRENT_REGION set by the CLI; the ACME-001 contract discount known in three files; the half-kilo rounding rule copied in three carrier files and once more in utils.py; unused code (QuoteService pass-through, round_half_kilo, legacy_zone_lookup, quote.describe); report.py swallows every exception and counts the row as skipped; one test only asserts that a mock was called; report.py has no tests. Two real bugs: label.py compares the zone with 'remote ' (trailing space), so the remote surcharge line never prints; and when an internal row fails in report.py the SKIP_SURCHARGE flag stays on for the next row. Fixing either changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-04",
+      "criteria": "Claim: The reply names the global flags (SKIP_SURCHARGE, CURRENT_REGION, or both) that one module sets for another to read as a finding.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nDo a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.\n\nAbout the repository (the agent was not told this):\nparcel is a Python command-line tool for shipping quotes, labels and a report. Its README says the command line is the public interface. Planted in it: the same if/elif chain over the carriers postnl, dhl and ups in quote.py, label.py and report.py; an import cycle between quote.py and label.py; a global SKIP_SURCHARGE flag that report.py sets for quote.py to read, and a global CURRENT_REGION set by the CLI; the ACME-001 contract discount known in three files; the half-kilo rounding rule copied in three carrier files and once more in utils.py; unused code (QuoteService pass-through, round_half_kilo, legacy_zone_lookup, quote.describe); report.py swallows every exception and counts the row as skipped; one test only asserts that a mock was called; report.py has no tests. Two real bugs: label.py compares the zone with 'remote ' (trailing space), so the remote surcharge line never prints; and when an internal row fails in report.py the SKIP_SURCHARGE flag stays on for the next row. Fixing either changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-05",
+      "criteria": "Claim: At least three findings point to a specific file, and at least one gives evidence a reader could check, such as a count of sites, a list of files, or a commit.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nDo a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.\n\nAbout the repository (the agent was not told this):\nparcel is a Python command-line tool for shipping quotes, labels and a report. Its README says the command line is the public interface. Planted in it: the same if/elif chain over the carriers postnl, dhl and ups in quote.py, label.py and report.py; an import cycle between quote.py and label.py; a global SKIP_SURCHARGE flag that report.py sets for quote.py to read, and a global CURRENT_REGION set by the CLI; the ACME-001 contract discount known in three files; the half-kilo rounding rule copied in three carrier files and once more in utils.py; unused code (QuoteService pass-through, round_half_kilo, legacy_zone_lookup, quote.describe); report.py swallows every exception and counts the row as skipped; one test only asserts that a mock was called; report.py has no tests. Two real bugs: label.py compares the zone with 'remote ' (trailing space), so the remote surcharge line never prints; and when an internal row fails in report.py the SKIP_SURCHARGE flag stays on for the next row. Fixing either changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-06",
+      "criteria": "Claim: The reply mentions at least one of the two real bugs (the 'remote ' comparison in label.py, or the surcharge flag staying on after a failed internal row in report.py) and treats fixing it as a decision for the user because it changes output.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nDo a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.\n\nAbout the repository (the agent was not told this):\nparcel is a Python command-line tool for shipping quotes, labels and a report. Its README says the command line is the public interface. Planted in it: the same if/elif chain over the carriers postnl, dhl and ups in quote.py, label.py and report.py; an import cycle between quote.py and label.py; a global SKIP_SURCHARGE flag that report.py sets for quote.py to read, and a global CURRENT_REGION set by the CLI; the ACME-001 contract discount known in three files; the half-kilo rounding rule copied in three carrier files and once more in utils.py; unused code (QuoteService pass-through, round_half_kilo, legacy_zone_lookup, quote.describe); report.py swallows every exception and counts the row as skipped; one test only asserts that a mock was called; report.py has no tests. Two real bugs: label.py compares the zone with 'remote ' (trailing space), so the remote surcharge line never prints; and when an internal row fails in report.py the SKIP_SURCHARGE flag stays on for the next row. Fixing either changes output.\n</task>",
+      "focus": "last_message"
+    }
+  ],
+  "context": {
+    "scaffold_script": "scaffold.sh"
+  }
+}

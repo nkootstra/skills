@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.1",
+  "name": "quality-improve-layered-node-cli",
+  "tags": [
+    "quality",
+    "improve-codebase",
+    "quality-improve-codebase"
+  ],
+  "plugins": [
+    "../../.."
+  ],
+  "runs": 1,
+  "execution": {
+    "prompt": "Every time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.",
+    "max_turns": 150,
+    "timeout_seconds": 2700,
+    "allowed_tools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Write",
+      "Edit",
+      "Bash"
+    ]
+  },
+  "graders": [
+    {
+      "type": "tool_used",
+      "name": "loads-skill",
+      "tool": "Skill",
+      "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?improve-codebase\"",
+      "min": 1
+    },
+    {
+      "type": "llm",
+      "name": "check-01",
+      "criteria": "Claim: The summary says the tests were run after the changes and that they pass.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nEvery time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.\n\nAbout the repository (the agent was not told this):\ndeskline is a Node command-line tool for help-desk tickets, organised by technical layer (controllers, services, validators, formatters). Its README says the command line is the public interface. Planted in it: the list of priorities and what each one means is written in four files (the validator's list, a switch in slaService.js, a switch in ticketFormatter.js, and an ORDER list plus a second copy of the SLA hours in statsController.js), so adding a priority touches four folders; status checks against the strings open, pending and closed are scattered over services, formatter and stats; controllers and services reach into the store's _tickets and _users arrays directly, and show() repeats getTicket(); the current time is a module-level global in clock.js that services read; slaService.js and ticketService.js import each other; statsController.js swallows every error in its loop, so a ticket with an unknown priority silently drops out of the counts while still being included in total; unused code (utils/legacyExport.js, listUsers, findByEmail); one test only asserts that listing returns something; stats, show, create and the formatter have no tests. A real bug: create() reads input.prority (a typo), so the slaHours it prints is always 48 whatever the priority. Fixing it changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-02",
+      "criteria": "Claim: The summary says that the command-line output or behavior was kept the same, or names exactly which outputs changed. It does not leave the reader guessing whether behavior changed.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nEvery time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.\n\nAbout the repository (the agent was not told this):\ndeskline is a Node command-line tool for help-desk tickets, organised by technical layer (controllers, services, validators, formatters). Its README says the command line is the public interface. Planted in it: the list of priorities and what each one means is written in four files (the validator's list, a switch in slaService.js, a switch in ticketFormatter.js, and an ORDER list plus a second copy of the SLA hours in statsController.js), so adding a priority touches four folders; status checks against the strings open, pending and closed are scattered over services, formatter and stats; controllers and services reach into the store's _tickets and _users arrays directly, and show() repeats getTicket(); the current time is a module-level global in clock.js that services read; slaService.js and ticketService.js import each other; statsController.js swallows every error in its loop, so a ticket with an unknown priority silently drops out of the counts while still being included in total; unused code (utils/legacyExport.js, listUsers, findByEmail); one test only asserts that listing returns something; stats, show, create and the formatter have no tests. A real bug: create() reads input.prority (a typo), so the slaHours it prints is always 48 whatever the priority. Fixing it changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-03",
+      "criteria": "Claim: The summary says the priorities (their list, SLA hours or labels) are now defined in one place, or that adding a priority now touches fewer files than before.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nEvery time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.\n\nAbout the repository (the agent was not told this):\ndeskline is a Node command-line tool for help-desk tickets, organised by technical layer (controllers, services, validators, formatters). Its README says the command line is the public interface. Planted in it: the list of priorities and what each one means is written in four files (the validator's list, a switch in slaService.js, a switch in ticketFormatter.js, and an ORDER list plus a second copy of the SLA hours in statsController.js), so adding a priority touches four folders; status checks against the strings open, pending and closed are scattered over services, formatter and stats; controllers and services reach into the store's _tickets and _users arrays directly, and show() repeats getTicket(); the current time is a module-level global in clock.js that services read; slaService.js and ticketService.js import each other; statsController.js swallows every error in its loop, so a ticket with an unknown priority silently drops out of the counts while still being included in total; unused code (utils/legacyExport.js, listUsers, findByEmail); one test only asserts that listing returns something; stats, show, create and the formatter have no tests. A real bug: create() reads input.prority (a typo), so the slaHours it prints is always 48 whatever the priority. Fixing it changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-04",
+      "criteria": "Claim: The summary mentions the create bug (the 'prority' typo, so slaHours is always 48) and presents it as something left unchanged for the user to decide, not as something that was fixed.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nEvery time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.\n\nAbout the repository (the agent was not told this):\ndeskline is a Node command-line tool for help-desk tickets, organised by technical layer (controllers, services, validators, formatters). Its README says the command line is the public interface. Planted in it: the list of priorities and what each one means is written in four files (the validator's list, a switch in slaService.js, a switch in ticketFormatter.js, and an ORDER list plus a second copy of the SLA hours in statsController.js), so adding a priority touches four folders; status checks against the strings open, pending and closed are scattered over services, formatter and stats; controllers and services reach into the store's _tickets and _users arrays directly, and show() repeats getTicket(); the current time is a module-level global in clock.js that services read; slaService.js and ticketService.js import each other; statsController.js swallows every error in its loop, so a ticket with an unknown priority silently drops out of the counts while still being included in total; unused code (utils/legacyExport.js, listUsers, findByEmail); one test only asserts that listing returns something; stats, show, create and the formatter have no tests. A real bug: create() reads input.prority (a typo), so the slaHours it prints is always 48 whatever the priority. Fixing it changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-05",
+      "criteria": "Claim: The summary has a part that lists decisions or open questions for the user, separate from the list of changes made.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nEvery time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.\n\nAbout the repository (the agent was not told this):\ndeskline is a Node command-line tool for help-desk tickets, organised by technical layer (controllers, services, validators, formatters). Its README says the command line is the public interface. Planted in it: the list of priorities and what each one means is written in four files (the validator's list, a switch in slaService.js, a switch in ticketFormatter.js, and an ORDER list plus a second copy of the SLA hours in statsController.js), so adding a priority touches four folders; status checks against the strings open, pending and closed are scattered over services, formatter and stats; controllers and services reach into the store's _tickets and _users arrays directly, and show() repeats getTicket(); the current time is a module-level global in clock.js that services read; slaService.js and ticketService.js import each other; statsController.js swallows every error in its loop, so a ticket with an unknown priority silently drops out of the counts while still being included in total; unused code (utils/legacyExport.js, listUsers, findByEmail); one test only asserts that listing returns something; stats, show, create and the formatter have no tests. A real bug: create() reads input.prority (a typo), so the slaHours it prints is always 48 whatever the priority. Fixing it changes output.\n</task>",
+      "focus": "last_message"
+    },
+    {
+      "type": "llm",
+      "name": "check-06",
+      "criteria": "Claim: The summary gives at least one before-and-after number, such as a test count or a count of places or files.\n\nJudge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't.\n\n<task>\nEvery time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.\n\nAbout the repository (the agent was not told this):\ndeskline is a Node command-line tool for help-desk tickets, organised by technical layer (controllers, services, validators, formatters). Its README says the command line is the public interface. Planted in it: the list of priorities and what each one means is written in four files (the validator's list, a switch in slaService.js, a switch in ticketFormatter.js, and an ORDER list plus a second copy of the SLA hours in statsController.js), so adding a priority touches four folders; status checks against the strings open, pending and closed are scattered over services, formatter and stats; controllers and services reach into the store's _tickets and _users arrays directly, and show() repeats getTicket(); the current time is a module-level global in clock.js that services read; slaService.js and ticketService.js import each other; statsController.js swallows every error in its loop, so a ticket with an unknown priority silently drops out of the counts while still being included in total; unused code (utils/legacyExport.js, listUsers, findByEmail); one test only asserts that listing returns something; stats, show, create and the formatter have no tests. A real bug: create() reads input.prority (a typo), so the slaHours it prints is always 48 whatever the priority. Fixing it changes output.\n</task>",
+      "focus": "last_message"
+    }
+  ],
+  "context": {
+    "scaffold_script": "scaffold.sh"
+  }
+}

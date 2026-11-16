@@ -1,7 +1,10 @@
 """Writes one case folder (case.yaml) per quality case for `claude plugin eval`. Edit the JSON files, rerun.
-Sources: write-prose.json (inputs inlined from inputs/) and write-readme.json (fixture repos, written by a scaffold script).
+Sources: write-prose.json (inputs inlined from inputs/), write-readme.json (fixture repos, written by a scaffold script)
+and improve-codebase.json (fixture repos with a commit history, from fixtures/; see fixture_repo.py and score.py).
 case.yaml is written as JSON, which YAML accepts."""
 import json, pathlib, shutil
+
+import fixture_repo
 
 here = pathlib.Path(__file__).parent
 JUDGE_NOTE = "Judge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't."
@@ -61,6 +64,13 @@ for c in json.loads((here / "write-readme.json").read_text()):
     write_case(c["id"], "write-readme", c["prompt"],
                criteria_list(c["expectations"], {"source": "file", "path": "README.md"}, fixture_task(c)),
                ["Read", "Glob", "Grep", "Skill", "Write", "Edit", "Bash"], 30, 900, heredocs(c["fixture"]))
+    ids.append(c["id"])
+
+# improve-codebase: the judge checks the final report here; behavior and structure are measured afterwards by score.py
+for c in json.loads((here / "improve-codebase.json").read_text()):
+    task = f"{c['prompt']}\n\nAbout the repository (the agent was not told this):\n{fixture_repo.checks(c['fixture'])['facts']}"
+    write_case(c["id"], "improve-codebase", c["prompt"], criteria_list(c["expectations"], "last_message", task),
+               ["Read", "Glob", "Grep", "Skill", "Write", "Edit", "Bash"], 150, 2700, fixture_repo.scaffold(c["fixture"]))
     ids.append(c["id"])
 
 (here / "cases.txt").write_text("\n".join(ids) + "\n")

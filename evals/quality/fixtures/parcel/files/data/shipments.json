@@ -1,0 +1,10 @@
+[
+  {"carrier": "postnl", "weight": 1.0, "dims": [20, 20, 10], "zone": "local"},
+  {"carrier": "dhl", "weight": 3.2, "dims": [40, 30, 20], "zone": "national", "customer": "ACME-001"},
+  {"carrier": "ups", "weight": 12.0, "dims": [60, 40, 40], "zone": "remote"},
+  {"carrier": "dhl", "weight": 2.0, "dims": [30, 20, 20], "zone": "remote", "internal": true},
+  {"carrier": "postnl", "weight": 0.4, "dims": [25, 15, 3], "zone": "remote", "customer": "ACME-001"},
+  {"carrier": "fedex", "weight": 1.0, "dims": [20, 20, 10], "zone": "local"},
+  {"carrier": "ups", "weight": 5.5, "dims": [50, 30], "zone": "national"},
+  {"carrier": "postnl", "weight": 7.3, "dims": [45, 35, 25], "zone": "national"}
+]

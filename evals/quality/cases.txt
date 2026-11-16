@@ -24,3 +24,6 @@ monorepo-root-readme
 deploy-section-without-config
 preserve-quirky-readme
 env-vars-only-in-code
+improve-python-cli
+audit-python-cli
+improve-layered-node-cli
