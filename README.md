@@ -281,13 +281,12 @@ This keeps the cost of having the skills installed small, while the detail is th
 │   └── write-readme/
 ├── evals/
 │   ├── triggering/
-│   │   ├── make_cases.py       source of truth for the cases; generates everything below
+│   │   ├── make_cases.py       source of truth for the cases; writes cases.md and the case folders
 │   │   ├── summarize.py        per-skill recall and precision from a results file
-│   │   ├── cases.jsonl         generated
-│   │   ├── cases.md            generated, readable table of all cases
-│   │   └── <case-id>/          generated: prompt.md + graders/
+│   │   ├── cases.md            generated, readable table of all cases (committed)
+│   │   └── <case-id>/          generated before a run: prompt.md + graders/ (gitignored)
 │   ├── quality/
-│   │   ├── make_cases.py       generates one case.yaml per case from the JSON files
+│   │   ├── make_cases.py       writes one case folder per case from the JSON files (gitignored)
 │   │   ├── <skill>.json        cases: prompt, input or fixture repo, expectations
 │   │   └── inputs/             drafts the writing cases start from
 │   └── results/                run output (gitignored)
@@ -361,7 +360,7 @@ Where two skills both make sense, a case lists the second skill as `also_ok`, an
 ### Running
 
 ```bash
-# 1. Regenerate case folders (only needed after editing CASES in make_cases.py)
+# 1. Generate the case folders (they are gitignored, so do this after every clone or edit)
 python3 evals/triggering/make_cases.py
 
 # 2. Run the eval
@@ -465,7 +464,7 @@ The workflow:
 
 **A plugin doesn't pick up changes.** Run `/plugin marketplace update nkootstra-skills` and start a new session. Updates only arrive after a release, because the release raises the plugin `version`.
 
-**Eval run scores 0 on every positive.** The plugin didn't load into the sandbox. Each case's `prompt.md` needs `plugins: ["../../.."]`. Regenerate with `make_cases.py`.
+**Eval run finds no cases, or scores 0 on every positive.** The case folders are generated and gitignored: run both `make_cases.py` scripts first. Each case's `prompt.md` needs `plugins: ["../../.."]`, which the scripts write.
 
 **Eval runs time out.** Prototyping prompts produce long answers and can run for 200+ seconds. Triggering is graded before the timeout, so scores stay valid. Raise `timeout_seconds` in `make_cases.py` if you need complete transcripts.
 

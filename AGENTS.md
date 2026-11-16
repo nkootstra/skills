@@ -84,10 +84,10 @@ Two evals, both on `claude plugin eval`:
 - Defined in `evals/triggering/make_cases.py` as `CASES` tuples: `(id, expected, also_ok, difficulty, prompt)`.
   - `expected` is a skill name or `none`.
   - `also_ok` lists sibling skills that may load without counting as a false positive.
-- Running the script regenerates `cases.jsonl`, `cases.md` and one folder per case: `prompt.md` plus `graders/`.
+- Running the script writes `cases.md` (committed) and one folder per case: `prompt.md` plus `graders/`. The folders are gitignored: generate them before every run.
   - The `loads-expected` grader requires the expected skill to load.
   - One `not-<skill>` grader per sibling forbids that sibling from loading.
-- Never edit case folders by hand; edit `CASES` and rerun.
+- Never edit case folders by hand; edit `CASES` and rerun. `scripts/check.py` fails when `cases.md` is out of date, a case names an unknown skill, or a skill has fewer than 8 positive cases.
 - For a new skill:
   - Add it to `SKILLS` in `make_cases.py` and `summarize.py`, and its short unique id prefix to `PREFIX` in `summarize.py`.
   - Every case forbids every other skill, so cases from all categories are checked against all skills.
@@ -117,7 +117,7 @@ python3 evals/triggering/summarize.py evals/results/<name>.json
   - write-prose cases inline their input text from `evals/quality/inputs/`.
   - write-readme cases carry a `fixture` (path → contents). A scaffold script writes it into the run's workspace, and the claims are judged against the `README.md` the run leaves behind.
   - An expectation can be `{"criteria": ..., "focus": "last_message"}` to judge the reply instead of the file.
-- `python3 evals/quality/make_cases.py` regenerates one `case.yaml` per case: a `loads-skill` grader plus one LLM grader per expectation. Never edit the case folders by hand.
+- `python3 evals/quality/make_cases.py` writes one case folder per case (gitignored, so generate before a run): a `loads-skill` grader plus one LLM grader per expectation. Never edit the case folders by hand.
 - Run with a judge that is not the agent model:
   ```sh
   python3 evals/quality/make_cases.py
