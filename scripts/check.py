@@ -82,14 +82,25 @@ for doc in docs:
         if not (doc.parent / path).exists():
             fail(f"{doc.relative_to(root)}: broken link {target}")
 
-# triggering eval is in sync
+# eval cases: generated folders are gitignored, so check the sources instead
+import importlib.util, subprocess, sys, tempfile
 trig = root / "evals/triggering"
-cases = [json.loads(l) for l in (trig / "cases.jsonl").read_text().splitlines() if l.strip()]
-ids = {c["id"] for c in cases}
-dirs = {p.name for p in trig.iterdir() if (p / "prompt.md").is_file()}
-if ids != dirs:
-    fail(f"evals: case folders differ from cases.jsonl (missing {sorted(ids - dirs)}, extra {sorted(dirs - ids)}); "
-         "rerun python3 evals/triggering/make_cases.py")
+spec = importlib.util.spec_from_file_location("trigger_cases", trig / "make_cases.py")
+trigger = importlib.util.module_from_spec(spec); spec.loader.exec_module(trigger)
+cases = trigger.CASES
+ids = [c[0] for c in cases]
+for dup in sorted({i for i in ids if ids.count(i) > 1}):
+    fail(f"evals: triggering case id {dup} is used twice")
+for cid, exp, ok, diff, prompt in cases:
+    for name in [exp] + list(ok):
+        if name != "none" and name not in skill_names:
+            fail(f"evals: triggering case {cid} names {name}, which is not a skill")
+for name in skill_names:
+    positives = sum(1 for c in cases if c[1] == name)
+    if positives < 8:
+        fail(f"evals: {name} has {positives} positive triggering cases, it needs 8")
+if (trig / "cases.md").read_text() != trigger.cases_md():
+    fail("evals: evals/triggering/cases.md is out of date; rerun python3 evals/triggering/make_cases.py")
 for script in ("make_cases.py", "summarize.py"):
     m = re.search(r"^SKILLS\s*=\s*\[(.*?)\]", (trig / script).read_text(), re.M | re.S)
     listed = set(re.findall(r'"([\w-]+)"', m.group(1))) if m else set()
@@ -97,12 +108,13 @@ for script in ("make_cases.py", "summarize.py"):
         if name not in listed:
             fail(f"evals: {name} is missing from SKILLS in evals/triggering/{script}")
 
-qual = root / "evals/quality"
-qids = set((qual / "cases.txt").read_text().split())
-qdirs = {p.name for p in qual.iterdir() if (p / "case.yaml").is_file()}
-if qids != qdirs:
-    fail(f"evals: quality case folders differ from cases.txt (missing {sorted(qids - qdirs)}, extra {sorted(qdirs - qids)}); "
-         "rerun python3 evals/quality/make_cases.py")
+# both generators still run (into a temp folder, so the check writes nothing in the repo)
+with tempfile.TemporaryDirectory() as tmp:
+    for script in ("evals/triggering/make_cases.py", "evals/quality/make_cases.py"):
+        out = pathlib.Path(tmp) / script.split("/")[1]
+        r = subprocess.run([sys.executable, str(root / script), "--out", str(out)], capture_output=True, text=True)
+        if r.returncode != 0:
+            fail(f"evals: {script} fails: {(r.stderr or r.stdout).strip().splitlines()[-1]}")
 
 # release workflow offers every plugin
 release = (root / ".github/workflows/release.yml").read_text()

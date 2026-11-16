@@ -1,5 +1,7 @@
-"""Writes cases.jsonl and cases.md for the triggering eval. Edit CASES, rerun."""
-import json, pathlib
+"""Triggering eval cases. Edit CASES, then run this script: it writes cases.md (committed) and one case folder per case
+(prompt.md + graders/, gitignored) for `claude plugin eval`. `--out <dir>` writes the folders elsewhere; scripts/check.py uses that.
+Importing this module writes nothing."""
+import pathlib, shutil, sys
 
 # (id, expected, also_ok, difficulty, prompt)
 # expected: the skill that should load, or "none". also_ok: other skills that are acceptable to load too.
@@ -81,15 +83,12 @@ CASES = [
 ]
 
 here = pathlib.Path(__file__).parent
-with open(here/"cases.jsonl","w") as f:
-    for cid, exp, ok, diff, prompt in CASES:
-        f.write(json.dumps({"id":cid,"expected":exp,"also_ok":ok,"tags":[exp,diff],"prompt":prompt})+"\n")
 
-lines=["# Triggering eval cases","",f"{len(CASES)} cases. `expected` is the skill that should load (or `none`); `also ok` lists other skills that may load without counting as a false positive.","","| id | expected | also ok | difficulty | prompt |","|---|---|---|---|---|"]
-for cid, exp, ok, diff, prompt in CASES:
-    lines.append(f"| {cid} | {exp} | {', '.join(ok) or ''} | {diff} | {prompt.replace('|','/')} |")
-(here/"cases.md").write_text("\n".join(lines)+"\n")
-print(len(CASES))
+def cases_md():
+    lines=["# Triggering eval cases","",f"{len(CASES)} cases. `expected` is the skill that should load (or `none`); `also ok` lists other skills that may load without counting as a false positive.","","| id | expected | also ok | difficulty | prompt |","|---|---|---|---|---|"]
+    for cid, exp, ok, diff, prompt in CASES:
+        lines.append(f"| {cid} | {exp} | {', '.join(ok) or ''} | {diff} | {prompt.replace('|','/')} |")
+    return "\n".join(lines)+"\n"
 
 # ---- case directories for `claude plugin eval` ----
 PILOT = {"crit-02","crit-06","expl-02","prot-03","pol-02","pol-05","none-01","none-07"}
@@ -102,28 +101,36 @@ def grader(path, fields, body=""):
     fm = "\n".join(f"{k}: {v}" for k, v in fields.items())
     path.write_text(f"---\n{fm}\n---\n{body}")
 
-for cid, exp, ok, diff, prompt in CASES:
-    d = here / cid
-    (d / "graders").mkdir(parents=True, exist_ok=True)
-    for old in (d / "graders").glob("*.md"):
-        old.unlink()
-    (d / "prompt.md").write_text(
-        "---\n"
-        f"name: triggering-{cid}\n"
-        f"tags: [triggering, {exp}, {diff}{', pilot' if cid in PILOT else ''}]\n"
-        "runs: 2\n"
-        "plugins: [\"../../..\"]\n"
-        "max_turns: 4\n"
-        "timeout_seconds: 240\n"
-        "allowed_tools: [Read, Glob, Grep, Skill]\n"
-        f"expected_outcome: {'Loads ' + exp if exp != 'none' else 'Loads none of the skills'}\n"
-        "---\n"
-        f"{prompt}\n")
-    others = SKILLS if exp == "none" else [s for s in SKILLS if s != exp and s not in ok]
-    if exp != "none":
-        grader(d / "graders" / "loads-expected.md",
-               {"type": "tool_used", "tool": "Skill", "input_match": f"'{rx([exp])}'", "min": 1, "weight": len(others) or 1})
-    for s in others:
-        grader(d / "graders" / f"not-{s}.md",
-               {"type": "tool_used", "tool": "Skill", "input_match": f"'{rx([s])}'", "min": 0, "max": 0})
-print("case dirs written")
+def write_cases(out, plugin_path):
+    for cid, exp, ok, diff, prompt in CASES:
+        d = out / cid
+        if d.exists():
+            shutil.rmtree(d)
+        (d / "graders").mkdir(parents=True)
+        (d / "prompt.md").write_text(
+            "---\n"
+            f"name: triggering-{cid}\n"
+            f"tags: [triggering, {exp}, {diff}{', pilot' if cid in PILOT else ''}]\n"
+            "runs: 2\n"
+            f"plugins: [\"{plugin_path}\"]\n"
+            "max_turns: 4\n"
+            "timeout_seconds: 240\n"
+            "allowed_tools: [Read, Glob, Grep, Skill]\n"
+            f"expected_outcome: {'Loads ' + exp if exp != 'none' else 'Loads none of the skills'}\n"
+            "---\n"
+            f"{prompt}\n")
+        others = SKILLS if exp == "none" else [s for s in SKILLS if s != exp and s not in ok]
+        if exp != "none":
+            grader(d / "graders" / "loads-expected.md",
+                   {"type": "tool_used", "tool": "Skill", "input_match": f"'{rx([exp])}'", "min": 1, "weight": len(others) or 1})
+        for s in others:
+            grader(d / "graders" / f"not-{s}.md",
+                   {"type": "tool_used", "tool": "Skill", "input_match": f"'{rx([s])}'", "min": 0, "max": 0})
+
+if __name__ == "__main__":
+    out = pathlib.Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else here
+    out.mkdir(parents=True, exist_ok=True)
+    write_cases(out, "../../.." if out == here else str(here.parent.parent.resolve()))
+    if out == here:
+        (here / "cases.md").write_text(cases_md())
+    print(f"{len(CASES)} triggering cases written to {out}")

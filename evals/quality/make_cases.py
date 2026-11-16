@@ -1,7 +1,8 @@
-"""Writes one case folder (case.yaml) per quality case for `claude plugin eval`. Edit the JSON files, rerun.
+"""Writes one case folder (case.yaml, plus scaffold.sh where needed) per quality case for `claude plugin eval`.
+The folders are generated and gitignored: edit the JSON files and rerun this before an eval run.
 Sources: write-prose.json (inputs inlined from inputs/) and write-readme.json (fixture repos, written by a scaffold script).
-case.yaml is written as JSON, which YAML accepts."""
-import json, pathlib, shutil
+case.yaml is written as JSON, which YAML accepts. `--out <dir>` writes the folders elsewhere; scripts/check.py uses that."""
+import json, pathlib, shutil, sys
 
 here = pathlib.Path(__file__).parent
 JUDGE_NOTE = "Judge only the claim above, against the task below. Pass when it clearly holds; fail when it doesn't."
@@ -25,16 +26,19 @@ def heredocs(files):
         lines.append(f"cat > '{path}' <<'FIXTURE_EOF'\n{body.rstrip(chr(10))}\nFIXTURE_EOF")
     return "\n".join(lines) + "\n"
 
+out = pathlib.Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else here
+plugin_path = "../../.." if out == here else str(here.parent.parent.resolve())
+
 def write_case(cid, skill, prompt, graders, tools, turns, timeout, scaffold=None):
-    d = here / cid
+    d = out / cid
     if d.exists():
         shutil.rmtree(d)
-    d.mkdir()
+    d.mkdir(parents=True)
     case = {
         "schema_version": "1.1",
         "name": f"quality-{cid}",
         "tags": ["quality", skill, f"quality-{skill}"],
-        "plugins": ["../../.."],
+        "plugins": [plugin_path],
         "runs": 1,
         "execution": {"prompt": prompt, "max_turns": turns, "timeout_seconds": timeout, "allowed_tools": tools},
         "graders": [loads(skill)] + graders,
@@ -63,5 +67,4 @@ for c in json.loads((here / "write-readme.json").read_text()):
                ["Read", "Glob", "Grep", "Skill", "Write", "Edit", "Bash"], 30, 900, heredocs(c["fixture"]))
     ids.append(c["id"])
 
-(here / "cases.txt").write_text("\n".join(ids) + "\n")
-print(f"{len(ids)} quality cases written")
+print(f"{len(ids)} quality cases written to {out}")
