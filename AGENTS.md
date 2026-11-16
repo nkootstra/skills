@@ -44,7 +44,7 @@ There is no `plugin.json`; each plugin entry uses `strict: false` and lists its 
    - End with a "Companion skills" section that says when to hand off to each sibling skill in the same category.
 4. Add the skill path to its plugin's `skills` array in `.claude-plugin/marketplace.json` and a row to that category's README table. A skill belongs to exactly one plugin.
 5. Check:
-   - Run `python3 scripts/check.py`, `claude plugin validate .` and `npx skills add . --list`.
+   - Run `python3 scripts/check.py`, `python3 evals/quality/score.py verify`, `claude plugin validate .` and `npx skills add . --list`.
    - New skills start at `version: "1.0.0"`. Never bump versions by hand afterwards; the release workflow does it.
 6. Add eval cases (below) before calling the skill done.
 
@@ -84,10 +84,10 @@ Two evals, both on `claude plugin eval`:
 - Defined in `evals/triggering/make_cases.py` as `CASES` tuples: `(id, expected, also_ok, difficulty, prompt)`.
   - `expected` is a skill name or `none`.
   - `also_ok` lists sibling skills that may load without counting as a false positive.
-- Running the script regenerates `cases.jsonl`, `cases.md` and one folder per case: `prompt.md` plus `graders/`.
+- Running the script writes `cases.md` (committed) and one folder per case: `prompt.md` plus `graders/`. The folders are gitignored: generate them before every run.
   - The `loads-expected` grader requires the expected skill to load.
   - One `not-<skill>` grader per sibling forbids that sibling from loading.
-- Never edit case folders by hand; edit `CASES` and rerun.
+- Never edit case folders by hand; edit `CASES` and rerun. `scripts/check.py` fails when `cases.md` is out of date, a case names an unknown skill, or a skill has fewer than 8 positive cases.
 - For a new skill:
   - Add it to `SKILLS` in `make_cases.py` and `summarize.py`, and its short unique id prefix to `PREFIX` in `summarize.py`.
   - Every case forbids every other skill, so cases from all categories are checked against all skills.
@@ -117,8 +117,8 @@ python3 evals/triggering/summarize.py evals/results/<name>.json
   - write-prose cases inline their input text from `evals/quality/inputs/`.
   - write-readme cases carry a `fixture` (path → contents). A scaffold script writes it into the run's workspace, and the claims are judged against the `README.md` the run leaves behind.
   - An expectation can be `{"criteria": ..., "focus": "last_message"}` to judge the reply instead of the file.
-  - improve-codebase cases name a `fixture` in `evals/quality/fixtures/`: `files/` (the repo), `history.json` (commits as text replacements on those files), `checks.json` (how to measure a run) and `golden.json` (recorded outputs). The claims are judged against the final report.
-- `python3 evals/quality/make_cases.py` regenerates one `case.yaml` per case: a `loads-skill` grader plus one LLM grader per expectation. Never edit the case folders by hand.
+  - improve-codebase cases name a `fixture`, one file each in `evals/quality/fixtures/<name>.json` with `files` (the repo), `history` (commits as text replacements on those files), `checks` (how to measure a run) and `golden` (recorded outputs). The claims are judged against the final report. To edit a fixture's code: `fixture_repo.py unpack <name> <dir>`, edit, `fixture_repo.py pack <name> <dir>`, then `score.py record <name>`.
+- `python3 evals/quality/make_cases.py` writes one case folder per case (gitignored, so generate before a run): a `loads-skill` grader plus one LLM grader per expectation. Never edit the case folders by hand.
 - Run with a judge that is not the agent model:
   ```sh
   python3 evals/quality/make_cases.py
@@ -126,7 +126,7 @@ python3 evals/triggering/summarize.py evals/results/<name>.json
     --scaffold --allow-tools Write Edit Bash --trust-plugin --no-publish --threshold 0 --max-cost-usd 15 -j 4 \
     --json evals/results/<name>.json
   ```
-- For improve-codebase, add `--keep-temp` and score the kept workspaces afterwards: `python3 evals/quality/score.py score <fixture> <label>=<kept dir> ...`. It reports whether the recorded CLI outputs are unchanged, whether the planted bug was left for the user, and the count of each planted problem. Open a kept directory with the `chmod` the eval prints, and never run git inside it. After changing a fixture's files or `checks.json`, run `score.py record <fixture>`; `python3 evals/quality/fixture_repo.py <fixture>` checks that its history still replays.
+- For improve-codebase, add `--keep-temp` and score the kept workspaces afterwards: `python3 evals/quality/score.py score <fixture> <label>=<kept dir> ...`. It reports whether the recorded CLI outputs are unchanged, whether the planted bug was left for the user, and the count of each planted problem. Open a kept directory with the `chmod` the eval prints, and never run git inside it. CI runs `python3 evals/quality/score.py verify`, which fails when a fixture no longer replays its history, fails its own tests, or prints different outputs than recorded.
 - `--ablation with-without` adds a run without the plugin, which shows what the skill adds over the bare model. It doubles the cost.
 - Get approval before a run. After changing a skill's guidance, rerun that skill's cases with `--tag quality-<skill>`. Repeated `--tag` flags match any of the tags, not all of them, so `--tag quality --tag <skill>` also runs that skill's triggering cases. `--tag quality` alone runs every quality case, improve-codebase's included, which need `--keep-temp` and a higher cost cap.
 - Current baseline (3 runs per case): write-prose 311/375 against 230/375 without the plugin (18 cases), write-readme 152/153 against 151/153. improve-codebase 52/54 judge checks (3 cases, no without-arm yet; every failure passed on re-judging, and the audit case's "claims no changes" check is noisy at about one run in three), and `score.py` showed the recorded outputs unchanged and the planted bug left for the user in every run, about $11.50. Judge a change by the with/without gap over all cases at 3 runs, never by one case: a single case swings by ±4 checks between runs of the same skill.

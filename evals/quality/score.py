@@ -1,13 +1,15 @@
 """Scores improve-codebase runs: did behavior stay the same, and did the structure get better.
 `claude plugin eval` has no grader that runs a command, so this runs after the eval, on workspaces kept with --keep-temp.
 
-usage: python3 evals/quality/score.py record <fixture>
-       python3 evals/quality/score.py score <fixture> <label>=<dir> [<label>=<dir> ...]
+usage: python3 evals/quality/score.py score <fixture> <label>=<dir> [<label>=<dir> ...]
+       python3 evals/quality/score.py record <fixture>        record the untouched fixture's outputs as its golden
+       python3 evals/quality/score.py verify [<fixture> ...]  fail unless each fixture replays its history, passes its
+                                                             tests and still produces its golden outputs (CI runs this)
 
 <dir> is a kept sandbox directory (the eval prints "kept /private/tmp/e-..."; open it first with the chmod it prints)
 or any folder holding the repo. The repo is copied out before anything runs: never run git inside a kept directory.
 
-checks.json per fixture:
+The "checks" object in fixtures/<name>.json:
   run          command prefix for the public interface, e.g. ["python3", "-m", "parcel"]
   calls        argument lists whose output must not change
   trap         argument lists that exercise a planted bug; unchanged output means the bug was left for the user to decide
@@ -19,7 +21,7 @@ checks.json per fixture:
   tests_regex  {"include": regex, "pattern": regex}: counts test functions
   cycles       "python" or "js": count modules that sit in an import cycle
   facts        what a judge needs to know about the fixture (used by make_cases.py)"""
-import ast, json, os, pathlib, re, shutil, subprocess, sys, tempfile
+import ast, os, pathlib, re, shutil, subprocess, sys, tempfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import fixture_repo
@@ -122,22 +124,46 @@ def find_repo(path, marker):
         raise SystemExit(f"no {marker} under {path} (a kept directory has to be opened with chmod first)")
     return pathlib.Path(str(hits[0])[: -len(marker)].rstrip("/"))
 
+def verify(names):
+    failed = False
+    for name in names:
+        fixture_repo.states(name)   # raises if the history no longer replays
+        spec, golden = fixture_repo.checks(name), fixture_repo.load(name)["golden"]
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture_repo.write_files(name, tmp)
+            problems = []
+            if run(spec["tests"], tmp)["code"] != 0:
+                problems.append("its tests fail")
+            for kind in ("calls", "trap"):
+                if [a for a, _ in golden[kind]] != spec[kind]:
+                    problems.append(f"golden {kind} were recorded for a different list; run: score.py record {name}")
+                bad = [" ".join(a) for a, want in golden[kind] if run(spec["run"] + a, tmp) != want]
+                if bad:
+                    problems.append(f"{len(bad)} {kind} differ from golden, e.g. {bad[0]}")
+        print(f"{'✗' if problems else '✓'} {name}: " + ("; ".join(problems) if problems else
+              f"history replays, tests pass, {len(golden['calls'])} + {len(golden['trap'])} outputs match"))
+        failed |= bool(problems)
+    sys.exit(1 if failed else 0)
+
 def main():
-    mode, name = sys.argv[1], sys.argv[2]
+    mode = sys.argv[1]
+    if mode == "verify":
+        return verify(sys.argv[2:] or fixture_repo.names())
+    name = sys.argv[2]
     spec = fixture_repo.checks(name)
     original = fixture_repo.files(name)
-    golden_path = fixture_repo.root(name) / "golden.json"
     with tempfile.TemporaryDirectory() as tmp:
         base = pathlib.Path(tmp) / "baseline"
-        shutil.copytree(fixture_repo.root(name) / "files", base, ignore=IGNORE)
+        fixture_repo.write_files(name, base)
         if mode == "record":
-            data = {"calls": [[a, run(spec["run"] + a, base)] for a in spec["calls"]],
-                    "trap": [[a, run(spec["run"] + a, base)] for a in spec["trap"]]}
-            golden_path.write_text(json.dumps(data, indent=1) + "\n")
-            codes = sorted({r["code"] for _, r in data["calls"] + data["trap"]})
-            print(f"{name}: {len(data['calls'])} calls and {len(data['trap'])} trap calls recorded, exit codes {codes}")
+            data = fixture_repo.load(name)
+            data["golden"] = {"calls": [[a, run(spec["run"] + a, base)] for a in spec["calls"]],
+                              "trap": [[a, run(spec["run"] + a, base)] for a in spec["trap"]]}
+            fixture_repo.save(name, data)
+            codes = sorted({r["code"] for _, r in data["golden"]["calls"] + data["golden"]["trap"]})
+            print(f"{name}: {len(spec['calls'])} calls and {len(spec['trap'])} trap calls recorded, exit codes {codes}")
             return
-        golden = json.loads(golden_path.read_text())
+        golden = fixture_repo.load(name)["golden"]
         rows = {"baseline": measure(base, spec, golden, original)}
         for arg in sys.argv[3:]:
             label, _, given = arg.partition("=")

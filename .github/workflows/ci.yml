@@ -20,6 +20,11 @@ jobs:
       - name: Structure, frontmatter, links and eval cases
         run: python3 scripts/check.py
 
+      # Each fixture must still replay its history, pass its own tests and print its recorded outputs,
+      # or the improve-codebase quality eval would score runs against the wrong baseline.
+      - name: Eval fixtures match their recorded outputs
+        run: python3 evals/quality/score.py verify
+
       # Needs no login. npm 12 blocks install scripts unless allowed, and the CLI's postinstall
       # fetches its native binary.
       - name: Install Claude Code

@@ -1,0 +1,1758 @@
+{
+ "checks": {
+  "facts": "deskline is a Node command-line tool for help-desk tickets, organised by technical layer (controllers, services, validators, formatters). Its README says the command line is the public interface. Planted in it: the list of priorities and what each one means is written in four files (the validator's list, a switch in slaService.js, a switch in ticketFormatter.js, and an ORDER list plus a second copy of the SLA hours in statsController.js), so adding a priority touches four folders; status checks against the strings open, pending and closed are scattered over services, formatter and stats; controllers and services reach into the store's _tickets and _users arrays directly, and show() repeats getTicket(); the current time is a module-level global in clock.js that services read; slaService.js and ticketService.js import each other; statsController.js swallows every error in its loop, so a ticket with an unknown priority silently drops out of the counts while still being included in total; unused code (utils/legacyExport.js, listUsers, findByEmail); one test only asserts that listing returns something; stats, show, create and the formatter have no tests. A real bug: create() reads input.prority (a typo), so the slaHours it prints is always 48 whatever the priority. Fixing it changes output.",
+  "run": [
+   "node",
+   "src/cli.js"
+  ],
+  "tests": [
+   "node",
+   "--test"
+  ],
+  "marker": "src/cli.js",
+  "calls": [
+   [
+    "list",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--status",
+    "open",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--status",
+    "pending",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--status",
+    "closed",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--priority",
+    "low",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--priority",
+    "normal",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--priority",
+    "high",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--priority",
+    "urgent",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--assignee",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--assignee",
+    "u-ben",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--status",
+    "open",
+    "--priority",
+    "urgent",
+    "--now",
+    "2026-10-05T12:00:00.000Z"
+   ],
+   [
+    "list",
+    "--overdue",
+    "true",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--overdue",
+    "true",
+    "--status",
+    "open",
+    "--now",
+    "2026-10-20T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--status",
+    "done",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--priority",
+    "critical",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "1",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "2",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "3",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "4",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "5",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "6",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "7",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "8",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "9",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "10",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "show",
+    "--id",
+    "3",
+    "--now",
+    "2026-10-05T11:31:00.000Z"
+   ],
+   [
+    "create",
+    "--title",
+    "Printer on fire",
+    "--requester",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "create",
+    "--title",
+    "Printer on fire",
+    "--priority",
+    "normal",
+    "--requester",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "create",
+    "--title",
+    "",
+    "--priority",
+    "asap",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "create",
+    "--title",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "--priority",
+    "low",
+    "--requester",
+    "u-ben",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "1",
+    "--user",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "1",
+    "--user",
+    "u-cas",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "1",
+    "--user",
+    "u-bot",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "1",
+    "--user",
+    "u-zed",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "2",
+    "--user",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "2",
+    "--user",
+    "u-cas",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "2",
+    "--user",
+    "u-bot",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "2",
+    "--user",
+    "u-zed",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "4",
+    "--user",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "4",
+    "--user",
+    "u-cas",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "4",
+    "--user",
+    "u-bot",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "4",
+    "--user",
+    "u-zed",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "6",
+    "--user",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "6",
+    "--user",
+    "u-cas",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "6",
+    "--user",
+    "u-bot",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "6",
+    "--user",
+    "u-zed",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "9",
+    "--user",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "9",
+    "--user",
+    "u-cas",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "9",
+    "--user",
+    "u-bot",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "9",
+    "--user",
+    "u-zed",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "12",
+    "--user",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "12",
+    "--user",
+    "u-cas",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "12",
+    "--user",
+    "u-bot",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "assign",
+    "--id",
+    "12",
+    "--user",
+    "u-zed",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "1",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "2",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "3",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "4",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "5",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "6",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "7",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "8",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "9",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "close",
+    "--id",
+    "10",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "stats",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "stats",
+    "--now",
+    "2026-10-06T09:00:00.000Z"
+   ],
+   [
+    "stats",
+    "--now",
+    "2026-10-20T09:00:00.000Z"
+   ],
+   [
+    "stats",
+    "--now",
+    "2026-09-01T00:00:00.000Z"
+   ],
+   [
+    "archive",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "list",
+    "--status"
+   ]
+  ],
+  "trap": [
+   [
+    "create",
+    "--title",
+    "Printer on fire",
+    "--priority",
+    "urgent",
+    "--requester",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "create",
+    "--title",
+    "Printer on fire",
+    "--priority",
+    "high",
+    "--requester",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ],
+   [
+    "create",
+    "--title",
+    "Printer on fire",
+    "--priority",
+    "low",
+    "--requester",
+    "u-ana",
+    "--now",
+    "2026-10-05T09:00:00.000Z"
+   ]
+  ],
+  "source": {
+   "include": "\\.(js|mjs)$",
+   "exclude": "(^|/)tests?/|\\.test\\.(js|mjs)$|(^|/)node_modules/"
+  },
+  "tests_regex": {
+   "include": "(^|/)tests?/.*\\.(js|mjs)$|\\.test\\.(js|mjs)$",
+   "pattern": "\\b(?:test|it)\\(\\s*[\"'`]"
+  },
+  "file_counts": {
+   "files naming a priority in code": "[\"']urgent[\"']|\\burgent\\s*:"
+  },
+  "counts": {
+   "status string comparisons": "status\\s*[!=]==\\s*[\"'](?:open|pending|closed)[\"']",
+   "direct uses of store internals": "\\._(?:tickets|users)\\b",
+   "global clock reads": "\\bgetNow\\(",
+   "copies of the SLA table": "\\b24\\b",
+   "unused definitions still present": "function (?:toCsv|listUsers|findByEmail)\\b",
+   "empty catch blocks": "catch\\s*(?:\\([^)]*\\))?\\s*\\{\\s*(?:continue;)?\\s*\\}"
+  },
+  "cycles": "js"
+ },
+ "history": {
+  "author": {
+   "name": "Noor Hendriks",
+   "email": "noor@deskline.example"
+  },
+  "initial": {
+   "date": "2026-02-03T09:30:00",
+   "message": "Initial import"
+  },
+  "commits": [
+   {
+    "date": "2026-03-10T11:02:00",
+    "message": "Add the urgent priority",
+    "edits": [
+     [
+      "src/validators/ticketValidator.js",
+      "const PRIORITIES = [\"low\", \"normal\", \"high\"];",
+      "const PRIORITIES = [\"low\", \"normal\", \"high\", \"urgent\"];"
+     ],
+     [
+      "src/services/slaService.js",
+      "  switch (priority) {\n    case \"high\":",
+      "  switch (priority) {\n    case \"urgent\":\n      return 4;\n    case \"high\":"
+     ],
+     [
+      "src/formatters/ticketFormatter.js",
+      "  switch (priority) {\n    case \"high\":",
+      "  switch (priority) {\n    case \"urgent\":\n      return \"Urgent (P1)\";\n    case \"high\":"
+     ],
+     [
+      "src/controllers/statsController.js",
+      "const ORDER = [\"high\", \"normal\", \"low\"];\nconst HOURS = { high: 36, normal: 48, low: 120 };",
+      "const ORDER = [\"urgent\", \"high\", \"normal\", \"low\"];\nconst HOURS = { urgent: 4, high: 36, normal: 48, low: 120 };"
+     ]
+    ]
+   },
+   {
+    "date": "2026-04-22T14:45:00",
+    "message": "Fix: closed tickets cannot be assigned",
+    "edits": [
+     [
+      "src/services/ticketService.js",
+      "  if (!user.active) {\n    throw new Error(`user ${userId} is inactive`);\n  }\n",
+      "  if (ticket.status === \"closed\") {\n    throw new Error(\"cannot assign a closed ticket\");\n  }\n  if (!user.active) {\n    throw new Error(`user ${userId} is inactive`);\n  }\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-05-18T10:20:00",
+    "message": "Change the high priority SLA to 24 hours",
+    "edits": [
+     [
+      "src/services/slaService.js",
+      "    case \"high\":\n      return 36;",
+      "    case \"high\":\n      return 24;"
+     ],
+     [
+      "src/controllers/statsController.js",
+      "high: 36,",
+      "high: 24,"
+     ]
+    ]
+   },
+   {
+    "date": "2026-06-30T16:10:00",
+    "message": "Let the triage bot pick up any ticket",
+    "edits": [
+     [
+      "src/services/ticketService.js",
+      "  if (ticket.status === \"closed\") {\n    throw new Error(\"cannot assign a closed ticket\");\n  }\n  if (!user.active) {\n    throw new Error(`user ${userId} is inactive`);\n  }\n",
+      "  // the triage bot may pick up anything\n  if (user.id !== \"u-bot\") {\n    if (ticket.status === \"closed\") {\n      throw new Error(\"cannot assign a closed ticket\");\n    }\n    if (!user.active) {\n      throw new Error(`user ${userId} is inactive`);\n    }\n  }\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-08-12T09:05:00",
+    "message": "Show the SLA hours when a ticket is created",
+    "edits": [
+     [
+      "src/controllers/ticketController.js",
+      "import { formatTicket }",
+      "import { slaHours } from \"../services/slaService.js\";\nimport { formatTicket }"
+     ],
+     [
+      "src/controllers/ticketController.js",
+      "  return formatTicket(ticket);\n}\n\nexport function assign",
+      "  return { ...formatTicket(ticket), slaHours: slaHours(input.prority) };\n}\n\nexport function assign"
+     ]
+    ]
+   },
+   {
+    "date": "2026-09-08T13:30:00",
+    "message": "Fix: closed tickets were counted as overdue in stats",
+    "edits": [
+     [
+      "src/controllers/statsController.js",
+      "      {\n        const due",
+      "      if (ticket.status !== \"closed\") {\n        const due"
+     ]
+    ]
+   },
+   {
+    "date": "2026-10-14T15:55:00",
+    "message": "Skip tickets with an unknown priority in stats",
+    "edits": [
+     [
+      "src/controllers/statsController.js",
+      "    try {\n      byStatus",
+      "    try {\n      if (!(ticket.priority in HOURS)) {\n        throw new Error(\"unknown priority\");\n      }\n      byStatus"
+     ]
+    ]
+   }
+  ]
+ },
+ "golden": {
+  "calls": [
+   [
+    [
+     "list",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true},{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true},{\"id\":3,\"title\":\"Export times out for large accounts\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T11:30:00.000Z\",\"overdue\":false},{\"id\":4,\"title\":\"Typo on the pricing page\",\"priority\":\"Low (P4)\",\"status\":\"Closed\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-09-25T10:00:00.000Z\",\"overdue\":false},{\"id\":5,\"title\":\"Webhook retries arrive out of order\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-10-04T16:05:00.000Z\",\"overdue\":true},{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true},{\"id\":7,\"title\":\"Search returns archived projects\",\"priority\":\"Normal (P3)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-06T15:20:00.000Z\",\"overdue\":false},{\"id\":8,\"title\":\"Two-factor codes rejected on mobile\",\"priority\":\"Urgent (P1)\",\"status\":\"Closed\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-02T15:00:00.000Z\",\"overdue\":false},{\"id\":9,\"title\":\"Imported from the old tracker\",\"priority\":\"critical\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-09-01T09:00:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--status",
+     "open",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true},{\"id\":3,\"title\":\"Export times out for large accounts\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T11:30:00.000Z\",\"overdue\":false},{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true},{\"id\":7,\"title\":\"Search returns archived projects\",\"priority\":\"Normal (P3)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-06T15:20:00.000Z\",\"overdue\":false},{\"id\":9,\"title\":\"Imported from the old tracker\",\"priority\":\"critical\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-09-01T09:00:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--status",
+     "pending",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true},{\"id\":5,\"title\":\"Webhook retries arrive out of order\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-10-04T16:05:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--status",
+     "closed",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":4,\"title\":\"Typo on the pricing page\",\"priority\":\"Low (P4)\",\"status\":\"Closed\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-09-25T10:00:00.000Z\",\"overdue\":false},{\"id\":8,\"title\":\"Two-factor codes rejected on mobile\",\"priority\":\"Urgent (P1)\",\"status\":\"Closed\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-02T15:00:00.000Z\",\"overdue\":false}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--priority",
+     "low",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":4,\"title\":\"Typo on the pricing page\",\"priority\":\"Low (P4)\",\"status\":\"Closed\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-09-25T10:00:00.000Z\",\"overdue\":false},{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--priority",
+     "normal",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true},{\"id\":7,\"title\":\"Search returns archived projects\",\"priority\":\"Normal (P3)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-06T15:20:00.000Z\",\"overdue\":false}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--priority",
+     "high",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true},{\"id\":5,\"title\":\"Webhook retries arrive out of order\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-10-04T16:05:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--priority",
+     "urgent",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":3,\"title\":\"Export times out for large accounts\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T11:30:00.000Z\",\"overdue\":false},{\"id\":8,\"title\":\"Two-factor codes rejected on mobile\",\"priority\":\"Urgent (P1)\",\"status\":\"Closed\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-02T15:00:00.000Z\",\"overdue\":false}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--assignee",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true},{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true},{\"id\":8,\"title\":\"Two-factor codes rejected on mobile\",\"priority\":\"Urgent (P1)\",\"status\":\"Closed\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-02T15:00:00.000Z\",\"overdue\":false}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--assignee",
+     "u-ben",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":4,\"title\":\"Typo on the pricing page\",\"priority\":\"Low (P4)\",\"status\":\"Closed\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-09-25T10:00:00.000Z\",\"overdue\":false},{\"id\":5,\"title\":\"Webhook retries arrive out of order\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-10-04T16:05:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--status",
+     "open",
+     "--priority",
+     "urgent",
+     "--now",
+     "2026-10-05T12:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":3,\"title\":\"Export times out for large accounts\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T11:30:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--overdue",
+     "true",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true},{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true},{\"id\":5,\"title\":\"Webhook retries arrive out of order\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-10-04T16:05:00.000Z\",\"overdue\":true},{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true},{\"id\":9,\"title\":\"Imported from the old tracker\",\"priority\":\"critical\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-09-01T09:00:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--overdue",
+     "true",
+     "--status",
+     "open",
+     "--now",
+     "2026-10-20T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "[{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true},{\"id\":3,\"title\":\"Export times out for large accounts\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T11:30:00.000Z\",\"overdue\":true},{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true},{\"id\":7,\"title\":\"Search returns archived projects\",\"priority\":\"Normal (P3)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-06T15:20:00.000Z\",\"overdue\":true},{\"id\":9,\"title\":\"Imported from the old tracker\",\"priority\":\"critical\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-09-01T09:00:00.000Z\",\"overdue\":true}]\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--status",
+     "done",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "list",
+     "--priority",
+     "critical",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "1",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "2",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "3",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":3,\"title\":\"Export times out for large accounts\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T11:30:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "4",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":4,\"title\":\"Typo on the pricing page\",\"priority\":\"Low (P4)\",\"status\":\"Closed\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-09-25T10:00:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "5",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":5,\"title\":\"Webhook retries arrive out of order\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-10-04T16:05:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "6",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "7",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":7,\"title\":\"Search returns archived projects\",\"priority\":\"Normal (P3)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-06T15:20:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "8",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":8,\"title\":\"Two-factor codes rejected on mobile\",\"priority\":\"Urgent (P1)\",\"status\":\"Closed\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-02T15:00:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "9",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":9,\"title\":\"Imported from the old tracker\",\"priority\":\"critical\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-09-01T09:00:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "10",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "show",
+     "--id",
+     "3",
+     "--now",
+     "2026-10-05T11:31:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":3,\"title\":\"Export times out for large accounts\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T11:30:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "create",
+     "--title",
+     "Printer on fire",
+     "--requester",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":10,\"title\":\"Printer on fire\",\"priority\":\"Normal (P3)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-07T09:00:00.000Z\",\"overdue\":false,\"slaHours\":48}\n"
+    }
+   ],
+   [
+    [
+     "create",
+     "--title",
+     "Printer on fire",
+     "--priority",
+     "normal",
+     "--requester",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":10,\"title\":\"Printer on fire\",\"priority\":\"Normal (P3)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-07T09:00:00.000Z\",\"overdue\":false,\"slaHours\":48}\n"
+    }
+   ],
+   [
+    [
+     "create",
+     "--title",
+     "",
+     "--priority",
+     "asap",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "create",
+     "--title",
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "--priority",
+     "low",
+     "--requester",
+     "u-ben",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "1",
+     "--user",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "1",
+     "--user",
+     "u-cas",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "1",
+     "--user",
+     "u-bot",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":1,\"title\":\"Cannot log in after password reset\",\"priority\":\"High (P2)\",\"status\":\"Pending\",\"assignee\":\"u-bot\",\"dueAt\":\"2026-10-05T08:15:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "1",
+     "--user",
+     "u-zed",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "2",
+     "--user",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "2",
+     "--user",
+     "u-cas",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "2",
+     "--user",
+     "u-bot",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Pending\",\"assignee\":\"u-bot\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "2",
+     "--user",
+     "u-zed",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "4",
+     "--user",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "4",
+     "--user",
+     "u-cas",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "4",
+     "--user",
+     "u-bot",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":4,\"title\":\"Typo on the pricing page\",\"priority\":\"Low (P4)\",\"status\":\"Closed\",\"assignee\":\"u-bot\",\"dueAt\":\"2026-09-25T10:00:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "4",
+     "--user",
+     "u-zed",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "6",
+     "--user",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "6",
+     "--user",
+     "u-cas",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "6",
+     "--user",
+     "u-bot",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Pending\",\"assignee\":\"u-bot\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "6",
+     "--user",
+     "u-zed",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "9",
+     "--user",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":9,\"title\":\"Imported from the old tracker\",\"priority\":\"critical\",\"status\":\"Pending\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-09-01T09:00:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "9",
+     "--user",
+     "u-cas",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "9",
+     "--user",
+     "u-bot",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":9,\"title\":\"Imported from the old tracker\",\"priority\":\"critical\",\"status\":\"Pending\",\"assignee\":\"u-bot\",\"dueAt\":\"2026-09-01T09:00:00.000Z\",\"overdue\":true}\n"
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "9",
+     "--user",
+     "u-zed",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "12",
+     "--user",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "12",
+     "--user",
+     "u-cas",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "12",
+     "--user",
+     "u-bot",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "assign",
+     "--id",
+     "12",
+     "--user",
+     "u-zed",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "1",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "2",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":2,\"title\":\"Invoice PDF shows the wrong VAT number\",\"priority\":\"Normal (P3)\",\"status\":\"Closed\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T13:40:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "3",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "4",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "5",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":5,\"title\":\"Webhook retries arrive out of order\",\"priority\":\"High (P2)\",\"status\":\"Closed\",\"assignee\":\"u-ben\",\"dueAt\":\"2026-10-04T16:05:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "6",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":6,\"title\":\"Add SSO for the staging tenant\",\"priority\":\"Low (P4)\",\"status\":\"Closed\",\"assignee\":\"u-ana\",\"dueAt\":\"2026-10-03T09:00:00.000Z\",\"overdue\":false}\n"
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "7",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "8",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "9",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "close",
+     "--id",
+     "10",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "stats",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"byStatus\":{\"open\":4,\"pending\":2,\"closed\":2},\"byPriority\":{\"urgent\":2,\"high\":2,\"normal\":2,\"low\":2},\"overdue\":4,\"total\":9}\n"
+    }
+   ],
+   [
+    [
+     "stats",
+     "--now",
+     "2026-10-06T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"byStatus\":{\"open\":4,\"pending\":2,\"closed\":2},\"byPriority\":{\"urgent\":2,\"high\":2,\"normal\":2,\"low\":2},\"overdue\":5,\"total\":9}\n"
+    }
+   ],
+   [
+    [
+     "stats",
+     "--now",
+     "2026-10-20T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"byStatus\":{\"open\":4,\"pending\":2,\"closed\":2},\"byPriority\":{\"urgent\":2,\"high\":2,\"normal\":2,\"low\":2},\"overdue\":6,\"total\":9}\n"
+    }
+   ],
+   [
+    [
+     "stats",
+     "--now",
+     "2026-09-01T00:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"byStatus\":{\"open\":4,\"pending\":2,\"closed\":2},\"byPriority\":{\"urgent\":2,\"high\":2,\"normal\":2,\"low\":2},\"overdue\":0,\"total\":9}\n"
+    }
+   ],
+   [
+    [
+     "archive",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "list",
+     "--status"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ]
+  ],
+  "trap": [
+   [
+    [
+     "create",
+     "--title",
+     "Printer on fire",
+     "--priority",
+     "urgent",
+     "--requester",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":10,\"title\":\"Printer on fire\",\"priority\":\"Urgent (P1)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-05T13:00:00.000Z\",\"overdue\":false,\"slaHours\":48}\n"
+    }
+   ],
+   [
+    [
+     "create",
+     "--title",
+     "Printer on fire",
+     "--priority",
+     "high",
+     "--requester",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":10,\"title\":\"Printer on fire\",\"priority\":\"High (P2)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-06T09:00:00.000Z\",\"overdue\":false,\"slaHours\":48}\n"
+    }
+   ],
+   [
+    [
+     "create",
+     "--title",
+     "Printer on fire",
+     "--priority",
+     "low",
+     "--requester",
+     "u-ana",
+     "--now",
+     "2026-10-05T09:00:00.000Z"
+    ],
+    {
+     "code": 0,
+     "out": "{\"id\":10,\"title\":\"Printer on fire\",\"priority\":\"Low (P4)\",\"status\":\"Open\",\"assignee\":\"unassigned\",\"dueAt\":\"2026-10-10T09:00:00.000Z\",\"overdue\":false,\"slaHours\":48}\n"
+    }
+   ]
+  ]
+ },
+ "files": {
+  "README.md": "# deskline\n\nHelp-desk tickets from the command line. Node 20 or newer, no dependencies.\n\n## Usage\n\nThe command line is the public interface: the support dashboard shells out to it and parses the JSON it prints.\n\n```sh\nnode src/cli.js list --status open\nnode src/cli.js list --overdue true\nnode src/cli.js show --id 3\nnode src/cli.js create --title \"Printer on fire\" --priority urgent --requester u-ana\nnode src/cli.js assign --id 3 --user u-ben\nnode src/cli.js close --id 3\nnode src/cli.js stats\n```\n\nEvery command accepts `--data <file>` (default `data/desk.json`) and `--now <ISO time>` (default: the current time).\nCommands print JSON on success. On failure they print `error: ...` to stderr and exit with code 2.\n`create`, `assign` and `close` print the resulting ticket; they do not write to the data file.\n\nEverything under `src/` is internal.\n\n## Tests\n\n```sh\nnpm test\n```\n",
+  "data/desk.json": "{\n  \"users\": [\n    {\"id\": \"u-ana\", \"name\": \"Ana Duarte\", \"email\": \"ana@deskline.example\", \"active\": true},\n    {\"id\": \"u-ben\", \"name\": \"Ben Okafor\", \"email\": \"ben@deskline.example\", \"active\": true},\n    {\"id\": \"u-cas\", \"name\": \"Cas de Wit\", \"email\": \"cas@deskline.example\", \"active\": false},\n    {\"id\": \"u-bot\", \"name\": \"Triage bot\", \"email\": \"bot@deskline.example\", \"active\": true}\n  ],\n  \"tickets\": [\n    {\"id\": 1, \"title\": \"Cannot log in after password reset\", \"priority\": \"high\", \"status\": \"open\", \"requester\": \"u-ana\", \"assignee\": null, \"createdAt\": \"2026-10-04T08:15:00.000Z\"},\n    {\"id\": 2, \"title\": \"Invoice PDF shows the wrong VAT number\", \"priority\": \"normal\", \"status\": \"pending\", \"requester\": \"u-ben\", \"assignee\": \"u-ana\", \"createdAt\": \"2026-10-01T13:40:00.000Z\"},\n    {\"id\": 3, \"title\": \"Export times out for large accounts\", \"priority\": \"urgent\", \"status\": \"open\", \"requester\": \"u-ben\", \"assignee\": null, \"createdAt\": \"2026-10-05T07:30:00.000Z\"},\n    {\"id\": 4, \"title\": \"Typo on the pricing page\", \"priority\": \"low\", \"status\": \"closed\", \"requester\": \"u-ana\", \"assignee\": \"u-ben\", \"createdAt\": \"2026-09-20T10:00:00.000Z\", \"closedAt\": \"2026-09-22T09:00:00.000Z\"},\n    {\"id\": 5, \"title\": \"Webhook retries arrive out of order\", \"priority\": \"high\", \"status\": \"pending\", \"requester\": \"u-cas\", \"assignee\": \"u-ben\", \"createdAt\": \"2026-10-03T16:05:00.000Z\"},\n    {\"id\": 6, \"title\": \"Add SSO for the staging tenant\", \"priority\": \"low\", \"status\": \"open\", \"requester\": \"u-ana\", \"assignee\": \"u-ana\", \"createdAt\": \"2026-09-28T09:00:00.000Z\"},\n    {\"id\": 7, \"title\": \"Search returns archived projects\", \"priority\": \"normal\", \"status\": \"open\", \"requester\": \"u-ben\", \"assignee\": null, \"createdAt\": \"2026-10-04T15:20:00.000Z\"},\n    {\"id\": 8, \"title\": \"Two-factor codes rejected on mobile\", \"priority\": \"urgent\", \"status\": \"closed\", \"requester\": \"u-ana\", \"assignee\": \"u-ana\", \"createdAt\": \"2026-10-02T11:00:00.000Z\", \"closedAt\": \"2026-10-02T12:30:00.000Z\"},\n    {\"id\": 9, \"title\": \"Imported from the old tracker\", \"priority\": \"critical\", \"status\": \"open\", \"requester\": \"u-cas\", \"assignee\": null, \"createdAt\": \"2026-08-30T09:00:00.000Z\"}\n  ]\n}\n",
+  "package.json": "{\n  \"name\": \"deskline\",\n  \"version\": \"0.6.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"node --test\"\n  },\n  \"engines\": {\n    \"node\": \">=20\"\n  }\n}\n",
+  "src/cli.js": "import { setNow } from \"./clock.js\";\nimport { loadStore } from \"./store.js\";\nimport * as tickets from \"./controllers/ticketController.js\";\nimport { stats } from \"./controllers/statsController.js\";\n\nfunction parse(argv) {\n  const [command, ...rest] = argv;\n  const args = {};\n  for (let i = 0; i < rest.length; i += 2) {\n    if (!rest[i].startsWith(\"--\") || rest[i + 1] === undefined) {\n      throw new Error(`bad argument: ${rest[i]}`);\n    }\n    args[rest[i].slice(2)] = rest[i + 1];\n  }\n  return { command, args };\n}\n\nfunction main(argv) {\n  const { command, args } = parse(argv);\n  loadStore(args.data ?? \"data/desk.json\");\n  setNow(args.now);\n\n  let result;\n  if (command === \"list\") {\n    result = tickets.list(args);\n  } else if (command === \"show\") {\n    result = tickets.show(args);\n  } else if (command === \"create\") {\n    result = tickets.create(args);\n  } else if (command === \"assign\") {\n    result = tickets.assign(args);\n  } else if (command === \"close\") {\n    result = tickets.close(args);\n  } else if (command === \"stats\") {\n    result = stats();\n  } else {\n    throw new Error(`unknown command: ${command}`);\n  }\n  console.log(JSON.stringify(result));\n}\n\ntry {\n  main(process.argv.slice(2));\n} catch (err) {\n  console.error(`error: ${err.message}`);\n  process.exitCode = 2;\n}\n",
+  "src/clock.js": "// The CLI sets the time once; services ask for it when they need it.\nlet current = null;\n\nexport function setNow(iso) {\n  current = iso ? new Date(iso) : null;\n}\n\nexport function getNow() {\n  return current ?? new Date();\n}\n",
+  "src/controllers/statsController.js": "import { store } from \"../store.js\";\nimport { getNow } from \"../clock.js\";\n\nconst ORDER = [\"urgent\", \"high\", \"normal\", \"low\"];\nconst HOURS = { urgent: 4, high: 24, normal: 48, low: 120 };\n\nexport function stats() {\n  const byStatus = { open: 0, pending: 0, closed: 0 };\n  const byPriority = {};\n  for (const priority of ORDER) {\n    byPriority[priority] = 0;\n  }\n  let overdue = 0;\n\n  for (const ticket of store._tickets) {\n    try {\n      if (!(ticket.priority in HOURS)) {\n        throw new Error(\"unknown priority\");\n      }\n      byStatus[ticket.status] += 1;\n      byPriority[ticket.priority] += 1;\n      if (ticket.status !== \"closed\") {\n        const due = new Date(ticket.createdAt).getTime() + HOURS[ticket.priority] * 3600000;\n        if (getNow().getTime() > due) {\n          overdue += 1;\n        }\n      }\n    } catch {\n      continue;\n    }\n  }\n\n  return { byStatus, byPriority, overdue, total: store._tickets.length };\n}\n",
+  "src/controllers/ticketController.js": "import { store } from \"../store.js\";\nimport { validateCreate, validateFilter } from \"../validators/ticketValidator.js\";\nimport { listTickets, createTicket, assignTicket, closeTicket } from \"../services/ticketService.js\";\nimport { slaHours } from \"../services/slaService.js\";\nimport { formatTicket } from \"../formatters/ticketFormatter.js\";\n\nexport function list(args) {\n  const filter = { status: args.status, priority: args.priority, assignee: args.assignee, overdue: args.overdue === \"true\" };\n  validateFilter(filter);\n  return listTickets(filter).map(formatTicket);\n}\n\nexport function show(args) {\n  const ticket = store._tickets.find((t) => t.id === Number(args.id));\n  if (!ticket) {\n    throw new Error(`ticket ${args.id} not found`);\n  }\n  return formatTicket(ticket);\n}\n\nexport function create(args) {\n  const input = { title: args.title, priority: args.priority ?? \"normal\", requester: args.requester };\n  validateCreate(input);\n  const ticket = createTicket(input);\n  return { ...formatTicket(ticket), slaHours: slaHours(input.prority) };\n}\n\nexport function assign(args) {\n  return formatTicket(assignTicket(Number(args.id), args.user));\n}\n\nexport function close(args) {\n  return formatTicket(closeTicket(Number(args.id)));\n}\n",
+  "src/formatters/ticketFormatter.js": "import { dueAt, isOverdue } from \"../services/slaService.js\";\n\nexport function priorityLabel(priority) {\n  switch (priority) {\n    case \"urgent\":\n      return \"Urgent (P1)\";\n    case \"high\":\n      return \"High (P2)\";\n    case \"normal\":\n      return \"Normal (P3)\";\n    case \"low\":\n      return \"Low (P4)\";\n    default:\n      return priority;\n  }\n}\n\nexport function statusLabel(status) {\n  if (status === \"open\") {\n    return \"Open\";\n  } else if (status === \"pending\") {\n    return \"Pending\";\n  } else if (status === \"closed\") {\n    return \"Closed\";\n  }\n  return status;\n}\n\nexport function formatTicket(ticket) {\n  return {\n    id: ticket.id,\n    title: ticket.title,\n    priority: priorityLabel(ticket.priority),\n    status: statusLabel(ticket.status),\n    assignee: ticket.assignee ?? \"unassigned\",\n    dueAt: dueAt(ticket),\n    overdue: isOverdue(ticket),\n  };\n}\n",
+  "src/services/slaService.js": "import { getNow } from \"../clock.js\";\nimport { isOpen } from \"./ticketService.js\";\n\nexport function slaHours(priority) {\n  switch (priority) {\n    case \"urgent\":\n      return 4;\n    case \"high\":\n      return 24;\n    case \"normal\":\n      return 48;\n    case \"low\":\n      return 120;\n    default:\n      return 48;\n  }\n}\n\nexport function dueAt(ticket) {\n  const created = new Date(ticket.createdAt).getTime();\n  return new Date(created + slaHours(ticket.priority) * 3600000).toISOString();\n}\n\nexport function isOverdue(ticket) {\n  if (!isOpen(ticket)) {\n    return false;\n  }\n  return getNow().getTime() > new Date(dueAt(ticket)).getTime();\n}\n",
+  "src/services/ticketService.js": "import { store, nextId } from \"../store.js\";\nimport { getNow } from \"../clock.js\";\nimport { getUser } from \"./userService.js\";\nimport { isOverdue } from \"./slaService.js\";\n\nexport function isOpen(ticket) {\n  return ticket.status !== \"closed\";\n}\n\nexport function listTickets(filter = {}) {\n  let out = store._tickets.slice();\n  if (filter.status) {\n    out = out.filter((t) => t.status === filter.status);\n  }\n  if (filter.priority) {\n    out = out.filter((t) => t.priority === filter.priority);\n  }\n  if (filter.assignee) {\n    out = out.filter((t) => t.assignee === filter.assignee);\n  }\n  if (filter.overdue) {\n    out = out.filter((t) => isOverdue(t));\n  }\n  return out.sort((a, b) => a.id - b.id);\n}\n\nexport function getTicket(id) {\n  const ticket = store._tickets.find((t) => t.id === id);\n  if (!ticket) {\n    throw new Error(`ticket ${id} not found`);\n  }\n  return ticket;\n}\n\nexport function createTicket(input) {\n  return {\n    id: nextId(),\n    title: input.title,\n    priority: input.priority,\n    status: \"open\",\n    requester: input.requester,\n    assignee: null,\n    createdAt: getNow().toISOString(),\n  };\n}\n\nexport function assignTicket(id, userId) {\n  const ticket = getTicket(id);\n  const user = getUser(userId);\n  if (!user) {\n    throw new Error(`user ${userId} not found`);\n  }\n  // the triage bot may pick up anything\n  if (user.id !== \"u-bot\") {\n    if (ticket.status === \"closed\") {\n      throw new Error(\"cannot assign a closed ticket\");\n    }\n    if (!user.active) {\n      throw new Error(`user ${userId} is inactive`);\n    }\n  }\n  return { ...ticket, assignee: user.id, status: ticket.status === \"open\" ? \"pending\" : ticket.status };\n}\n\nexport function closeTicket(id) {\n  const ticket = getTicket(id);\n  if (ticket.status === \"closed\") {\n    throw new Error(\"ticket is already closed\");\n  }\n  if (ticket.status === \"open\" && !ticket.assignee) {\n    throw new Error(\"cannot close an unassigned ticket\");\n  }\n  return { ...ticket, status: \"closed\", closedAt: getNow().toISOString() };\n}\n",
+  "src/services/userService.js": "import { store } from \"../store.js\";\n\nexport function getUser(id) {\n  return store._users.find((u) => u.id === id) ?? null;\n}\n\nexport function listUsers() {\n  return store._users.slice();\n}\n\nexport function findByEmail(email) {\n  return store._users.find((u) => u.email.toLowerCase() === email.toLowerCase()) ?? null;\n}\n",
+  "src/store.js": "import { readFileSync } from \"node:fs\";\n\nexport const store = { _tickets: [], _users: [], loaded: false };\n\nexport function loadStore(path) {\n  const raw = JSON.parse(readFileSync(path, \"utf8\"));\n  store._tickets = raw.tickets;\n  store._users = raw.users;\n  store.loaded = true;\n}\n\nexport function nextId() {\n  return store._tickets.reduce((max, t) => Math.max(max, t.id), 0) + 1;\n}\n",
+  "src/utils/legacyExport.js": "// CSV export for the old reporting tool.\nexport function toCsv(tickets) {\n  const header = \"id,title,priority,status\";\n  const rows = tickets.map((t) => [t.id, JSON.stringify(t.title), t.priority, t.status].join(\",\"));\n  return [header, ...rows].join(\"\\n\");\n}\n",
+  "src/validators/ticketValidator.js": "const PRIORITIES = [\"low\", \"normal\", \"high\", \"urgent\"];\nconst STATUSES = [\"open\", \"pending\", \"closed\"];\n\nexport function validateCreate(input) {\n  const errors = [];\n  if (!input.title || input.title.trim() === \"\") {\n    errors.push(\"title is required\");\n  } else if (input.title.length > 120) {\n    errors.push(\"title is longer than 120 characters\");\n  }\n  if (!PRIORITIES.includes(input.priority)) {\n    errors.push(`priority must be one of ${PRIORITIES.join(\", \")}`);\n  }\n  if (!input.requester) {\n    errors.push(\"requester is required\");\n  }\n  if (errors.length > 0) {\n    throw new Error(errors.join(\"; \"));\n  }\n}\n\nexport function validateFilter(filter) {\n  if (filter.status && !STATUSES.includes(filter.status)) {\n    throw new Error(`status must be one of ${STATUSES.join(\", \")}`);\n  }\n  if (filter.priority && !PRIORITIES.includes(filter.priority)) {\n    throw new Error(`priority must be one of ${PRIORITIES.join(\", \")}`);\n  }\n}\n",
+  "test/ticketService.test.js": "import test from \"node:test\";\nimport assert from \"node:assert/strict\";\n\nimport { loadStore } from \"../src/store.js\";\nimport { setNow } from \"../src/clock.js\";\nimport { assignTicket, closeTicket, listTickets } from \"../src/services/ticketService.js\";\n\nloadStore(\"data/desk.json\");\nsetNow(\"2026-10-05T09:00:00.000Z\");\n\ntest(\"assigning an open ticket moves it to pending\", () => {\n  const ticket = assignTicket(1, \"u-ben\");\n  assert.equal(ticket.assignee, \"u-ben\");\n  assert.equal(ticket.status, \"pending\");\n});\n\ntest(\"an inactive user cannot be assigned\", () => {\n  assert.throws(() => assignTicket(1, \"u-cas\"), /inactive/);\n});\n\ntest(\"an unassigned open ticket cannot be closed\", () => {\n  assert.throws(() => closeTicket(1), /unassigned/);\n});\n\ntest(\"listing works\", () => {\n  assert.ok(listTickets());\n});\n",
+  "test/ticketValidator.test.js": "import test from \"node:test\";\nimport assert from \"node:assert/strict\";\n\nimport { validateCreate, validateFilter } from \"../src/validators/ticketValidator.js\";\n\ntest(\"create needs a title\", () => {\n  assert.throws(() => validateCreate({ title: \"\", priority: \"normal\", requester: \"u-ana\" }), /title is required/);\n});\n\ntest(\"create rejects an unknown priority\", () => {\n  assert.throws(() => validateCreate({ title: \"x\", priority: \"asap\", requester: \"u-ana\" }), /priority must be one of/);\n});\n\ntest(\"filter rejects an unknown status\", () => {\n  assert.throws(() => validateFilter({ status: \"done\" }), /status must be one of/);\n});\n"
+ }
+}

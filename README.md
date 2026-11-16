@@ -317,18 +317,17 @@ This keeps the cost of having the skills installed small, while the detail is th
 │   └── improve-codebase/
 ├── evals/
 │   ├── triggering/
-│   │   ├── make_cases.py       source of truth for the cases; generates everything below
+│   │   ├── make_cases.py       source of truth for the cases; writes cases.md and the case folders
 │   │   ├── summarize.py        per-skill recall and precision from a results file
-│   │   ├── cases.jsonl         generated
-│   │   ├── cases.md            generated, readable table of all cases
-│   │   └── <case-id>/          generated: prompt.md + graders/
+│   │   ├── cases.md            generated, readable table of all cases (committed)
+│   │   └── <case-id>/          generated before a run: prompt.md + graders/ (gitignored)
 │   ├── quality/
-│   │   ├── make_cases.py       generates one case.yaml per case from the JSON files
+│   │   ├── make_cases.py       writes one case folder per case from the JSON files (gitignored)
 │   │   ├── <skill>.json        cases: prompt, input or fixture repo, expectations
 │   │   ├── inputs/             drafts the writing cases start from
-│   │   ├── fixtures/           repos with a commit history for the improve-codebase cases
-│   │   ├── fixture_repo.py     turns a fixture into the script that rebuilds it, history included
-│   │   └── score.py            measures behavior and structure of improve-codebase runs
+│   │   ├── fixtures/<name>.json  one repo per file, with its commit history and recorded outputs
+│   │   ├── fixture_repo.py     rebuilds a fixture (history included); unpacks and packs it for editing
+│   │   └── score.py            measures improve-codebase runs; `verify` checks the fixtures (CI)
 │   └── results/                run output (gitignored)
 ├── scripts/
 │   ├── check.py                structural checks, run by CI
@@ -356,6 +355,7 @@ Check that the plugin and skills are valid:
 
 ```bash
 python3 scripts/check.py        # frontmatter, marketplace, links, eval cases; same as CI
+python3 evals/quality/score.py verify   # eval fixtures still replay and print their recorded outputs; same as CI
 claude plugin validate .        # expect: ✔ Validation passed
 npx skills add . --list         # lists every skill, grouped by plugin
 ```
@@ -400,7 +400,7 @@ Where two skills both make sense, a case lists the second skill as `also_ok`, an
 ### Running
 
 ```bash
-# 1. Regenerate case folders (only needed after editing CASES in make_cases.py)
+# 1. Generate the case folders (they are gitignored, so do this after every clone or edit)
 python3 evals/triggering/make_cases.py
 
 # 2. Run the eval
@@ -496,7 +496,7 @@ python3 evals/quality/score.py score parcel run1=/private/tmp/e-AAAA run2=/priva
 python3 evals/quality/score.py score deskline run1=/private/tmp/e-CCCC
 ```
 
-`score.py` copies each repo out before running anything; never run git inside a kept directory. After changing a fixture, run `python3 evals/quality/score.py record <fixture>` to record its outputs again.
+`score.py` copies each repo out before running anything; never run git inside a kept directory. Each fixture is one file, `evals/quality/fixtures/<name>.json`. To change its code, unpack it with `python3 evals/quality/fixture_repo.py unpack <name> <dir>`, edit, pack it back with `fixture_repo.py pack <name> <dir>`, then run `score.py record <name>`. CI runs `score.py verify`, which fails when a fixture no longer replays its history, fails its tests or prints different outputs than recorded.
 
 Latest runs, 3 per case (Opus 5.5, Sonnet as judge, $11.50 in total):
 
@@ -542,7 +542,7 @@ The workflow:
 
 **A plugin doesn't pick up changes.** Run `/plugin marketplace update nkootstra-skills` and start a new session. Updates only arrive after a release, because the release raises the plugin `version`.
 
-**Eval run scores 0 on every positive.** The plugin didn't load into the sandbox. Each case's `prompt.md` needs `plugins: ["../../.."]`. Regenerate with `make_cases.py`.
+**Eval run finds no cases, or scores 0 on every positive.** The case folders are generated and gitignored: run both `make_cases.py` scripts first. Each case's `prompt.md` needs `plugins: ["../../.."]`, which the scripts write.
 
 **Eval runs time out.** Prototyping prompts produce long answers and can run for 200+ seconds. Triggering is graded before the timeout, so scores stay valid. Raise `timeout_seconds` in `make_cases.py` if you need complete transcripts.
 

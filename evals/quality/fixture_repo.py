@@ -1,44 +1,61 @@
-"""Fixture repos for the improve-codebase quality cases.
+"""Fixture repos for the improve-codebase quality cases, one JSON file each in fixtures/<name>.json:
 
-A fixture lives in fixtures/<name>/:
-  files/         the repo as the agent finds it
-  history.json   commits, oldest first: {"date", "message", "edits": [[path, before, after]]}; before null = the commit adds the file
-  checks.json    how score.py measures a run (see score.py)
-  golden.json    recorded output of the untouched fixture, written by `score.py record`
+  files     path -> contents: the repo as the agent finds it
+  history   {"author", "initial": {date, message}, "commits": [{date, message, edits: [[path, before, after]]}]}
+            commits oldest first, stored as text replacements on the final files; before null = the commit adds the file
+  checks    how score.py measures a run (see score.py)
+  golden    recorded output of the untouched fixture, written by `score.py record`
 
-The history is stored as text replacements on the final files, so files/ stays the single copy of the code.
-scaffold(name) returns a shell script that rebuilds the repo with that history in an empty workspace."""
-import json, pathlib
+To edit a fixture's code, unpack it, change the files, pack it back, then record its outputs again:
+  python3 evals/quality/fixture_repo.py unpack parcel /tmp/parcel
+  python3 evals/quality/fixture_repo.py pack parcel /tmp/parcel
+  python3 evals/quality/score.py record parcel
+`python3 evals/quality/fixture_repo.py history parcel` lists the commits and fails if the history no longer replays."""
+import json, pathlib, sys
 
 here = pathlib.Path(__file__).parent
 
-def root(name):
-    return here / "fixtures" / name
+def path(name):
+    return here / "fixtures" / f"{name}.json"
+
+def load(name):
+    return json.loads(path(name).read_text())
+
+def save(name, data):
+    path(name).write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n")
+
+def names():
+    return sorted(p.stem for p in (here / "fixtures").glob("*.json"))
 
 def files(name):
-    base = root(name) / "files"
-    return {str(p.relative_to(base)): p.read_text() for p in sorted(base.rglob("*"))
-            if p.is_file() and "__pycache__" not in p.parts}
+    return dict(load(name)["files"])
 
 def checks(name):
-    return json.loads((root(name) / "checks.json").read_text())
+    return load(name)["checks"]
+
+def write_files(name, out):
+    out = pathlib.Path(out)
+    for rel, body in files(name).items():
+        target = out / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(body)
 
 def states(name):
-    """[(date, message, files)] oldest first, ending at files/."""
-    history = json.loads((root(name) / "history.json").read_text())
-    current = files(name)
+    """[(date, message, files)] oldest first, ending at the fixture's files."""
+    data = load(name)
+    history, current = data["history"], dict(data["files"])
     final = dict(current)
     out = []
     for commit in reversed(history["commits"]):
         out.append((commit["date"], commit["message"], dict(current)))
-        for path, before, after in reversed(commit["edits"]):
+        for rel, before, after in reversed(commit["edits"]):
             if before is None:
-                del current[path]
+                del current[rel]
                 continue
-            if current[path].count(after) != 1:
-                raise SystemExit(f"{name}: '{commit['message']}' expects one match in {path}, found "
-                                 f"{current[path].count(after)}: {after[:60]!r}")
-            current[path] = current[path].replace(after, before)
+            if current[rel].count(after) != 1:
+                raise SystemExit(f"{name}: '{commit['message']}' expects one match in {rel}, found "
+                                 f"{current[rel].count(after)}: {after[:60]!r}")
+            current[rel] = current[rel].replace(after, before)
     out.append((history["initial"]["date"], history["initial"]["message"], dict(current)))
     out.reverse()
     assert out[-1][2] == final
@@ -68,6 +85,7 @@ for date, message, changed in COMMITS:
 '''
 
 def scaffold(name):
+    """Shell script that rebuilds the fixture, history included, in an empty workspace."""
     seq, author = states(name)
     commits, previous = [], {}
     for date, message, current in seq:
@@ -79,8 +97,25 @@ def scaffold(name):
     # fed on stdin, so the build script never lands in the workspace or its history
     return "set -e\npython3 - <<'BUILD_EOF'\n" + build + "BUILD_EOF\n"
 
+def main():
+    cmd, name = sys.argv[1], sys.argv[2]
+    if cmd == "unpack":
+        write_files(name, sys.argv[3])
+        print(f"{name}: {len(files(name))} files written to {sys.argv[3]}")
+    elif cmd == "pack":
+        src = pathlib.Path(sys.argv[3])
+        data = load(name)
+        data["files"] = {p.relative_to(src).as_posix(): p.read_text() for p in sorted(src.rglob("*"))
+                         if p.is_file() and not {"__pycache__", "node_modules", ".git"} & set(p.relative_to(src).parts)}
+        save(name, data)
+        states(name)
+        print(f"{name}: {len(data['files'])} files packed; history still replays. Now run: python3 evals/quality/score.py record {name}")
+    elif cmd == "history":
+        seq, _ = states(name)
+        for date, message, current in seq:
+            print(date[:10], f"{len(current):>3} files ", message)
+    else:
+        raise SystemExit(__doc__)
+
 if __name__ == "__main__":
-    import sys
-    seq, _ = states(sys.argv[1])
-    for date, message, current in seq:
-        print(date[:10], f"{len(current):>3} files ", message)
+    main()
