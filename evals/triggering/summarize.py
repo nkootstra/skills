@@ -2,8 +2,8 @@
 usage: python3 evals/triggering/summarize.py evals/results/<file>.json"""
 import json, sys, math, statistics, collections
 
-SKILLS = ["design-critique","design-exploration","intentional-prototyping","interface-polish","write-readme","write-prose"]
-PREFIX = {"crit":"design-critique","expl":"design-exploration","prot":"intentional-prototyping","pol":"interface-polish","readme":"write-readme","prose":"write-prose","none":"none"}
+SKILLS = ["design-critique","design-exploration","intentional-prototyping","interface-polish","write-readme","write-prose","improve-codebase"]
+PREFIX = {"crit":"design-critique","expl":"design-exploration","prot":"intentional-prototyping","pol":"interface-polish","readme":"write-readme","prose":"write-prose","code":"improve-codebase","none":"none"}
 d = json.load(open(sys.argv[1]))
 tp = collections.Counter(); pos = collections.Counter(); fp = collections.Counter()
 neg_runs = neg_clean = 0; passed = []; costs = []; turns = []; secs = []

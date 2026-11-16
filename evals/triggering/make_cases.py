@@ -60,6 +60,15 @@ CASES = [
 ("prose-06","write-prose",[],"indirect","We shipped a migration tool. I need a short changelog piece explaining what changed and why it matters, no marketing adjectives, under 300 words. The internal spec is in docs/migration-spec.md."),
 ("prose-07","write-prose",[],"direct","Write a commit message for the changes I just made. They fix a race in background sync."),
 ("prose-08","write-prose",[],"hard","Draft the PR description for this branch using our template in .github/pull_request_template.md. Unit tests passed; browser testing was not run."),
+# improve-codebase
+("code-01","improve-codebase",[],"direct","This codebase has gotten messy over the last two years. Clean up the structure so it's easier to work in, without changing what it does."),
+("code-02","improve-codebase",[],"indirect","Every time we add a payment method we end up touching nine files across four folders. Sort out the structure so that stops happening."),
+("code-03","improve-codebase",[],"indirect","We want to pay down tech debt in the services/ package this sprint. Find what's worth fixing and fix it."),
+("code-04","improve-codebase",[],"indirect","Do a code quality audit of this repo and tell me what to refactor first. Don't change anything yet."),
+("code-05","improve-codebase",[],"hard","Our coding agents keep getting lost in this repo and breaking unrelated things. Make it easier for them to work in."),
+("code-06","improve-codebase",[],"hard","The src/orders module is full of circular imports and copy-pasted logic. Restructure it."),
+("code-07","improve-codebase",[],"hard","I inherited this project and I'm scared to touch it. Where are the worst structural problems, and can you make it safer to change?"),
+("code-08","improve-codebase",[],"direct","Refactor the whole backend for maintainability. Behavior has to stay exactly the same."),
 # none: adjacent tasks the skills should stay out of
 ("none-01","none",[],"near-miss","Fix the TypeError in src/components/InvoiceTable.tsx: 'Cannot read properties of undefined (reading map)'."),
 ("none-02","none",[],"near-miss","Convert #4F46E5 to HSL and OKLCH."),
@@ -80,6 +89,11 @@ CASES = [
 ("none-17","none",[],"near-miss","Fix the typo 'Instalation' in the README heading."),
 ("none-18","none",[],"near-miss","Generate an OpenAPI spec for the routes in src/api."),
 ("none-19","none",[],"near-miss","Write a press release announcing our Series A."),
+("none-20","none",[],"near-miss","Extract the date parsing inside parseDate in src/utils/format.ts into its own helper function."),
+("none-21","none",[],"near-miss","Upgrade React from 18 to 19 and fix whatever breaks."),
+("none-22","none",[],"near-miss","Review the diff on this branch for bugs before I open the PR."),
+("none-23","none",[],"near-miss","Run the linter and fix all the formatting errors it reports."),
+("none-24","none",[],"near-miss","The /api/search endpoint takes three seconds to respond. Make it faster."),
 ]
 
 here = pathlib.Path(__file__).parent
@@ -92,7 +106,7 @@ def cases_md():
 
 # ---- case directories for `claude plugin eval` ----
 PILOT = {"crit-02","crit-06","expl-02","prot-03","pol-02","pol-05","none-01","none-07"}
-SKILLS = ["design-critique","design-exploration","intentional-prototyping","interface-polish","write-readme","write-prose"]
+SKILLS = ["design-critique","design-exploration","intentional-prototyping","interface-polish","write-readme","write-prose","improve-codebase"]
 def rx(names):
     alt = "|".join(names)
     return r'"skill"\s*:\s*"(?:[\w-]+:)?(?:' + alt + r')"'
@@ -110,7 +124,7 @@ def write_cases(out, plugin_path):
         (d / "prompt.md").write_text(
             "---\n"
             f"name: triggering-{cid}\n"
-            f"tags: [triggering, {exp}, {diff}{', pilot' if cid in PILOT else ''}]\n"
+            f"tags: [triggering, {exp}, triggering-{exp}, {diff}{', pilot' if cid in PILOT else ''}]\n"
             "runs: 2\n"
             f"plugins: [\"{plugin_path}\"]\n"
             "max_turns: 4\n"
