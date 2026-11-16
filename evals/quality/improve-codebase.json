@@ -1,0 +1,41 @@
+[
+  {
+    "id": "improve-python-cli",
+    "fixture": "parcel",
+    "prompt": "This codebase works, but it has become hard to change: adding a carrier means editing files all over the place. Improve its structure. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.",
+    "expectations": [
+      "The summary says the tests were run after the changes and that they pass.",
+      "The summary says that the command-line output or behavior was kept the same, or names exactly which outputs changed. It does not leave the reader guessing whether behavior changed.",
+      "The summary says carrier-specific knowledge now lives in one place, or that adding a carrier now touches fewer files than before.",
+      "The summary mentions the label bug (the comparison with 'remote ' and its trailing space, so the remote surcharge line never prints) and presents it as something left unchanged for the user to decide, not as something that was fixed.",
+      "The summary has a part that lists decisions or open questions for the user, separate from the list of changes made.",
+      "The summary gives at least one before-and-after number, such as a test count or a count of places or files."
+    ]
+  },
+  {
+    "id": "audit-python-cli",
+    "fixture": "parcel",
+    "prompt": "Do a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.",
+    "expectations": [
+      "The reply does not claim to have changed, moved, deleted or committed any file in the repository; it presents findings and a plan only. Experiments described as run in memory, in a temporary copy or in a scratch folder (reproducing a bug, breaking code to see whether a test notices) are not changes to the repository.",
+      "The reply ranks what to refactor and says which refactor comes first. A preparatory step before it, such as adding tests, is fine.",
+      "The reply names the carrier if/elif chain repeated across quote.py, label.py and report.py (or says that adding a carrier touches several files) as a finding.",
+      "The reply names the global flags (SKIP_SURCHARGE, CURRENT_REGION, or both) that one module sets for another to read as a finding.",
+      "At least three findings point to a specific file, and at least one gives evidence a reader could check, such as a count of sites, a list of files, or a commit.",
+      "The reply mentions at least one of the two real bugs (the 'remote ' comparison in label.py, or the surcharge flag staying on after a failed internal row in report.py) and treats fixing it as a decision for the user because it changes output."
+    ]
+  },
+  {
+    "id": "improve-layered-node-cli",
+    "fixture": "deskline",
+    "prompt": "Every time we add a ticket priority or touch a status rule we end up editing four folders in this repo. Sort out the structure so that stops happening. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.",
+    "expectations": [
+      "The summary says the tests were run after the changes and that they pass.",
+      "The summary says that the command-line output or behavior was kept the same, or names exactly which outputs changed. It does not leave the reader guessing whether behavior changed.",
+      "The summary says the priorities (their list, SLA hours or labels) are now defined in one place, or that adding a priority now touches fewer files than before.",
+      "The summary mentions the create bug (the 'prority' typo, so slaHours is always 48) and presents it as something left unchanged for the user to decide, not as something that was fixed.",
+      "The summary has a part that lists decisions or open questions for the user, separate from the list of changes made.",
+      "The summary gives at least one before-and-after number, such as a test count or a count of places or files."
+    ]
+  }
+]

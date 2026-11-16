@@ -1,0 +1,2476 @@
+{
+ "checks": {
+  "facts": "parcel is a Python command-line tool for shipping quotes, labels and a report. Its README says the command line is the public interface. Planted in it: the same if/elif chain over the carriers postnl, dhl and ups in quote.py, label.py and report.py; an import cycle between quote.py and label.py; a global SKIP_SURCHARGE flag that report.py sets for quote.py to read, and a global CURRENT_REGION set by the CLI; the ACME-001 contract discount known in three files; the half-kilo rounding rule copied in three carrier files and once more in utils.py; unused code (QuoteService pass-through, round_half_kilo, legacy_zone_lookup, quote.describe); report.py swallows every exception and counts the row as skipped; one test only asserts that a mock was called; report.py has no tests. Two real bugs: label.py compares the zone with 'remote ' (trailing space), so the remote surcharge line never prints; and when an internal row fails in report.py the SKIP_SURCHARGE flag stays on for the next row. Fixing either changes output.",
+  "run": [
+   "python3",
+   "-m",
+   "parcel"
+  ],
+  "tests": [
+   "python3",
+   "-m",
+   "unittest",
+   "discover",
+   "-s",
+   "tests",
+   "-t",
+   "."
+  ],
+  "marker": "parcel/__main__.py",
+  "calls": [
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "national"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "remote"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--region",
+    "eu"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national",
+    "--customer",
+    "ACME-001"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--customer",
+    "OTHER-7",
+    "--region",
+    "eu"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--region",
+    "eu"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national",
+    "--customer",
+    "ACME-001"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--customer",
+    "OTHER-7",
+    "--region",
+    "eu"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--region",
+    "eu"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national",
+    "--customer",
+    "ACME-001"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--customer",
+    "OTHER-7",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "local",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "local",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "remote",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "remote",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "local",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "local",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "remote",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "12",
+    "--dims",
+    "60x40x40",
+    "--zone",
+    "remote",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "local",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "local",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "remote",
+    "--region",
+    "nl"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "0.4",
+    "--dims",
+    "25x15x3",
+    "--zone",
+    "remote",
+    "--region",
+    "eu"
+   ],
+   [
+    "cheapest",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national",
+    "--customer",
+    "ACME-001"
+   ],
+   [
+    "label",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "local",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "national",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "local",
+    "--order",
+    "7",
+    "--customer",
+    "ACME-001"
+   ],
+   [
+    "label",
+    "--carrier",
+    "ups",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "national",
+    "--order",
+    "7",
+    "--region",
+    "eu"
+   ],
+   [
+    "report",
+    "data/shipments.json"
+   ],
+   [
+    "report",
+    "data/shipments.json",
+    "--region",
+    "eu"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "fedex",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20x10",
+    "--zone",
+    "local"
+   ],
+   [
+    "quote",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "1",
+    "--dims",
+    "20x20",
+    "--zone",
+    "local"
+   ]
+  ],
+  "trap": [
+   [
+    "label",
+    "--carrier",
+    "postnl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "dhl",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--order",
+    "10432"
+   ],
+   [
+    "label",
+    "--carrier",
+    "ups",
+    "--weight",
+    "3.2",
+    "--dims",
+    "40x30x20",
+    "--zone",
+    "remote",
+    "--order",
+    "10432"
+   ]
+  ],
+  "source": {
+   "include": "\\.py$",
+   "exclude": "(^|/)tests?/|(^|/)test_"
+  },
+  "tests_regex": {
+   "include": "(^|/)tests?/.*\\.py$|(^|/)test_.*\\.py$",
+   "pattern": "def test_"
+  },
+  "file_counts": {
+   "files naming a carrier in code": "[\"']dhl[\"']"
+  },
+  "counts": {
+   "carrier branch sites": "(?:==|in)\\s*\\(?[\"'](?:postnl|dhl|ups)[\"']",
+   "global flag uses": "\\b(?:CURRENT_REGION|SKIP_SURCHARGE)\\b",
+   "places that know ACME-001": "ACME-001",
+   "copies of the rounding rule": "ceil\\([^)]*\\*\\s*2\\)\\s*/\\s*2",
+   "unused definitions still present": "def (?:round_half_kilo|legacy_zone_lookup|describe)\\b|class QuoteService\\b",
+   "catch-all except": "except Exception\\s*:"
+  },
+  "cycles": "python"
+ },
+ "history": {
+  "author": {
+   "name": "Sam Visser",
+   "email": "sam@parcel.example"
+  },
+  "initial": {
+   "date": "2026-01-15T14:00:00",
+   "message": "Initial import"
+  },
+  "commits": [
+   {
+    "date": "2026-03-02T10:12:00",
+    "message": "Add UPS as a carrier",
+    "edits": [
+     [
+      "parcel/carriers/ups.py",
+      null,
+      null
+     ],
+     [
+      "parcel/quote.py",
+      "from parcel.carriers import dhl, postnl\n",
+      "from parcel.carriers import dhl, postnl, ups\n"
+     ],
+     [
+      "parcel/quote.py",
+      "        base = dhl.price(weight_kg, dims_cm, zone)\n    else:",
+      "        base = dhl.price(weight_kg, dims_cm, zone)\n    elif carrier == \"ups\":\n        base = ups.price(weight_kg, dims_cm, zone)\n    else:"
+     ],
+     [
+      "parcel/quote.py",
+      "(\"postnl\", \"dhl\"):",
+      "(\"postnl\", \"dhl\", \"ups\"):"
+     ],
+     [
+      "parcel/label.py",
+      "        return \"DHL Parcel Connect\"\n    return carrier",
+      "        return \"DHL Parcel Connect\"\n    elif carrier == \"ups\":\n        return \"UPS Standard\"\n    return carrier"
+     ],
+     [
+      "parcel/label.py",
+      "        return \"JVGL\" + str(order_no).zfill(10)\n    return str(order_no)",
+      "        return \"JVGL\" + str(order_no).zfill(10)\n    elif carrier == \"ups\":\n        return \"1Z\" + str(order_no).zfill(8)\n    return str(order_no)"
+     ],
+     [
+      "parcel/report.py",
+      "        return \"DHL\"\n    return carrier.upper()",
+      "        return \"DHL\"\n    elif carrier == \"ups\":\n        return \"UPS\"\n    return carrier.upper()"
+     ],
+     [
+      "tests/test_label.py",
+      "\"3S000000042\")\n",
+      "\"3S000000042\")\n        self.assertEqual(label.tracking_number(\"ups\", 42), \"1Z00000042\")\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-04-01T09:03:00",
+    "message": "Raise DHL base rates for Q2",
+    "edits": [
+     [
+      "parcel/carriers/dhl.py",
+      "BASE = {\"local\": 5.20, \"national\": 6.95, \"remote\": 10.50}",
+      "BASE = {\"local\": 5.50, \"national\": 7.25, \"remote\": 11.00}"
+     ],
+     [
+      "tests/test_quote.py",
+      "self.assertEqual(q[\"base\"], 11.7)",
+      "self.assertEqual(q[\"base\"], 12.0)"
+     ]
+    ]
+   },
+   {
+    "date": "2026-05-20T15:40:00",
+    "message": "Add the contract discount for ACME",
+    "edits": [
+     [
+      "parcel/quote.py",
+      "    total = base + surcharge\n\n",
+      "    total = base + surcharge\n    if customer_id == \"ACME-001\":\n        total = total * 0.90\n\n"
+     ],
+     [
+      "parcel/label.py",
+      "        lines.append(\"REMOTE AREA SURCHARGE APPLIES\")\n    lines.append(\"Postage",
+      "        lines.append(\"REMOTE AREA SURCHARGE APPLIES\")\n    if customer_id == \"ACME-001\":\n        lines.append(\"Contract customer\")\n    lines.append(\"Postage"
+     ],
+     [
+      "parcel/report.py",
+      "        list_price += q[\"net\"]\n\n    return",
+      "        # what the shipment would have cost without the contract discount\n        if row.get(\"customer\") == \"ACME-001\":\n            list_price += q[\"net\"] / 0.90\n        else:\n            list_price += q[\"net\"]\n\n    return"
+     ]
+    ]
+   },
+   {
+    "date": "2026-06-11T11:25:00",
+    "message": "Fix: internal transfers should not pay surcharges",
+    "edits": [
+     [
+      "parcel/config.py",
+      "CURRENT_REGION = None\n",
+      "CURRENT_REGION = None\n\n# report.py flips this while it prices internal transfers.\nSKIP_SURCHARGE = False\n"
+     ],
+     [
+      "parcel/quote.py",
+      "    if zone == \"remote\":\n        surcharge = 3.50\n    if config.CURRENT_REGION == \"eu\":\n        surcharge += 1.25\n",
+      "    if not config.SKIP_SURCHARGE:\n        if zone == \"remote\":\n            surcharge = 3.50\n        if config.CURRENT_REGION == \"eu\":\n            surcharge += 1.25\n"
+     ],
+     [
+      "parcel/report.py",
+      "from parcel import quote\n",
+      "from parcel import config\nfrom parcel import quote\n"
+     ],
+     [
+      "parcel/report.py",
+      "            q = quote.calculate(row[\"carrier\"], row[\"weight\"], dims, row[\"zone\"], row.get(\"customer\"))\n",
+      "            if row.get(\"internal\"):\n                # internal transfers between our own warehouses carry no surcharges\n                config.SKIP_SURCHARGE = True\n            q = quote.calculate(row[\"carrier\"], row[\"weight\"], dims, row[\"zone\"], row.get(\"customer\"))\n            config.SKIP_SURCHARGE = False\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-07-01T08:50:00",
+    "message": "Raise PostNL base rates for the second half",
+    "edits": [
+     [
+      "parcel/carriers/postnl.py",
+      "BASE = {\"local\": 4.75, \"national\": 6.75, \"remote\": 9.50}",
+      "BASE = {\"local\": 4.95, \"national\": 6.95, \"remote\": 9.95}"
+     ],
+     [
+      "tests/test_quote.py",
+      "self.assertEqual(q[\"base\"], 4.75)\n        self.assertEqual(q[\"gross\"], 5.75)",
+      "self.assertEqual(q[\"base\"], 4.95)\n        self.assertEqual(q[\"gross\"], 5.99)"
+     ]
+    ]
+   },
+   {
+    "date": "2026-08-19T16:05:00",
+    "message": "Fix PostNL remote surcharge, it is 2.00 and not 3.50",
+    "edits": [
+     [
+      "parcel/quote.py",
+      "            surcharge = 3.50\n        if config",
+      "            if carrier == \"postnl\":\n                surcharge = 2.00\n            else:\n                surcharge = 3.50\n        if config"
+     ]
+    ]
+   },
+   {
+    "date": "2026-09-30T09:30:00",
+    "message": "Raise UPS fuel surcharge to 6%",
+    "edits": [
+     [
+      "parcel/carriers/ups.py",
+      "FUEL = 0.05",
+      "FUEL = 0.06"
+     ]
+    ]
+   },
+   {
+    "date": "2026-10-22T13:18:00",
+    "message": "Fix label money format for amounts over 1000",
+    "edits": [
+     [
+      "parcel/label.py",
+      "{amount:.2f}",
+      "{amount:,.2f}"
+     ],
+     [
+      "tests/test_label.py",
+      "label.format_money(1234.5), \"EUR 1234.50\")",
+      "label.format_money(1234.5), \"EUR 1,234.50\")"
+     ]
+    ]
+   }
+  ]
+ },
+ "golden": {
+  "calls": [
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 4.95, \"carrier\": \"postnl\", \"gross\": 5.99, \"net\": 4.95, \"surcharge\": 0.0, \"vat\": 1.04}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 6.95, \"carrier\": \"postnl\", \"gross\": 8.41, \"net\": 6.95, \"surcharge\": 0.0, \"vat\": 1.46}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.95, \"carrier\": \"postnl\", \"gross\": 14.46, \"net\": 11.95, \"surcharge\": 2.0, \"vat\": 2.51}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 7.35, \"carrier\": \"postnl\", \"gross\": 8.89, \"net\": 7.35, \"surcharge\": 0.0, \"vat\": 1.54}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.35, \"carrier\": \"postnl\", \"gross\": 11.31, \"net\": 9.35, \"surcharge\": 0.0, \"vat\": 1.96}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 12.35, \"carrier\": \"postnl\", \"gross\": 17.36, \"net\": 14.35, \"surcharge\": 2.0, \"vat\": 3.01}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 18.95, \"carrier\": \"postnl\", \"gross\": 22.93, \"net\": 18.95, \"surcharge\": 0.0, \"vat\": 3.98}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 20.95, \"carrier\": \"postnl\", \"gross\": 25.35, \"net\": 20.95, \"surcharge\": 0.0, \"vat\": 4.4}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 23.95, \"carrier\": \"postnl\", \"gross\": 31.4, \"net\": 25.95, \"surcharge\": 2.0, \"vat\": 5.45}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 4.95, \"carrier\": \"postnl\", \"gross\": 5.99, \"net\": 4.95, \"surcharge\": 0.0, \"vat\": 1.04}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 6.95, \"carrier\": \"postnl\", \"gross\": 8.41, \"net\": 6.95, \"surcharge\": 0.0, \"vat\": 1.46}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.95, \"carrier\": \"postnl\", \"gross\": 14.46, \"net\": 11.95, \"surcharge\": 2.0, \"vat\": 2.51}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 5.5, \"carrier\": \"dhl\", \"gross\": 6.66, \"net\": 5.5, \"surcharge\": 0.0, \"vat\": 1.16}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 7.25, \"carrier\": \"dhl\", \"gross\": 8.77, \"net\": 7.25, \"surcharge\": 0.0, \"vat\": 1.52}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 11.0, \"carrier\": \"dhl\", \"gross\": 17.55, \"net\": 14.5, \"surcharge\": 3.5, \"vat\": 3.04}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 10.25, \"carrier\": \"dhl\", \"gross\": 12.4, \"net\": 10.25, \"surcharge\": 0.0, \"vat\": 2.15}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 12.0, \"carrier\": \"dhl\", \"gross\": 14.52, \"net\": 12.0, \"surcharge\": 0.0, \"vat\": 2.52}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 15.75, \"carrier\": \"dhl\", \"gross\": 23.29, \"net\": 19.25, \"surcharge\": 3.5, \"vat\": 4.04}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 27.35, \"carrier\": \"dhl\", \"gross\": 33.09, \"net\": 27.35, \"surcharge\": 0.0, \"vat\": 5.74}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 29.1, \"carrier\": \"dhl\", \"gross\": 35.21, \"net\": 29.1, \"surcharge\": 0.0, \"vat\": 6.11}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 32.85, \"carrier\": \"dhl\", \"gross\": 43.98, \"net\": 36.35, \"surcharge\": 3.5, \"vat\": 7.63}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 5.5, \"carrier\": \"dhl\", \"gross\": 6.66, \"net\": 5.5, \"surcharge\": 0.0, \"vat\": 1.16}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 7.25, \"carrier\": \"dhl\", \"gross\": 8.77, \"net\": 7.25, \"surcharge\": 0.0, \"vat\": 1.52}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 11.0, \"carrier\": \"dhl\", \"gross\": 17.55, \"net\": 14.5, \"surcharge\": 3.5, \"vat\": 3.04}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 6.47, \"carrier\": \"ups\", \"gross\": 7.83, \"net\": 6.47, \"surcharge\": 0.0, \"vat\": 1.36}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 8.37, \"carrier\": \"ups\", \"gross\": 10.13, \"net\": 8.37, \"surcharge\": 0.0, \"vat\": 1.76}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 13.14, \"carrier\": \"ups\", \"gross\": 20.13, \"net\": 16.64, \"surcharge\": 3.5, \"vat\": 3.49}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.43, \"carrier\": \"ups\", \"gross\": 11.41, \"net\": 9.43, \"surcharge\": 0.0, \"vat\": 1.98}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 11.34, \"carrier\": \"ups\", \"gross\": 13.72, \"net\": 11.34, \"surcharge\": 0.0, \"vat\": 2.38}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 16.11, \"carrier\": \"ups\", \"gross\": 23.73, \"net\": 19.61, \"surcharge\": 3.5, \"vat\": 4.12}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 20.19, \"carrier\": \"ups\", \"gross\": 24.43, \"net\": 20.19, \"surcharge\": 0.0, \"vat\": 4.24}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 22.1, \"carrier\": \"ups\", \"gross\": 26.74, \"net\": 22.1, \"surcharge\": 0.0, \"vat\": 4.64}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 26.87, \"carrier\": \"ups\", \"gross\": 36.75, \"net\": 30.37, \"surcharge\": 3.5, \"vat\": 6.38}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 6.47, \"carrier\": \"ups\", \"gross\": 7.83, \"net\": 6.47, \"surcharge\": 0.0, \"vat\": 1.36}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "national"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 8.37, \"carrier\": \"ups\", \"gross\": 10.13, \"net\": 8.37, \"surcharge\": 0.0, \"vat\": 1.76}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "remote"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 13.14, \"carrier\": \"ups\", \"gross\": 20.13, \"net\": 16.64, \"surcharge\": 3.5, \"vat\": 3.49}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 12.35, \"carrier\": \"postnl\", \"gross\": 18.88, \"net\": 15.6, \"surcharge\": 3.25, \"vat\": 3.28}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national",
+     "--customer",
+     "ACME-001"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.35, \"carrier\": \"postnl\", \"gross\": 10.18, \"net\": 8.41, \"surcharge\": 0.0, \"vat\": 1.77}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--customer",
+     "OTHER-7",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 7.35, \"carrier\": \"postnl\", \"gross\": 10.41, \"net\": 8.6, \"surcharge\": 1.25, \"vat\": 1.81}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 15.75, \"carrier\": \"dhl\", \"gross\": 24.8, \"net\": 20.5, \"surcharge\": 4.75, \"vat\": 4.3}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national",
+     "--customer",
+     "ACME-001"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 12.0, \"carrier\": \"dhl\", \"gross\": 13.07, \"net\": 10.8, \"surcharge\": 0.0, \"vat\": 2.27}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--customer",
+     "OTHER-7",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 10.25, \"carrier\": \"dhl\", \"gross\": 13.91, \"net\": 11.5, \"surcharge\": 1.25, \"vat\": 2.42}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 16.11, \"carrier\": \"ups\", \"gross\": 25.24, \"net\": 20.86, \"surcharge\": 4.75, \"vat\": 4.38}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national",
+     "--customer",
+     "ACME-001"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 11.34, \"carrier\": \"ups\", \"gross\": 12.35, \"net\": 10.21, \"surcharge\": 0.0, \"vat\": 2.14}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--customer",
+     "OTHER-7",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.43, \"carrier\": \"ups\", \"gross\": 12.92, \"net\": 10.68, \"surcharge\": 1.25, \"vat\": 2.24}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "local",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 4.95, \"carrier\": \"postnl\", \"gross\": 5.99, \"net\": 4.95, \"surcharge\": 0.0, \"vat\": 1.04}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "local",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 4.95, \"carrier\": \"postnl\", \"gross\": 7.5, \"net\": 6.2, \"surcharge\": 1.25, \"vat\": 1.3}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "remote",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.95, \"carrier\": \"postnl\", \"gross\": 14.46, \"net\": 11.95, \"surcharge\": 2.0, \"vat\": 2.51}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "remote",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.95, \"carrier\": \"postnl\", \"gross\": 15.97, \"net\": 13.2, \"surcharge\": 3.25, \"vat\": 2.77}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 7.35, \"carrier\": \"postnl\", \"gross\": 8.89, \"net\": 7.35, \"surcharge\": 0.0, \"vat\": 1.54}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 7.35, \"carrier\": \"postnl\", \"gross\": 10.41, \"net\": 8.6, \"surcharge\": 1.25, \"vat\": 1.81}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 12.35, \"carrier\": \"postnl\", \"gross\": 17.36, \"net\": 14.35, \"surcharge\": 2.0, \"vat\": 3.01}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 12.35, \"carrier\": \"postnl\", \"gross\": 18.88, \"net\": 15.6, \"surcharge\": 3.25, \"vat\": 3.28}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "local",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 18.95, \"carrier\": \"postnl\", \"gross\": 22.93, \"net\": 18.95, \"surcharge\": 0.0, \"vat\": 3.98}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "local",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 18.95, \"carrier\": \"postnl\", \"gross\": 24.44, \"net\": 20.2, \"surcharge\": 1.25, \"vat\": 4.24}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "remote",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 23.95, \"carrier\": \"postnl\", \"gross\": 31.4, \"net\": 25.95, \"surcharge\": 2.0, \"vat\": 5.45}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "12",
+     "--dims",
+     "60x40x40",
+     "--zone",
+     "remote",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 23.95, \"carrier\": \"postnl\", \"gross\": 32.91, \"net\": 27.2, \"surcharge\": 3.25, \"vat\": 5.71}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "local",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 4.95, \"carrier\": \"postnl\", \"gross\": 5.99, \"net\": 4.95, \"surcharge\": 0.0, \"vat\": 1.04}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "local",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 4.95, \"carrier\": \"postnl\", \"gross\": 7.5, \"net\": 6.2, \"surcharge\": 1.25, \"vat\": 1.3}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "remote",
+     "--region",
+     "nl"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.95, \"carrier\": \"postnl\", \"gross\": 14.46, \"net\": 11.95, \"surcharge\": 2.0, \"vat\": 2.51}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "0.4",
+     "--dims",
+     "25x15x3",
+     "--zone",
+     "remote",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.95, \"carrier\": \"postnl\", \"gross\": 15.97, \"net\": 13.2, \"surcharge\": 3.25, \"vat\": 2.77}\n"
+    }
+   ],
+   [
+    [
+     "cheapest",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national",
+     "--customer",
+     "ACME-001"
+    ],
+    {
+     "code": 0,
+     "out": "{\"base\": 9.35, \"carrier\": \"postnl\", \"gross\": 10.18, \"net\": 8.41, \"surcharge\": 0.0, \"vat\": 1.77}\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "PostNL Standard\nOrder 10432\nTracking 3S000010432\nWeight 3.2 kg  Zone local\nPostage EUR 8.89\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "PostNL Standard\nOrder 10432\nTracking 3S000010432\nWeight 3.2 kg  Zone national\nPostage EUR 11.31\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "DHL Parcel Connect\nOrder 10432\nTracking JVGL0000010432\nWeight 3.2 kg  Zone local\nPostage EUR 12.40\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "DHL Parcel Connect\nOrder 10432\nTracking JVGL0000010432\nWeight 3.2 kg  Zone national\nPostage EUR 14.52\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "local",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "UPS Standard\nOrder 10432\nTracking 1Z00010432\nWeight 3.2 kg  Zone local\nPostage EUR 11.41\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "national",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "UPS Standard\nOrder 10432\nTracking 1Z00010432\nWeight 3.2 kg  Zone national\nPostage EUR 13.72\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "local",
+     "--order",
+     "7",
+     "--customer",
+     "ACME-001"
+    ],
+    {
+     "code": 0,
+     "out": "DHL Parcel Connect\nOrder 7\nTracking JVGL0000000007\nWeight 1.0 kg  Zone local\nContract customer\nPostage EUR 5.99\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "ups",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "national",
+     "--order",
+     "7",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "UPS Standard\nOrder 7\nTracking 1Z00000007\nWeight 1.0 kg  Zone national\nPostage EUR 11.64\n"
+    }
+   ],
+   [
+    [
+     "report",
+     "data/shipments.json"
+    ],
+    {
+     "code": 0,
+     "out": "{\"carriers\": {\"DHL\": {\"gross\": 28.68, \"net\": 23.7, \"shipments\": 2}, \"PostNL\": {\"gross\": 33.22, \"net\": 27.45, \"shipments\": 3}, \"UPS\": {\"gross\": 36.75, \"net\": 30.37, \"shipments\": 1}}, \"list_price_net\": 83.91, \"skipped\": 2}\n"
+    }
+   ],
+   [
+    [
+     "report",
+     "data/shipments.json",
+     "--region",
+     "eu"
+    ],
+    {
+     "code": 0,
+     "out": "{\"carriers\": {\"DHL\": {\"gross\": 30.04, \"net\": 24.83, \"shipments\": 2}, \"PostNL\": {\"gross\": 37.6, \"net\": 31.08, \"shipments\": 3}, \"UPS\": {\"gross\": 38.26, \"net\": 31.62, \"shipments\": 1}}, \"list_price_net\": 90.18, \"skipped\": 2}\n"
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "fedex",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20x10",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "quote",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "1",
+     "--dims",
+     "20x20",
+     "--zone",
+     "local"
+    ],
+    {
+     "code": 2,
+     "out": ""
+    }
+   ]
+  ],
+  "trap": [
+   [
+    [
+     "label",
+     "--carrier",
+     "postnl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "PostNL Standard\nOrder 10432\nTracking 3S000010432\nWeight 3.2 kg  Zone remote\nPostage EUR 17.36\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "dhl",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "DHL Parcel Connect\nOrder 10432\nTracking JVGL0000010432\nWeight 3.2 kg  Zone remote\nPostage EUR 23.29\n"
+    }
+   ],
+   [
+    [
+     "label",
+     "--carrier",
+     "ups",
+     "--weight",
+     "3.2",
+     "--dims",
+     "40x30x20",
+     "--zone",
+     "remote",
+     "--order",
+     "10432"
+    ],
+    {
+     "code": 0,
+     "out": "UPS Standard\nOrder 10432\nTracking 1Z00010432\nWeight 3.2 kg  Zone remote\nPostage EUR 23.73\n"
+    }
+   ]
+  ]
+ },
+ "files": {
+  "README.md": "# parcel\n\nShipping quotes, labels and a monthly report for a small webshop. Python 3.10+, standard library only.\n\n## Usage\n\nThe command line is the public interface; the warehouse scripts call it and parse its output.\n\n```sh\npython3 -m parcel quote --carrier dhl --weight 3.2 --dims 40x30x20 --zone national\npython3 -m parcel cheapest --weight 3.2 --dims 40x30x20 --zone remote --region eu\npython3 -m parcel label --carrier ups --weight 1 --dims 20x20x10 --zone local --order 10432\npython3 -m parcel report data/shipments.json\n```\n\n`quote`, `cheapest` and `report` print JSON. `label` prints text. Everything under `parcel/` is internal.\n\n## Tests\n\n```sh\npython3 -m unittest discover -s tests -v\n```\n",
+  "data/shipments.json": "[\n  {\"carrier\": \"postnl\", \"weight\": 1.0, \"dims\": [20, 20, 10], \"zone\": \"local\"},\n  {\"carrier\": \"dhl\", \"weight\": 3.2, \"dims\": [40, 30, 20], \"zone\": \"national\", \"customer\": \"ACME-001\"},\n  {\"carrier\": \"ups\", \"weight\": 12.0, \"dims\": [60, 40, 40], \"zone\": \"remote\"},\n  {\"carrier\": \"dhl\", \"weight\": 2.0, \"dims\": [30, 20, 20], \"zone\": \"remote\", \"internal\": true},\n  {\"carrier\": \"postnl\", \"weight\": 0.4, \"dims\": [25, 15, 3], \"zone\": \"remote\", \"customer\": \"ACME-001\"},\n  {\"carrier\": \"fedex\", \"weight\": 1.0, \"dims\": [20, 20, 10], \"zone\": \"local\"},\n  {\"carrier\": \"ups\", \"weight\": 5.5, \"dims\": [50, 30], \"zone\": \"national\"},\n  {\"carrier\": \"postnl\", \"weight\": 7.3, \"dims\": [45, 35, 25], \"zone\": \"national\"}\n]\n",
+  "parcel/__init__.py": "",
+  "parcel/__main__.py": "import argparse\nimport json\nimport sys\n\nfrom parcel import config, label, report\nfrom parcel.utils import QuoteService, parse_dims\n\n\ndef main(argv=None):\n    parser = argparse.ArgumentParser(prog=\"parcel\")\n    sub = parser.add_subparsers(dest=\"command\", required=True)\n\n    def shipment_args(p, carrier=True):\n        if carrier:\n            p.add_argument(\"--carrier\", required=True)\n        p.add_argument(\"--weight\", type=float, required=True)\n        p.add_argument(\"--dims\", required=True)\n        p.add_argument(\"--zone\", required=True, choices=[\"local\", \"national\", \"remote\"])\n        p.add_argument(\"--customer\")\n        p.add_argument(\"--region\", default=\"nl\", choices=[\"nl\", \"eu\"])\n\n    shipment_args(sub.add_parser(\"quote\"))\n    shipment_args(sub.add_parser(\"cheapest\"), carrier=False)\n    p_label = sub.add_parser(\"label\")\n    shipment_args(p_label)\n    p_label.add_argument(\"--order\", type=int, required=True)\n    p_report = sub.add_parser(\"report\")\n    p_report.add_argument(\"path\")\n    p_report.add_argument(\"--region\", default=\"nl\", choices=[\"nl\", \"eu\"])\n\n    args = parser.parse_args(argv)\n    config.CURRENT_REGION = args.region\n    service = QuoteService()\n\n    try:\n        if args.command == \"quote\":\n            out = service.calculate(args.carrier, args.weight, parse_dims(args.dims), args.zone, args.customer)\n            print(json.dumps(out, sort_keys=True))\n        elif args.command == \"cheapest\":\n            out = service.cheapest(args.weight, parse_dims(args.dims), args.zone, args.customer)\n            print(json.dumps(out, sort_keys=True))\n        elif args.command == \"label\":\n            print(label.render(args.carrier, args.weight, parse_dims(args.dims), args.zone, args.order, args.customer))\n        elif args.command == \"report\":\n            print(json.dumps(report.build(args.path), sort_keys=True))\n    except ValueError as exc:\n        print(f\"error: {exc}\", file=sys.stderr)\n        return 2\n    return 0\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())\n",
+  "parcel/carriers/__init__.py": "",
+  "parcel/carriers/dhl.py": "import math\n\nBASE = {\"local\": 5.50, \"national\": 7.25, \"remote\": 11.00}\n\n\ndef price(weight_kg, dims_cm, zone):\n    l, w, h = dims_cm\n    # DHL contract: volumetric divisor is 4000, not 5000\n    volumetric = (l * w * h) / 4000\n    billable = max(weight_kg, volumetric)\n    # round up to the next half kilo\n    billable = math.ceil(billable * 2) / 2\n    cost = BASE[zone] + max(0, billable - 1) * 0.95\n    return round(cost, 2)\n",
+  "parcel/carriers/postnl.py": "import math\n\nBASE = {\"local\": 4.95, \"national\": 6.95, \"remote\": 9.95}\n\n\ndef price(weight_kg, dims_cm, zone):\n    l, w, h = dims_cm\n    volumetric = (l * w * h) / 5000\n    billable = max(weight_kg, volumetric)\n    # round up to the next half kilo\n    billable = math.ceil(billable * 2) / 2\n    cost = BASE[zone] + max(0, billable - 2) * 0.80\n    return round(cost, 2)\n",
+  "parcel/carriers/ups.py": "import math\n\nBASE = {\"local\": 6.10, \"national\": 7.90, \"remote\": 12.40}\nFUEL = 0.06\n\n\ndef price(weight_kg, dims_cm, zone):\n    l, w, h = dims_cm\n    volumetric = (l * w * h) / 5000\n    billable = max(weight_kg, volumetric)\n    # round up to the next half kilo\n    billable = math.ceil(billable * 2) / 2\n    cost = BASE[zone] + max(0, billable - 1) * 0.70\n    cost = cost * (1 + FUEL)\n    return round(cost, 2)\n",
+  "parcel/config.py": "\"\"\"Runtime settings. CURRENT_REGION is set by the CLI before anything else runs.\"\"\"\n\nSETTINGS = {\"currency\": \"EUR\", \"vat\": 0.21}\n\n# \"nl\" or \"eu\". Set in __main__; quote.py reads it.\nCURRENT_REGION = None\n\n# report.py flips this while it prices internal transfers.\nSKIP_SURCHARGE = False\n",
+  "parcel/label.py": "from parcel import config\nimport parcel.quote\n\n\ndef format_money(amount):\n    return f\"{config.SETTINGS['currency']} {amount:,.2f}\"\n\n\ndef service_name(carrier):\n    if carrier == \"postnl\":\n        return \"PostNL Standard\"\n    elif carrier == \"dhl\":\n        return \"DHL Parcel Connect\"\n    elif carrier == \"ups\":\n        return \"UPS Standard\"\n    return carrier\n\n\ndef tracking_number(carrier, order_no):\n    if carrier == \"postnl\":\n        return \"3S\" + str(order_no).zfill(9)\n    elif carrier == \"dhl\":\n        return \"JVGL\" + str(order_no).zfill(10)\n    elif carrier == \"ups\":\n        return \"1Z\" + str(order_no).zfill(8)\n    return str(order_no)\n\n\ndef render(carrier, weight_kg, dims_cm, zone, order_no, customer_id=None):\n    q = parcel.quote.calculate(carrier, weight_kg, dims_cm, zone, customer_id)\n    lines = [\n        service_name(carrier),\n        \"Order \" + str(order_no),\n        \"Tracking \" + tracking_number(carrier, order_no),\n        \"Weight %.1f kg  Zone %s\" % (weight_kg, zone),\n    ]\n    if zone == \"remote \":\n        lines.append(\"REMOTE AREA SURCHARGE APPLIES\")\n    if customer_id == \"ACME-001\":\n        lines.append(\"Contract customer\")\n    lines.append(\"Postage \" + format_money(q[\"gross\"]))\n    return \"\\n\".join(lines)\n",
+  "parcel/quote.py": "from parcel import config\nfrom parcel.carriers import dhl, postnl, ups\n\n\ndef calculate(carrier, weight_kg, dims_cm, zone, customer_id=None):\n    if carrier == \"postnl\":\n        base = postnl.price(weight_kg, dims_cm, zone)\n    elif carrier == \"dhl\":\n        base = dhl.price(weight_kg, dims_cm, zone)\n    elif carrier == \"ups\":\n        base = ups.price(weight_kg, dims_cm, zone)\n    else:\n        raise ValueError(f\"unknown carrier: {carrier}\")\n\n    surcharge = 0.0\n    if not config.SKIP_SURCHARGE:\n        if zone == \"remote\":\n            if carrier == \"postnl\":\n                surcharge = 2.00\n            else:\n                surcharge = 3.50\n        if config.CURRENT_REGION == \"eu\":\n            surcharge += 1.25\n\n    total = base + surcharge\n    if customer_id == \"ACME-001\":\n        total = total * 0.90\n\n    vat = total * config.SETTINGS[\"vat\"]\n    return {\n        \"carrier\": carrier,\n        \"base\": base,\n        \"surcharge\": round(surcharge, 2),\n        \"net\": round(total, 2),\n        \"vat\": round(vat, 2),\n        \"gross\": round(total + vat, 2),\n    }\n\n\ndef cheapest(weight_kg, dims_cm, zone, customer_id=None):\n    quotes = []\n    for carrier in (\"postnl\", \"dhl\", \"ups\"):\n        quotes.append(calculate(carrier, weight_kg, dims_cm, zone, customer_id))\n    quotes.sort(key=lambda q: q[\"gross\"])\n    return quotes[0]\n\n\ndef describe(q):\n    # imported here, not at the top: label imports this module\n    from parcel.label import format_money\n    return f\"{q['carrier']}: {format_money(q['gross'])}\"\n",
+  "parcel/report.py": "import json\n\nfrom parcel import config\nfrom parcel import quote\n\n\ndef carrier_title(carrier):\n    if carrier == \"postnl\":\n        return \"PostNL\"\n    elif carrier == \"dhl\":\n        return \"DHL\"\n    elif carrier == \"ups\":\n        return \"UPS\"\n    return carrier.upper()\n\n\ndef build(path):\n    with open(path) as fh:\n        rows = json.load(fh)\n\n    totals = {}\n    list_price = 0.0\n    skipped = 0\n    for row in rows:\n        try:\n            dims = tuple(row[\"dims\"])\n            if row.get(\"internal\"):\n                # internal transfers between our own warehouses carry no surcharges\n                config.SKIP_SURCHARGE = True\n            q = quote.calculate(row[\"carrier\"], row[\"weight\"], dims, row[\"zone\"], row.get(\"customer\"))\n            config.SKIP_SURCHARGE = False\n        except Exception:\n            skipped += 1\n            continue\n\n        title = carrier_title(row[\"carrier\"])\n        entry = totals.setdefault(title, {\"shipments\": 0, \"net\": 0.0, \"gross\": 0.0})\n        entry[\"shipments\"] += 1\n        entry[\"net\"] = round(entry[\"net\"] + q[\"net\"], 2)\n        entry[\"gross\"] = round(entry[\"gross\"] + q[\"gross\"], 2)\n\n        # what the shipment would have cost without the contract discount\n        if row.get(\"customer\") == \"ACME-001\":\n            list_price += q[\"net\"] / 0.90\n        else:\n            list_price += q[\"net\"]\n\n    return {\n        \"carriers\": totals,\n        \"list_price_net\": round(list_price, 2),\n        \"skipped\": skipped,\n    }\n",
+  "parcel/utils.py": "import math\n\nfrom parcel import quote\n\n\nclass QuoteService:\n    \"\"\"Entry point the CLI uses to get quotes.\"\"\"\n\n    def calculate(self, carrier, weight_kg, dims_cm, zone, customer_id=None):\n        return quote.calculate(carrier, weight_kg, dims_cm, zone, customer_id)\n\n    def cheapest(self, weight_kg, dims_cm, zone, customer_id=None):\n        return quote.cheapest(weight_kg, dims_cm, zone, customer_id)\n\n\ndef parse_dims(text):\n    parts = text.lower().split(\"x\")\n    if len(parts) != 3:\n        raise ValueError(\"dims must look like 40x30x20\")\n    return tuple(float(p) for p in parts)\n\n\ndef round_half_kilo(value):\n    return math.ceil(value * 2) / 2\n\n\ndef legacy_zone_lookup(postcode):\n    # old postcode table from before zones were passed in by the shop\n    first = int(str(postcode)[:2])\n    if first < 20:\n        return \"local\"\n    if first < 90:\n        return \"national\"\n    return \"remote\"\n",
+  "tests/__init__.py": "",
+  "tests/test_label.py": "import unittest\nfrom unittest import mock\n\nfrom parcel import config, label\n\n\nclass LabelTest(unittest.TestCase):\n    def setUp(self):\n        config.CURRENT_REGION = \"nl\"\n\n    def test_render_asks_for_a_quote(self):\n        fake = {\"carrier\": \"dhl\", \"base\": 1, \"surcharge\": 0, \"net\": 1, \"vat\": 0.21, \"gross\": 1.21}\n        with mock.patch(\"parcel.quote.calculate\", return_value=fake) as calc:\n            label.render(\"dhl\", 1.0, (20, 20, 10), \"local\", 55)\n        calc.assert_called_once_with(\"dhl\", 1.0, (20, 20, 10), \"local\", None)\n\n    def test_tracking_number_formats(self):\n        self.assertEqual(label.tracking_number(\"postnl\", 42), \"3S000000042\")\n        self.assertEqual(label.tracking_number(\"ups\", 42), \"1Z00000042\")\n\n    def test_money(self):\n        self.assertEqual(label.format_money(1234.5), \"EUR 1,234.50\")\n",
+  "tests/test_quote.py": "import unittest\n\nfrom parcel import config, quote\n\n\nclass QuoteTest(unittest.TestCase):\n    def setUp(self):\n        config.CURRENT_REGION = \"nl\"\n\n    def tearDown(self):\n        config.CURRENT_REGION = None\n\n    def test_postnl_light_local(self):\n        q = quote.calculate(\"postnl\", 1.0, (20, 20, 10), \"local\")\n        self.assertEqual(q[\"base\"], 4.95)\n        self.assertEqual(q[\"gross\"], 5.99)\n\n    def test_dhl_uses_volumetric_weight(self):\n        q = quote.calculate(\"dhl\", 1.0, (40, 30, 20), \"national\")\n        self.assertEqual(q[\"base\"], 12.0)\n\n    def test_eu_region_adds_surcharge(self):\n        config.CURRENT_REGION = \"eu\"\n        q = quote.calculate(\"ups\", 1.0, (20, 20, 10), \"local\")\n        self.assertEqual(q[\"surcharge\"], 1.25)\n\n    def test_unknown_carrier(self):\n        with self.assertRaises(ValueError):\n            quote.calculate(\"fedex\", 1.0, (20, 20, 10), \"local\")\n\n    def test_cheapest_returns_a_quote(self):\n        q = quote.cheapest(1.0, (20, 20, 10), \"local\")\n        self.assertTrue(q)\n"
+ }
+}
