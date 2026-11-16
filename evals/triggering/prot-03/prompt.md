@@ -1,6 +1,6 @@
 ---
 name: triggering-prot-03
-tags: [triggering, intentional-prototyping, indirect, pilot]
+tags: [triggering, intentional-prototyping, triggering-intentional-prototyping, indirect, pilot]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

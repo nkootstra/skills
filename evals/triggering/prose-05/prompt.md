@@ -1,6 +1,6 @@
 ---
 name: triggering-prose-05
-tags: [triggering, write-prose, indirect]
+tags: [triggering, write-prose, triggering-write-prose, indirect]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

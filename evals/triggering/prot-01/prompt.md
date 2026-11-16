@@ -1,6 +1,6 @@
 ---
 name: triggering-prot-01
-tags: [triggering, intentional-prototyping, direct]
+tags: [triggering, intentional-prototyping, triggering-intentional-prototyping, direct]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

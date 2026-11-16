@@ -46,6 +46,14 @@
 {"id": "prose-06", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "indirect"], "prompt": "We shipped a migration tool. I need a short changelog piece explaining what changed and why it matters, no marketing adjectives, under 300 words. The internal spec is in docs/migration-spec.md."}
 {"id": "prose-07", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "direct"], "prompt": "Write a commit message for the changes I just made. They fix a race in background sync."}
 {"id": "prose-08", "expected": "write-prose", "also_ok": [], "tags": ["write-prose", "hard"], "prompt": "Draft the PR description for this branch using our template in .github/pull_request_template.md. Unit tests passed; browser testing was not run."}
+{"id": "code-01", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "direct"], "prompt": "This codebase has gotten messy over the last two years. Clean up the structure so it's easier to work in, without changing what it does."}
+{"id": "code-02", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "indirect"], "prompt": "Every time we add a payment method we end up touching nine files across four folders. Sort out the structure so that stops happening."}
+{"id": "code-03", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "indirect"], "prompt": "We want to pay down tech debt in the services/ package this sprint. Find what's worth fixing and fix it."}
+{"id": "code-04", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "indirect"], "prompt": "Do a code quality audit of this repo and tell me what to refactor first. Don't change anything yet."}
+{"id": "code-05", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "hard"], "prompt": "Our coding agents keep getting lost in this repo and breaking unrelated things. Make it easier for them to work in."}
+{"id": "code-06", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "hard"], "prompt": "The src/orders module is full of circular imports and copy-pasted logic. Restructure it."}
+{"id": "code-07", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "hard"], "prompt": "I inherited this project and I'm scared to touch it. Where are the worst structural problems, and can you make it safer to change?"}
+{"id": "code-08", "expected": "improve-codebase", "also_ok": [], "tags": ["improve-codebase", "direct"], "prompt": "Refactor the whole backend for maintainability. Behavior has to stay exactly the same."}
 {"id": "none-01", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Fix the TypeError in src/components/InvoiceTable.tsx: 'Cannot read properties of undefined (reading map)'."}
 {"id": "none-02", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Convert #4F46E5 to HSL and OKLCH."}
 {"id": "none-03", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Write three ad headlines for our launch and a punchy Twitter thread with hooks and hashtags."}
@@ -65,3 +73,8 @@
 {"id": "none-17", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Fix the typo 'Instalation' in the README heading."}
 {"id": "none-18", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Generate an OpenAPI spec for the routes in src/api."}
 {"id": "none-19", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Write a press release announcing our Series A."}
+{"id": "none-20", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Extract the date parsing inside parseDate in src/utils/format.ts into its own helper function."}
+{"id": "none-21", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Upgrade React from 18 to 19 and fix whatever breaks."}
+{"id": "none-22", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Review the diff on this branch for bugs before I open the PR."}
+{"id": "none-23", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "Run the linter and fix all the formatting errors it reports."}
+{"id": "none-24", "expected": "none", "also_ok": [], "tags": ["none", "near-miss"], "prompt": "The /api/search endpoint takes three seconds to respond. Make it faster."}

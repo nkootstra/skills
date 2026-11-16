@@ -1,6 +1,6 @@
 ---
 name: triggering-crit-02
-tags: [triggering, design-critique, indirect, pilot]
+tags: [triggering, design-critique, triggering-design-critique, indirect, pilot]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

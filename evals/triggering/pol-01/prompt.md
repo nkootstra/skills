@@ -1,6 +1,6 @@
 ---
 name: triggering-pol-01
-tags: [triggering, interface-polish, direct]
+tags: [triggering, interface-polish, triggering-interface-polish, direct]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

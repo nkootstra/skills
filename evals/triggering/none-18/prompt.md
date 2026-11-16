@@ -1,6 +1,6 @@
 ---
 name: triggering-none-18
-tags: [triggering, none, near-miss]
+tags: [triggering, none, triggering-none, near-miss]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

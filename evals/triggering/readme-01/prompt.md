@@ -1,6 +1,6 @@
 ---
 name: triggering-readme-01
-tags: [triggering, write-readme, direct]
+tags: [triggering, write-readme, triggering-write-readme, direct]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

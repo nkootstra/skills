@@ -1,6 +1,6 @@
 ---
 name: triggering-expl-04
-tags: [triggering, design-exploration, indirect]
+tags: [triggering, design-exploration, triggering-design-exploration, indirect]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4

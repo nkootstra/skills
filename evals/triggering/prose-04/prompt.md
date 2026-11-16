@@ -1,6 +1,6 @@
 ---
 name: triggering-prose-04
-tags: [triggering, write-prose, hard]
+tags: [triggering, write-prose, triggering-write-prose, hard]
 runs: 2
 plugins: ["../../.."]
 max_turns: 4
