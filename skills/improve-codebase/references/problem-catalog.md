@@ -100,4 +100,5 @@ Then sort the workarounds by situation, across files. Three or more for one situ
 - Similar-looking code that encodes different rules and changes independently.
 - An inconsistency in an area with no commits in the window and no dependents that change.
 - Missing tests, by themselves. Record the area as report-only and move on, unless a planned change needs the behavior pinned.
+- Generated or vendored code (lockfiles, `vendor/`, generated clients, files marked generated). A problem there is fixed in its source or generator, or not at all.
 - Formatting, import order and anything a formatter or linter fixes. That belongs to the project's tooling, not to this pass.

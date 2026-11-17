@@ -104,23 +104,26 @@ Grouped, with dispositions and rank:
    - [Q3] `get_due` that also marks as sent: split once sending is driven by transitions.
    ASK inside this group: `billing/invoice.py:33` compares against "canceled", which never matches, so cancelled appointments are invoiced today. Keeping that is behavior; fixing it changes invoices. Reported, not changed.
 
-3. FIX — Give time one owner: a `ClinicTime` value created at the boundary from the clinic record, and no offset arithmetic elsewhere. Score 9 commits × 1 entry.
+3. REDESIGN — Give time one owner: a `ClinicTime` value created at the boundary from the clinic record, and no offset arithmetic elsewhere. Score 9 commits × 1 entry; a new concept across three files, so not a FIX even with one entry.
    - [Q2] Time zone read from the environment in one place and recomputed in two others.
 
-4. FIX — Reschedule calls `slots.overlaps()` and loses its inline copy. Score 8 commits × 1 entry.
-   ASK: the inline copy omits the buffer-minutes rule, so rescheduling currently allows back-to-back bookings that a new booking refuses. Calling the shared check changes that.
+ASK — Reschedule repeats the overlap check inline instead of calling `slots.overlaps()`, and the copy omits the buffer-minutes rule, so rescheduling allows back-to-back bookings that a new booking refuses. Merging the two changes that behavior, so the whole entry waits for the user; with the bug-fix pass chosen it becomes a fix.
 
 LEAVE — `CalendarProvider` with one implementation: no commits in 18 months, nothing in the plan touches it.
-LEAVE — `LEGACY_FREE_IDS`: a real exception for a fixed set of old records. Add a comment naming the agreement it comes from.
+LEAVE — `LEGACY_FREE_IDS`: a real exception for a fixed set of old records. If the commit history or docs name the agreement it comes from, add a comment saying so; never invent the reason.
 ```
 
-Two things to copy from this: item 1 has the lowest score and still goes first because another item depends on it, and both ASK notes sit inside the group that surfaced them so the reader sees them in context.
+Two things to copy from this: item 1 has the lowest score and still goes first because another item depends on it, and the ASK note about invoices sits inside the group that surfaced it so the reader sees it in context.
 
 ## Report template
 
 ```md
 ## What this was
 Scope, mode (audit or improve), branch, and the five-line map.
+Optional passes: name all three (comments, tests, bug fixes) and say for each whether it ran, was declined, or went unanswered.
+
+## Checks after the last commit
+One sentence per check from step 2, with its result: "All 19 tests pass after the last commit", "The type check passes". Say it even when nothing changed since the baseline.
 
 ## What changed
 One line per commit, in order: the cause it addressed and the entries it closed.
