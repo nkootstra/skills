@@ -2,7 +2,7 @@
 
 The map has four parts: what is there, what depends on what, what changes, and what changes together. Collect all four before reading any file closely; they decide which files deserve the close read.
 
-Every command below runs from the repo root and only reads files and git history. `git grep` searches tracked files, so build output and vendored dependencies stay out. The patterns use POSIX classes (`[[:space:]]`) because `\s` and `\b` don't work in `git grep -E` on every platform. Save the scripts outside the repo, or delete them before committing.
+Every command below runs from the repo root and only reads files and git history. `git grep` searches tracked files only, which keeps untracked build output out but not lockfiles, `vendor/` or generated code that is committed. Add pathspec excludes for those, such as `':!*.lock' ':!*lock.json' ':!*.lockb' ':!vendor/' ':!*.min.js' ':!*.snap'`, and the repo's own generated folders. The patterns use POSIX classes (`[[:space:]]`) because `\s` and `\b` don't work in `git grep -E` on every platform. Save the scripts outside the repo, or delete them before committing.
 
 ## Contents
 
@@ -18,13 +18,13 @@ Every command below runs from the repo root and only reads files and git history
 Files by size, largest first:
 
 ```sh
-git ls-files -z | xargs -0 wc -l 2>/dev/null | sort -rn | sed -n 2,31p
+git ls-files -z -- ':!*.lock' ':!*lock.json' ':!*.lockb' ':!vendor/' ':!*.min.js' ':!*.snap' | xargs -0 wc -l 2>/dev/null | grep -v ' total$' | sort -rn | head -30
 ```
 
-A skeleton: every declaration with its file and line, without bodies. Narrow the pathspecs to the languages in the repo.
+A skeleton: every declaration with its file and line, without bodies. Narrow the pathspecs to the languages in the repo. It covers functions and types in TS/JS, Python, Go and Rust, and types only in Java, C# and Kotlin, whose methods have no keyword to match.
 
 ```sh
-git grep -nE '^[[:space:]]*(export[[:space:]]+)?(default[[:space:]]+)?(pub[[:space:]]+)?(async[[:space:]]+)?(function|class|interface|type|enum|def|func|fn|struct|trait|impl)[[:space:]]+[A-Za-z_]' -- '*.ts' '*.tsx' '*.py' '*.go' '*.rs'
+git grep -nE '^[[:space:]]*((export|default|pub(\([^)]*\))?|public|private|protected|internal|static|abstract|async|final|open|override)[[:space:]]+)*(function|class|interface|type|enum|def|fn|struct|trait|impl(<[^>]*>)?|record|object)[[:space:]]+[A-Za-z_]|^[[:space:]]*func[[:space:]]+(\([^)]*\)[[:space:]]+)?[A-Za-z_]|^[[:space:]]*export[[:space:]]+const[[:space:]]+[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=[[:space:]]*(async[[:space:]]*)?\(' -- '*.ts' '*.tsx' '*.js' '*.py' '*.go' '*.rs' '*.java' '*.cs' '*.kt'
 ```
 
 For a repo too large to hold at once, split by top-level folder and give each to a subagent with one instruction: return the public surface, what the area imports from other areas, and anything that surprised you, in under 40 lines. Reason across the summaries, then read the code only where the map points.
@@ -36,7 +36,7 @@ Use the language's own tool when the project has one, because it resolves aliase
 | Stack | Command |
 |---|---|
 | JS/TS | `npx madge --circular --extensions ts,tsx src` for cycles, when the project already uses madge or dependency-cruiser |
-| Go | `go list -deps ./...`; the compiler rejects import cycles, so look at direction instead |
+| Go | `go list -f '{{.ImportPath}}: {{join .Imports " "}}' ./...` prints each package's imports; the compiler rejects cycles, so look at direction instead |
 | Rust | `cargo tree` for the edges between crates |
 
 Don't add a dependency to the project to draw the graph.
@@ -95,10 +95,10 @@ Output is one line per edge, heaviest first: `24  blocks -> data   cycle: 1 back
 Commits per file over the last year:
 
 ```sh
-git log --since="12 months ago" --no-merges --name-only --format= | grep -v '^$' | sort | uniq -c | sort -rn | head -30
+git log --since="12 months ago" --no-merges --name-only --format= | grep -v '^$' | grep -Fx -f <(git ls-files) | sort | uniq -c | sort -rn | head -30
 ```
 
-The same, limited to commits whose message reads like a repair. A file high on both lists is where the structure is producing bugs.
+The `grep -Fx` keeps only files that still exist (it needs bash or zsh). The same, limited to commits whose message reads like a repair. A file high on both lists is where the structure is producing bugs.
 
 ```sh
 git log --since="12 months ago" --no-merges -i -E --grep='(^|[^a-z])(fix|bug|revert|hotfix)' --name-only --format= | grep -v '^$' | sort | uniq -c | sort -rn | head -30
@@ -130,7 +130,7 @@ for score, n, lines, path in sorted(rows, reverse=True)[:top]:
     print(f"{score:>8} {n:>7} {lines:>6}  {path}")
 ```
 
-If the repo is younger than a year or has fewer than about 50 commits, the history is too thin to rank by. Say so in the report and rank by dependency edges and marker counts instead.
+First run `git rev-parse --is-shallow-repository`: a shallow clone (common in CI and cloud sandboxes) shows almost no history, so fetch the full history with `git fetch --unshallow` when you may, or treat it as thin. If the repo is younger than a year or has fewer than about 50 commits, the history is too thin to rank by. Say so in the report and rank by dependency edges and marker counts instead.
 
 ## What changes together
 
@@ -180,13 +180,13 @@ Count per file first (`-c`); open the files with the highest counts. A single ma
 ```sh
 git grep -cwE 'TODO|FIXME|HACK|XXX' -- ':!*.md'                                   # known debt
 git grep -cE '\.skip\(|(^|[^a-zA-Z])xit\(|xdescribe\(|@pytest\.mark\.skip|t\.Skip\(|#\[ignore\]'  # tests switched off
-git grep -cE 'as any|@ts-ignore|@ts-expect-error|# type: ignore|eslint-disable|noqa'   # checks switched off
+git grep -cE '(^|[^[:alnum:]_])as any([^[:alnum:]_]|$)|@ts-ignore|@ts-expect-error|# type: ignore|eslint-disable|noqa'   # checks switched off
 git grep -cE 'sleep\(|setTimeout\(|time\.Sleep\(|retry'                            # timing and retries
-git grep -nE -A1 'catch[[:space:]]*(\([^)]*\))?[[:space:]]*\{[[:space:]]*\}?[[:space:]]*$' -- '*.ts' '*.tsx' '*.js'   # catch blocks to inspect
-git grep -nE -A1 'except([[:space:]]+[A-Za-z_.]+)?[[:space:]]*:[[:space:]]*$' -- '*.py'                            # except blocks to inspect
+git grep -cE 'catch[[:space:]]*(\([^)]*\))?[[:space:]]*\{[[:space:]]*\}?[[:space:]]*$' -- '*.ts' '*.tsx' '*.js'   # catch blocks to inspect
+git grep -cE 'except([[:space:]]+[A-Za-z_.]+)?[[:space:]]*:[[:space:]]*$' -- '*.py'                            # except blocks to inspect
 ```
 
-A marker is a lead, not a finding. A `setTimeout` that debounces input is the design; one that waits for another module to finish is a workaround.
+In the files with the most catch or except blocks, read them with `git grep -nE -A1 '<pattern>' -- <file>`. A marker is a lead, not a finding. A `setTimeout` that debounces input is the design; one that waits for another module to finish is a workaround.
 
 ## Reading the map
 

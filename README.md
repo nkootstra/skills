@@ -170,7 +170,7 @@ Plugin: `engineering-skills`. One skill so far.
 Quality is measured as what the next change costs. Structure changes and behavior changes never share a commit: anything that would alter behavior, a public interface, a data shape or a dependency is reported as a decision for you, and the run continues without it.
 
 The workflow:
-1. Set the mode: **audit** (a ledger and a ranked plan, no changes) or **improve** (carry the work through to a stop rule).
+1. Set the mode: **audit** (a ledger and a ranked plan, no changes) or **improve** (carry the work through to a stop rule). In improve mode it asks once which optional passes to add: **comments** (remove comments that only restate the code), **tests** (remove tests that can't catch a bug, rewrite tests tied to internals) and **bug fixes** (each in its own commit, with a test that fails first). It skips the question when the request already says, when you're away, or in audit mode, and without an answer it runs none.
 2. Record a baseline: tests, type check, lint, build. Areas no check covers are report-only until their behavior is pinned with tests.
 3. Map the codebase: a skeleton, the dependency edges, and from git the files that change most and the files that change together.
 4. Fill a ledger with five questions: where does a change land, what does this lean on, can the reader trust it, does each piece earn its place, will a break be noticed. Every entry needs evidence.
@@ -476,8 +476,8 @@ write-prose gains most on explaining and on drafts with residue to remove: tight
 
 #### improve-codebase
 
-Three cases on two fixture repos, each with planted structural problems, a commit history and a small test suite:
-- **parcel**, a Python CLI for shipping quotes: the same carrier `if` chain in three files, an import cycle, a global flag one module sets for another, a discount known in three places, a rule copied four times, unused code. Two cases use it: one asks for the improvement, one asks for an audit only.
+Five cases on two fixture repos, each with planted structural problems, a commit history and a small test suite:
+- **parcel**, a Python CLI for shipping quotes: the same carrier `if` chain in three files, an import cycle, a global flag one module sets for another, a discount known in three places, a rule copied four times, unused code. Four cases use it: the improvement, the improvement with all three optional passes, the improvement without saying which passes (no one answers the question), and an audit only.
 - **deskline**, a Node CLI for help-desk tickets, organised by technical layer: priorities defined in four folders, scattered status checks, code reaching into the store's internals, a global clock, an import cycle.
 
 The judge checks the final report: tests were run, behavior was kept or the changes are named, the planted bug is reported as a decision and not fixed, and decisions are listed apart from changes. What the judge can't check is measured afterwards by `evals/quality/score.py` on the repos the runs leave behind:
@@ -498,15 +498,17 @@ python3 evals/quality/score.py score deskline run1=/private/tmp/e-CCCC
 
 `score.py` copies each repo out before running anything; never run git inside a kept directory. Each fixture is one file, `evals/quality/fixtures/<name>.json`. To change its code, unpack it with `python3 evals/quality/fixture_repo.py unpack <name> <dir>`, edit, pack it back with `fixture_repo.py pack <name> <dir>`, then run `score.py record <name>`. CI runs `score.py verify`, which fails when a fixture no longer replays its history, fails its tests or prints different outputs than recorded.
 
-Latest runs, 3 per case (Opus 5.5, Sonnet as judge, $11.50 in total):
+Latest run, 3 runs per case (Opus 5.5, Sonnet as judge, $20.76):
 
-| Case | Judge checks | Behavior unchanged | Planted bug left for the user | Structure |
+| Case | Judge checks | Recorded outputs unchanged | Planted bug | Structure |
 |---|---|---|---|---|
-| improve-python-cli | 18/18 | 74/74 in all 3 | 3/3 | carrier branches 14 → 0, import cycle gone, rule copies 4 → 1, unused code removed; global flag uses 8 → 0 in two runs, 8 → 4 in one |
-| audit-python-cli | 17/18 | 0 files changed in all 3 | 3/3 | unchanged, as asked |
-| improve-layered-node-cli | 17/18 | 70/70 in all 3 | 3/3 | files defining priorities 4 → 1, status checks 9 → 2–4, import cycle gone, swallowed errors gone |
+| improve-python-cli | 18/18 | 74/74 in all 3 | left for the user, 3/3 | carrier branches 14 → 0, import cycle and global flags gone, rule copies 4 → 1, unused code removed |
+| improve-python-cli-all-passes | 18/18 | 74/74 in 2; 72/74 in 1, from a bug fix it named | fixed, 3/3 | same as above; tests 8 → 12–22 |
+| improve-python-cli-no-answer | 9/9 | 74/74 in all 3 | left for the user, 3/3 | same as above |
+| audit-python-cli | 17/18 | 0 files changed in all 3 | left, 3/3 | unchanged, as asked |
+| improve-layered-node-cli | 18/18 | 70/70 in all 3 | left for the user, 3/3 | files defining priorities 4 → 1, status checks 9 → 2–5, import cycle and swallowed errors gone |
 
-Every failed check passed when re-judged with a reason. The audit row is from a rerun after two of its checks were reworded. Its first check, "claims no changes", still fails about one run in three when a reply mentions an experiment run in memory or a scratch copy; `score.py` is the reliable signal there and has shown 0 files changed in all 7 audit runs. The parcel run that kept a global flag did so on purpose: the flag is tangled with the planted report bug, so removing it changes output, and the run reported the fix as a decision. "Behavior unchanged" covers the recorded outputs only; one deskline run disclosed an edge case outside them that it did change (a priority literally named `constructor`). On deskline, all three runs left the store internals, the global clock and the unused CSV export in place, each with a stated reason. That is a choice the skill allows, not a miss. The two improve rows were measured before a scaffold fix that keeps the fixture's build script out of its history; the only visible effect was that runs mentioned a stray uncommitted deletion.
+In the all-passes case, the user opted into bug fixes. One run also fixed the report's list price, which was a cent off from dividing a rounded number; it did so in its own commit and flagged that the warehouse scripts read that output. The audit's "claims no changes" check is noisy: it fails about one run in three when a reply mentions an experiment run in memory or a scratch copy. `score.py` is the reliable signal there and has shown 0 files changed in every audit run. "Recorded outputs unchanged" covers those outputs only. On deskline, all runs left the store internals, the global clock and the unused CSV export in place, each with a stated reason. That is a choice the skill allows, not a miss.
 
 ## Versioning and releases
 
