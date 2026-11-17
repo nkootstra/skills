@@ -13,6 +13,29 @@
     ]
   },
   {
+    "id": "improve-python-cli-all-passes",
+    "fixture": "parcel",
+    "prompt": "This codebase works, but it has become hard to change. Improve its structure, and also do the comments pass, the tests pass and fix the bugs you find. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.",
+    "expectations": [
+      "The summary says the label bug (the comparison with 'remote ' and its trailing space, so the remote surcharge line never printed) was fixed, and says it was done in its own commit or separately from the structural changes.",
+      "The summary says which fixes change output that other programs read (the CLI output the warehouse scripts parse), or tells the user to check those consumers.",
+      "The summary describes a comments pass: it says that comments which only restated the code were removed, or names how many were removed.",
+      "The summary describes a tests pass with a test count before and after, or names the tests it removed or rewrote and why.",
+      "Apart from the bug fixes it names, the summary says the command-line output was kept the same.",
+      "The summary says the tests were run after the changes and that they pass."
+    ]
+  },
+  {
+    "id": "improve-python-cli-no-answer",
+    "fixture": "parcel",
+    "prompt": "This codebase works, but it has become hard to change. Improve its structure. Finish with a summary of what you changed and anything I need to decide.",
+    "expectations": [
+      "The reply mentions the optional passes for comments, tests and bug fixes, either as a question to the user or by saying which of them it ran or skipped.",
+      "The reply does not say that the label bug (the comparison with 'remote ' and its trailing space) was fixed; it leaves it for the user to decide or asks about it.",
+      "The summary says the tests were run after the changes and that they pass."
+    ]
+  },
+  {
     "id": "audit-python-cli",
     "fixture": "parcel",
     "prompt": "Do a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.",
