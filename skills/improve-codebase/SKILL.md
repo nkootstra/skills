@@ -36,7 +36,7 @@ In improve mode, ask once which optional passes to add, as one multi-select ques
 - **Tests**: remove tests that can't catch a bug and rewrite tests tied to internals, after all other work.
 - **Bug fixes**: fix the bugs found along the way, each in its own commit with a test that fails before the fix.
 
-Run only the passes chosen. Don't ask in audit mode, when the request already names its passes (run those), or when the user said not to ask or is away. Without an answer, or without a question tool to ask with, run none and say so in the report.
+Run only the passes chosen. Don't ask in audit mode, when the request already names its passes (run those), or when the user wrote that they are away or not to ask. Ask before anything else, background sessions included: running in the background doesn't mean nobody is there, and the answer takes one click. Without an answer, or without a question tool to ask with, run none and say so in the report.
 
 ## 2. Record a baseline
 
