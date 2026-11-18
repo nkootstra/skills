@@ -5,7 +5,7 @@ argument-hint: "[area or concern to focus on, or 'audit' for a report only]"
 effort: high
 metadata:
   author: Niels Kootstra
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Improve codebase
