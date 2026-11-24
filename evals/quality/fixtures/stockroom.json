@@ -1,0 +1,905 @@
+{
+ "checks": {
+  "facts": "stockroom is a Python command-line tool for a small warehouse: shelves, holds for open orders and prices. Its README says the command line is the public interface. Planted in it: the Shelf class in shelf.py has methods of its own (receive, total, free_space), yet orders.py and audit.py write to, delete from and pop its on_hand and held dicts directly, and report.py works through the same dicts; the rule 'free = on hand minus held' is written in orders.py and twice in report.py, and the rule 'an empty slot is not listed' in orders.py and audit.py. orders.py imports audit.py at the top and audit.py imports orders.py inside check_holds, so the two know each other. The pricing package's __init__.py imports its child discounts.py, and discounts.py imports base_price back from the package inside two functions. db.py holds ten small functions that all take the raw data dict, and code outside calls every one of them; it has three commits, and leaving it alone or tidying it are both acceptable. Not problems, planted as decoys: Product and Order in models.py are frozen dataclasses with no methods, so reading their fields from anywhere is fine and wrapping them in accessors would be a step back; textfmt.py is a small module with two functions and one helper and is fine as it is. No bug is planted.",
+  "run": [
+   "python3",
+   "-m",
+   "stockroom"
+  ],
+  "tests": [
+   "python3",
+   "-m",
+   "unittest",
+   "discover",
+   "-s",
+   "tests",
+   "-t",
+   "."
+  ],
+  "marker": "stockroom/__main__.py",
+  "calls": [
+   [
+    "stock"
+   ],
+   [
+    "orders"
+   ],
+   [
+    "report"
+   ],
+   [
+    "price",
+    "TEA-250",
+    "5",
+    "--tier",
+    "standard"
+   ],
+   [
+    "price",
+    "TEA-250",
+    "20",
+    "--tier",
+    "silver"
+   ],
+   [
+    "price",
+    "TEA-250",
+    "30",
+    "--tier",
+    "gold"
+   ],
+   [
+    "price",
+    "TEA-250",
+    "50",
+    "--tier",
+    "gold"
+   ],
+   [
+    "price",
+    "COF-500",
+    "19",
+    "--tier",
+    "standard"
+   ],
+   [
+    "price",
+    "COF-500",
+    "20",
+    "--tier",
+    "standard"
+   ],
+   [
+    "price",
+    "COF-500",
+    "49",
+    "--tier",
+    "silver"
+   ],
+   [
+    "price",
+    "COF-500",
+    "50",
+    "--tier",
+    "silver"
+   ],
+   [
+    "price",
+    "SUG-1K",
+    "1000",
+    "--tier",
+    "gold"
+   ],
+   [
+    "price",
+    "FIL-100",
+    "7",
+    "--tier",
+    "silver"
+   ],
+   [
+    "price",
+    "CUP-12",
+    "3",
+    "--tier",
+    "bronze"
+   ],
+   [
+    "price",
+    "NOPE-1",
+    "2",
+    "--tier",
+    "gold"
+   ],
+   [
+    "ship",
+    "101"
+   ],
+   [
+    "ship",
+    "102"
+   ],
+   [
+    "ship",
+    "103"
+   ],
+   [
+    "ship",
+    "104"
+   ],
+   [
+    "ship",
+    "999"
+   ],
+   [
+    "cancel",
+    "101"
+   ],
+   [
+    "cancel",
+    "102"
+   ],
+   [
+    "cancel",
+    "103"
+   ],
+   [
+    "cancel",
+    "104"
+   ],
+   [
+    "reserve",
+    "COF-500",
+    "30"
+   ],
+   [
+    "reserve",
+    "COF-500",
+    "37"
+   ],
+   [
+    "reserve",
+    "COF-500",
+    "38"
+   ],
+   [
+    "reserve",
+    "TEA-250",
+    "31"
+   ],
+   [
+    "reserve",
+    "FIL-100",
+    "14"
+   ],
+   [
+    "reserve",
+    "NOPE-1",
+    "1"
+   ],
+   [
+    "receive",
+    "FIL-100",
+    "66"
+   ],
+   [
+    "receive",
+    "FIL-100",
+    "67"
+   ],
+   [
+    "receive",
+    "TEA-250",
+    "0"
+   ],
+   [
+    "receive",
+    "SUG-1K",
+    "150"
+   ],
+   [
+    "recount",
+    "COF-500",
+    "5"
+   ],
+   [
+    "recount",
+    "COF-500",
+    "60"
+   ],
+   [
+    "recount",
+    "TEA-250",
+    "0"
+   ],
+   [
+    "recount",
+    "TEA-250",
+    "20"
+   ],
+   [
+    "recount",
+    "FIL-100",
+    "-3"
+   ],
+   [
+    "recount",
+    "CUP-12",
+    "12"
+   ]
+  ],
+  "trap": [],
+  "source": {
+   "include": "\\.py$",
+   "exclude": "(^|/)tests?/|(^|/)test_"
+  },
+  "tests_regex": {
+   "include": "(^|/)tests?/.*\\.py$|(^|/)test_.*\\.py$",
+   "pattern": "def test_"
+  },
+  "counts": {
+   "outside uses of the shelf's stock dicts, accessors included": "(?<!self)\\.(?:_?on_hand|_?held)\\b(?!\\()|\\.(?:get|set)_(?:on_hand|held)\\w*\\(",
+   "copies of the free-units rule": "_?on_hand(?:\\(\\))?(?:\\.get\\([\\w.]+, 0\\)|\\[[\\w.]+\\])\\s-\\s(?:\\w+\\.)?(?:get_)?_?held",
+   "imports inside a function": "(?m)^[ \\t]+from stockroom",
+   "accessors added to the plain records": "def (?:get_)?(?:sku|name|unit_price|min_stock|customer|tier|status)\\("
+  },
+  "cycles": "python"
+ },
+ "history": {
+  "author": {
+   "name": "Noor de Wit",
+   "email": "noor@stockroom.example"
+  },
+  "initial": {
+   "date": "2026-01-12T10:00:00",
+   "message": "Initial import"
+  },
+  "commits": [
+   {
+    "date": "2026-02-10T09:40:00",
+    "message": "Stop listing empty slots after shipping",
+    "edits": [
+     [
+      "stockroom/orders.py",
+      "",
+      "    if shelf.on_hand[sku] <= 0:\n        del shelf.on_hand[sku]\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-03-04T15:05:00",
+    "message": "Fix: recount to zero left an empty slot listed",
+    "edits": [
+     [
+      "stockroom/audit.py",
+      "    shelf.on_hand[sku] = counted\n",
+      "    if counted <= 0:\n        shelf.on_hand.pop(sku, None)\n    else:\n        shelf.on_hand[sku] = counted\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-04-15T11:20:00",
+    "message": "Raise the volume discount to 8% from 50 units",
+    "edits": [
+     [
+      "stockroom/pricing/discounts.py",
+      "* 0.06",
+      "* 0.08"
+     ]
+    ]
+   },
+   {
+    "date": "2026-04-28T09:55:00",
+    "message": "Find a product's shelf by its shelf code, not by what is on it",
+    "edits": [
+     [
+      "stockroom/db.py",
+      "    for shelf in all_shelves:\n        if sku in shelf.on_hand:\n            return shelf\n    raise UnknownSku(sku)\n\n\ndef orders",
+      "    code = product(data, sku).shelf\n    for shelf in all_shelves:\n        if shelf.code == code:\n            return shelf\n    raise UnknownSku(sku)\n\n\ndef orders"
+     ],
+     [
+      "stockroom/__main__.py",
+      "    shelf = db.shelf_for(data, all_shelves, args.sku)\n    db.product(data, args.sku)\n",
+      "    shelf = db.shelf_for(data, all_shelves, args.sku)\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-05-21T10:02:00",
+    "message": "Fix: recount could leave more held than counted",
+    "edits": [
+     [
+      "stockroom/audit.py",
+      "",
+      "    if shelf.held.get(sku, 0) > max(counted, 0):\n        if counted > 0:\n            shelf.held[sku] = counted\n        else:\n            shelf.held.pop(sku, None)\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-06-18T16:31:00",
+    "message": "Count holds when reporting low stock",
+    "edits": [
+     [
+      "stockroom/report.py",
+      "free = shelf.on_hand.get(p.sku, 0)\n",
+      "free = shelf.on_hand.get(p.sku, 0) - shelf.held.get(p.sku, 0)\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-07-09T09:12:00",
+    "message": "Fix: reserve ignored units already held",
+    "edits": [
+     [
+      "stockroom/orders.py",
+      "free = shelf.on_hand.get(sku, 0)\n    if qty > free:",
+      "free = shelf.on_hand.get(sku, 0) - shelf.held.get(sku, 0)\n    if qty > free:"
+     ]
+    ]
+   },
+   {
+    "date": "2026-07-23T11:40:00",
+    "message": "Fix: an unknown tier crashed pricing and shipping",
+    "edits": [
+     [
+      "stockroom/db.py",
+      "data[\"tiers\"][tier]",
+      "data[\"tiers\"].get(tier, 0.0)"
+     ],
+     [
+      "stockroom/db.py",
+      "\n",
+      "\n\n\ndef tier_names(data):\n    return sorted(data[\"tiers\"])\n"
+     ],
+     [
+      "stockroom/__main__.py",
+      "",
+      "    if args.tier not in db.tier_names(data):\n        raise SystemExit(f\"unknown tier: {args.tier}\")\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-08-27T13:48:00",
+    "message": "Cap the total discount at 15%",
+    "edits": [
+     [
+      "stockroom/pricing/__init__.py",
+      "",
+      "    off = min(off, discounts.cap(product, qty))\n"
+     ],
+     [
+      "stockroom/pricing/discounts.py",
+      "\n",
+      "\n\n\ndef cap(product, qty):\n    from stockroom.pricing import base_price\n\n    return base_price(product, qty) * 0.15\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-09-30T10:27:00",
+    "message": "Fix: shipping did not end the hold",
+    "edits": [
+     [
+      "stockroom/orders.py",
+      "    audit.record(trail, \"ship\"",
+      "    left = shelf.held.get(sku, 0) - qty\n    if left > 0:\n        shelf.held[sku] = left\n    else:\n        shelf.held.pop(sku, None)\n    audit.record(trail, \"ship\""
+     ]
+    ]
+   },
+   {
+    "date": "2026-10-20T14:15:00",
+    "message": "Report holds that no open order explains",
+    "edits": [
+     [
+      "stockroom/audit.py",
+      "\n",
+      "\n\n\ndef check_holds(shelf, open_orders):\n    from stockroom import orders  # imported here: orders imports this module\n\n    problems = []\n    for sku in sorted(shelf.held):\n        wanted = orders.wanted_by(open_orders, sku)\n        if wanted != shelf.held[sku]:\n            problems.append(f\"{shelf.code} {sku}: {shelf.held[sku]} held, open orders want {wanted}\")\n    return problems\n"
+     ],
+     [
+      "stockroom/report.py",
+      "from stockroom import db\n",
+      "from stockroom import audit, db\n"
+     ],
+     [
+      "stockroom/report.py",
+      "",
+      "    problems = [p for shelf in all_shelves for p in audit.check_holds(shelf, db.orders(data))]\n    lines.append(f\"hold problems: {len(problems)}\")\n    lines.extend(problems)\n"
+     ],
+     [
+      "tests/test_orders.py",
+      "",
+      "\n    def test_check_holds_names_holds_no_order_explains(self):\n        open_orders = [Order(1, \"Cafe Noord\", \"silver\", \"open\", ((\"TEA-250\", 50),))]\n        self.assertEqual(audit.check_holds(self.shelf, open_orders), [\"A1 TEA-250: 60 held, open orders want 50\"])\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-11-03T10:18:00",
+    "message": "Fix: shipped orders counted as open in the hold check",
+    "edits": [
+     [
+      "stockroom/db.py",
+      "\n\n\n",
+      "\n\n\ndef open_orders(data):\n    return [o for o in orders(data) if o.status == \"open\"]\n\n\n"
+     ],
+     [
+      "stockroom/report.py",
+      "audit.check_holds(shelf, db.orders(data))",
+      "audit.check_holds(shelf, db.open_orders(data))"
+     ]
+    ]
+   }
+  ]
+ },
+ "golden": {
+  "calls": [
+   [
+    [
+     "stock"
+    ],
+    {
+     "code": 0,
+     "out": "shelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       8     37\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "orders"
+    ],
+    {
+     "code": 0,
+     "out": "id   customer       tier      status   lines\n101  Bakkerij Smit  gold      open     60 TEA-250, 20 SUG-1K\n102  Cafe Noord     silver    open     8 COF-500, 12 CUP-12\n103  Kantine West   standard  shipped  6 FIL-100\n104  Cafe Noord     silver    open     40 COF-500, 20 FIL-100\n"
+    }
+   ],
+   [
+    [
+     "report"
+    ],
+    {
+     "code": 0,
+     "out": "stock value: 1,543.25\nshelf A1: 135 of 200 in use, 65 free\nshelf B2: 150 of 300 in use, 150 free\nshelf C3: 14 of 80 in use, 66 free\nlow stock: 2\nTEA-250  Green tea 250 g      30 free  min 40\nCUP-12   Paper cups, 12 pack  18 free  min 25\nhold problems: 1\nA1 COF-500: 8 held, open orders want 48\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "TEA-250",
+     "5",
+     "--tier",
+     "standard"
+    ],
+    {
+     "code": 0,
+     "out": "5 x Green tea 250 g (standard): 32.00\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "TEA-250",
+     "20",
+     "--tier",
+     "silver"
+    ],
+    {
+     "code": 0,
+     "out": "20 x Green tea 250 g (silver): 117.76\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "TEA-250",
+     "30",
+     "--tier",
+     "gold"
+    ],
+    {
+     "code": 0,
+     "out": "30 x Green tea 250 g (gold): 167.04\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "TEA-250",
+     "50",
+     "--tier",
+     "gold"
+    ],
+    {
+     "code": 0,
+     "out": "50 x Green tea 250 g (gold): 272.00\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "COF-500",
+     "19",
+     "--tier",
+     "standard"
+    ],
+    {
+     "code": 0,
+     "out": "19 x Coffee beans 500 g (standard): 227.05\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "COF-500",
+     "20",
+     "--tier",
+     "standard"
+    ],
+    {
+     "code": 0,
+     "out": "20 x Coffee beans 500 g (standard): 231.83\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "COF-500",
+     "49",
+     "--tier",
+     "silver"
+    ],
+    {
+     "code": 0,
+     "out": "49 x Coffee beans 500 g (silver): 538.71\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "COF-500",
+     "50",
+     "--tier",
+     "silver"
+    ],
+    {
+     "code": 0,
+     "out": "50 x Coffee beans 500 g (silver): 519.83\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "SUG-1K",
+     "1000",
+     "--tier",
+     "gold"
+    ],
+    {
+     "code": 0,
+     "out": "1000 x Cane sugar 1 kg (gold): 1,827.50\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "FIL-100",
+     "7",
+     "--tier",
+     "silver"
+    ],
+    {
+     "code": 0,
+     "out": "7 x Filters, 100 pack (silver): 31.59\n"
+    }
+   ],
+   [
+    [
+     "price",
+     "CUP-12",
+     "3",
+     "--tier",
+     "bronze"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "price",
+     "NOPE-1",
+     "2",
+     "--tier",
+     "gold"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "ship",
+     "101"
+    ],
+    {
+     "code": 0,
+     "out": "60 x Green tea 250 g: 326.40\n20 x Cane sugar 1 kg: 37.41\ntotal for Bakkerij Smit: 363.81\n01 ship     A1 TEA-250 -60\n02 ship     B2 SUG-1K -20\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       8     37\nA1     TEA-250  Green tea 250 g      30       0     30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      100      0     100\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "ship",
+     "102"
+    ],
+    {
+     "code": 0,
+     "out": "8 x Coffee beans 500 g: 90.82\n12 x Paper cups, 12 pack: 39.90\ntotal for Cafe Noord: 130.72\n01 ship     A1 COF-500 -8\n02 ship     B2 CUP-12 -12\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   37       0     37\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  18       0     18\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "ship",
+     "103"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "ship",
+     "104"
+    ],
+    {
+     "code": 1,
+     "out": "40 x Coffee beans 500 g: 439.76\n"
+    }
+   ],
+   [
+    [
+     "ship",
+     "999"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "cancel",
+     "101"
+    ],
+    {
+     "code": 0,
+     "out": "01 release  A1 TEA-250 -60\n02 release  B2 SUG-1K -20\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       8     37\nA1     TEA-250  Green tea 250 g      90       0     90\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      120      0     120\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "cancel",
+     "102"
+    ],
+    {
+     "code": 0,
+     "out": "01 release  A1 COF-500 -8\n02 release  B2 CUP-12 -12\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       0     45\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       0     30\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "cancel",
+     "103"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "cancel",
+     "104"
+    ],
+    {
+     "code": 0,
+     "out": "01 release  A1 COF-500 -40\n02 release  C3 FIL-100 -20\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       0     45\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "reserve",
+     "COF-500",
+     "30"
+    ],
+    {
+     "code": 0,
+     "out": "01 hold     A1 COF-500 +30\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       38    7\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "reserve",
+     "COF-500",
+     "37"
+    ],
+    {
+     "code": 0,
+     "out": "01 hold     A1 COF-500 +37\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       45    0\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "reserve",
+     "COF-500",
+     "38"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "reserve",
+     "TEA-250",
+     "31"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "reserve",
+     "FIL-100",
+     "14"
+    ],
+    {
+     "code": 0,
+     "out": "01 hold     C3 FIL-100 +14\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       8     37\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    14       14    0\n"
+    }
+   ],
+   [
+    [
+     "reserve",
+     "NOPE-1",
+     "1"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "receive",
+     "FIL-100",
+     "66"
+    ],
+    {
+     "code": 0,
+     "out": "shelf C3: 0 free\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       8     37\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      120      20    100\nC3     FIL-100  Filters, 100 pack    80       0     80\n"
+    }
+   ],
+   [
+    [
+     "receive",
+     "FIL-100",
+     "67"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "receive",
+     "TEA-250",
+     "0"
+    ],
+    {
+     "code": 1,
+     "out": ""
+    }
+   ],
+   [
+    [
+     "receive",
+     "SUG-1K",
+     "150"
+    ],
+    {
+     "code": 0,
+     "out": "shelf B2: 0 free\nshelf  sku      name                 on hand  held  free\nA1     COF-500  Coffee beans 500 g   45       8     37\nA1     TEA-250  Green tea 250 g      90       60    30\nB2     CUP-12   Paper cups, 12 pack  30       12    18\nB2     SUG-1K   Cane sugar 1 kg      270      20    250\nC3     FIL-100  Filters, 100 pack    14       0     14\n"
+    }
+   ],
+   [
+    [
+     "recount",
+     "COF-500",
+     "5"
+    ],
+    {
+     "code": 0,
+     "out": "01 recount  A1 COF-500 -40\nstock value: 1,065.25\nshelf A1: 95 of 200 in use, 105 free\nshelf B2: 150 of 300 in use, 150 free\nshelf C3: 14 of 80 in use, 66 free\nlow stock: 3\nTEA-250  Green tea 250 g      30 free  min 40\nCOF-500  Coffee beans 500 g   0 free   min 30\nCUP-12   Paper cups, 12 pack  18 free  min 25\nhold problems: 1\nA1 COF-500: 5 held, open orders want 48\n"
+    }
+   ],
+   [
+    [
+     "recount",
+     "COF-500",
+     "60"
+    ],
+    {
+     "code": 0,
+     "out": "01 recount  A1 COF-500 +15\nstock value: 1,722.50\nshelf A1: 150 of 200 in use, 50 free\nshelf B2: 150 of 300 in use, 150 free\nshelf C3: 14 of 80 in use, 66 free\nlow stock: 2\nTEA-250  Green tea 250 g      30 free  min 40\nCUP-12   Paper cups, 12 pack  18 free  min 25\nhold problems: 1\nA1 COF-500: 8 held, open orders want 48\n"
+    }
+   ],
+   [
+    [
+     "recount",
+     "TEA-250",
+     "0"
+    ],
+    {
+     "code": 0,
+     "out": "01 recount  A1 TEA-250 -90\nstock value: 967.25\nshelf A1: 45 of 200 in use, 155 free\nshelf B2: 150 of 300 in use, 150 free\nshelf C3: 14 of 80 in use, 66 free\nlow stock: 2\nTEA-250  Green tea 250 g      0 free   min 40\nCUP-12   Paper cups, 12 pack  18 free  min 25\nhold problems: 1\nA1 COF-500: 8 held, open orders want 48\n"
+    }
+   ],
+   [
+    [
+     "recount",
+     "TEA-250",
+     "20"
+    ],
+    {
+     "code": 0,
+     "out": "01 recount  A1 TEA-250 -70\nstock value: 1,095.25\nshelf A1: 65 of 200 in use, 135 free\nshelf B2: 150 of 300 in use, 150 free\nshelf C3: 14 of 80 in use, 66 free\nlow stock: 2\nTEA-250  Green tea 250 g      0 free   min 40\nCUP-12   Paper cups, 12 pack  18 free  min 25\nhold problems: 2\nA1 COF-500: 8 held, open orders want 48\nA1 TEA-250: 20 held, open orders want 60\n"
+    }
+   ],
+   [
+    [
+     "recount",
+     "FIL-100",
+     "-3"
+    ],
+    {
+     "code": 0,
+     "out": "01 recount  C3 FIL-100 -14\nstock value: 1,476.75\nshelf A1: 135 of 200 in use, 65 free\nshelf B2: 150 of 300 in use, 150 free\nshelf C3: 0 of 80 in use, 80 free\nlow stock: 3\nTEA-250  Green tea 250 g      30 free  min 40\nCUP-12   Paper cups, 12 pack  18 free  min 25\nFIL-100  Filters, 100 pack    0 free   min 10\nhold problems: 1\nA1 COF-500: 8 held, open orders want 48\n"
+    }
+   ],
+   [
+    [
+     "recount",
+     "CUP-12",
+     "12"
+    ],
+    {
+     "code": 0,
+     "out": "01 recount  B2 CUP-12 -18\nstock value: 1,480.25\nshelf A1: 135 of 200 in use, 65 free\nshelf B2: 132 of 300 in use, 168 free\nshelf C3: 14 of 80 in use, 66 free\nlow stock: 2\nTEA-250  Green tea 250 g      30 free  min 40\nCUP-12   Paper cups, 12 pack  0 free   min 25\nhold problems: 1\nA1 COF-500: 8 held, open orders want 48\n"
+    }
+   ]
+  ],
+  "trap": []
+ },
+ "files": {
+  "README.md": "# stockroom\n\nCommand-line tool for a small warehouse: what is on the shelves, what is held for open orders, what an order costs.\n\n```sh\npython3 -m stockroom stock\npython3 -m stockroom price TEA-250 30 --tier gold\npython3 -m stockroom ship 101\npython3 -m stockroom recount COF-500 12\npython3 -m stockroom report\n```\n\nThe command line is the public interface: the packing station's scripts read its output. Every command starts from\n`data/stock.json` and prints the result; nothing is written back.\n\nTests: `python3 -m unittest discover -s tests -t .`\n",
+  "data/stock.json": "{\n \"tiers\": {\"standard\": 0.0, \"silver\": 0.05, \"gold\": 0.1},\n \"products\": [\n  {\"sku\": \"TEA-250\", \"name\": \"Green tea 250 g\", \"unit_price\": 6.4, \"min_stock\": 40, \"shelf\": \"A1\"},\n  {\"sku\": \"COF-500\", \"name\": \"Coffee beans 500 g\", \"unit_price\": 11.95, \"min_stock\": 30, \"shelf\": \"A1\"},\n  {\"sku\": \"SUG-1K\", \"name\": \"Cane sugar 1 kg\", \"unit_price\": 2.15, \"min_stock\": 60, \"shelf\": \"B2\"},\n  {\"sku\": \"CUP-12\", \"name\": \"Paper cups, 12 pack\", \"unit_price\": 3.5, \"min_stock\": 25, \"shelf\": \"B2\"},\n  {\"sku\": \"FIL-100\", \"name\": \"Filters, 100 pack\", \"unit_price\": 4.75, \"min_stock\": 10, \"shelf\": \"C3\"}\n ],\n \"shelves\": [\n  {\"code\": \"A1\", \"capacity\": 200, \"on_hand\": {\"TEA-250\": 90, \"COF-500\": 45}, \"held\": {\"TEA-250\": 60, \"COF-500\": 8}},\n  {\"code\": \"B2\", \"capacity\": 300, \"on_hand\": {\"SUG-1K\": 120, \"CUP-12\": 30}, \"held\": {\"SUG-1K\": 20, \"CUP-12\": 12}},\n  {\"code\": \"C3\", \"capacity\": 80, \"on_hand\": {\"FIL-100\": 14}, \"held\": {}}\n ],\n \"orders\": [\n  {\"id\": 101, \"customer\": \"Bakkerij Smit\", \"tier\": \"gold\", \"status\": \"open\", \"lines\": [[\"TEA-250\", 60], [\"SUG-1K\", 20]]},\n  {\"id\": 102, \"customer\": \"Cafe Noord\", \"tier\": \"silver\", \"status\": \"open\", \"lines\": [[\"COF-500\", 8], [\"CUP-12\", 12]]},\n  {\"id\": 103, \"customer\": \"Kantine West\", \"tier\": \"standard\", \"status\": \"shipped\", \"lines\": [[\"FIL-100\", 6]]},\n  {\"id\": 104, \"customer\": \"Cafe Noord\", \"tier\": \"silver\", \"status\": \"open\", \"lines\": [[\"COF-500\", 40], [\"FIL-100\", 20]]}\n ]\n}\n",
+  "stockroom/__init__.py": "",
+  "stockroom/__main__.py": "import argparse\nimport os\nimport sys\n\nfrom stockroom import audit, db, orders, pricing, report\nfrom stockroom.shelf import ShelfFull\nfrom stockroom.textfmt import money, table\n\nDATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), \"data\", \"stock.json\")\n\n\ndef cmd_stock(data, args):\n    print(table(report.stock_rows(data, db.shelves(data))))\n\n\ndef cmd_price(data, args):\n    if args.tier not in db.tier_names(data):\n        raise SystemExit(f\"unknown tier: {args.tier}\")\n    product = db.product(data, args.sku)\n    total = pricing.line_total(product, args.qty, db.tier_rate(data, args.tier))\n    print(f\"{args.qty} x {product.name} ({args.tier}): {money(total)}\")\n\n\ndef cmd_orders(data, args):\n    rows = [(\"id\", \"customer\", \"tier\", \"status\", \"lines\")]\n    for o in db.orders(data):\n        rows.append((o.id, o.customer, o.tier, o.status, \", \".join(f\"{q} {s}\" for s, q in o.lines)))\n    print(table(rows))\n\n\ndef cmd_ship(data, args):\n    order = db.order(data, args.order)\n    if order.status != \"open\":\n        raise SystemExit(f\"order {order.id} is {order.status}\")\n    all_shelves, trail, totals = db.shelves(data), [], []\n    rate = db.tier_rate(data, order.tier)\n    for sku, qty in order.lines:\n        orders.ship(db.shelf_for(data, all_shelves, sku), sku, qty, trail)\n        product = db.product(data, sku)\n        totals.append(pricing.line_total(product, qty, rate))\n        print(f\"{qty} x {product.name}: {money(totals[-1])}\")\n    print(f\"total for {order.customer}: {money(pricing.order_total(totals))}\")\n    print(\"\\n\".join(trail))\n    print(table(report.stock_rows(data, all_shelves)))\n\n\ndef cmd_cancel(data, args):\n    order = db.order(data, args.order)\n    if order.status != \"open\":\n        raise SystemExit(f\"order {order.id} is {order.status}\")\n    all_shelves, trail = db.shelves(data), []\n    for sku, qty in order.lines:\n        orders.release(db.shelf_for(data, all_shelves, sku), sku, qty, trail)\n    print(\"\\n\".join(trail))\n    print(table(report.stock_rows(data, all_shelves)))\n\n\ndef cmd_reserve(data, args):\n    all_shelves, trail = db.shelves(data), []\n    orders.reserve(db.shelf_for(data, all_shelves, args.sku), args.sku, args.qty, trail)\n    print(\"\\n\".join(trail))\n    print(table(report.stock_rows(data, all_shelves)))\n\n\ndef cmd_receive(data, args):\n    all_shelves = db.shelves(data)\n    shelf = db.shelf_for(data, all_shelves, args.sku)\n    shelf.receive(args.sku, args.qty)\n    print(f\"shelf {shelf.code}: {shelf.free_space()} free\")\n    print(table(report.stock_rows(data, all_shelves)))\n\n\ndef cmd_recount(data, args):\n    all_shelves, trail = db.shelves(data), []\n    audit.recount(db.shelf_for(data, all_shelves, args.sku), args.sku, args.counted, trail)\n    print(\"\\n\".join(trail))\n    print(report.summary(data, all_shelves))\n\n\ndef cmd_report(data, args):\n    print(report.summary(data, db.shelves(data)))\n\n\ndef main(argv=None):\n    parser = argparse.ArgumentParser(prog=\"stockroom\")\n    sub = parser.add_subparsers(dest=\"command\", required=True)\n    sub.add_parser(\"stock\").set_defaults(run=cmd_stock)\n    sub.add_parser(\"orders\").set_defaults(run=cmd_orders)\n    sub.add_parser(\"report\").set_defaults(run=cmd_report)\n    p = sub.add_parser(\"price\")\n    p.add_argument(\"sku\")\n    p.add_argument(\"qty\", type=int)\n    p.add_argument(\"--tier\", default=\"standard\")\n    p.set_defaults(run=cmd_price)\n    for name, run in ((\"ship\", cmd_ship), (\"cancel\", cmd_cancel)):\n        p = sub.add_parser(name)\n        p.add_argument(\"order\", type=int)\n        p.set_defaults(run=run)\n    for name, run in ((\"reserve\", cmd_reserve), (\"receive\", cmd_receive)):\n        p = sub.add_parser(name)\n        p.add_argument(\"sku\")\n        p.add_argument(\"qty\", type=int)\n        p.set_defaults(run=run)\n    p = sub.add_parser(\"recount\")\n    p.add_argument(\"sku\")\n    p.add_argument(\"counted\", type=int)\n    p.set_defaults(run=cmd_recount)\n    args = parser.parse_args(argv)\n    try:\n        args.run(db.read(DATA), args)\n    except db.UnknownSku as exc:\n        raise SystemExit(f\"unknown sku: {exc}\")\n    except db.UnknownOrder as exc:\n        raise SystemExit(f\"unknown order: {exc}\")\n    except (orders.Shortage, ShelfFull, ValueError) as exc:\n        raise SystemExit(str(exc))\n\n\nif __name__ == \"__main__\":\n    main(sys.argv[1:])\n",
+  "stockroom/audit.py": "def record(trail, action, shelf_code, sku, qty):\n    trail.append(f\"{len(trail) + 1:02d} {action:<8} {shelf_code} {sku} {qty:+d}\")\n\n\ndef recount(shelf, sku, counted, trail):\n    before = shelf.on_hand.get(sku, 0)\n    if counted <= 0:\n        shelf.on_hand.pop(sku, None)\n    else:\n        shelf.on_hand[sku] = counted\n    if shelf.held.get(sku, 0) > max(counted, 0):\n        if counted > 0:\n            shelf.held[sku] = counted\n        else:\n            shelf.held.pop(sku, None)\n    record(trail, \"recount\", shelf.code, sku, max(counted, 0) - before)\n\n\ndef check_holds(shelf, open_orders):\n    from stockroom import orders  # imported here: orders imports this module\n\n    problems = []\n    for sku in sorted(shelf.held):\n        wanted = orders.wanted_by(open_orders, sku)\n        if wanted != shelf.held[sku]:\n            problems.append(f\"{shelf.code} {sku}: {shelf.held[sku]} held, open orders want {wanted}\")\n    return problems\n",
+  "stockroom/db.py": "import json\n\nfrom stockroom.models import Order, Product\nfrom stockroom.shelf import Shelf\n\n\nclass UnknownSku(Exception):\n    pass\n\n\nclass UnknownOrder(Exception):\n    pass\n\n\ndef read(path):\n    with open(path, encoding=\"utf-8\") as fh:\n        return json.load(fh)\n\n\ndef _product_from(row):\n    return Product(row[\"sku\"], row[\"name\"], row[\"unit_price\"], row[\"min_stock\"], row[\"shelf\"])\n\n\ndef _order_from(row):\n    return Order(row[\"id\"], row[\"customer\"], row[\"tier\"], row[\"status\"], tuple((s, q) for s, q in row[\"lines\"]))\n\n\ndef products(data):\n    return [_product_from(row) for row in data[\"products\"]]\n\n\ndef product(data, sku):\n    for row in data[\"products\"]:\n        if row[\"sku\"] == sku:\n            return _product_from(row)\n    raise UnknownSku(sku)\n\n\ndef shelves(data):\n    return [Shelf(row[\"code\"], row[\"capacity\"], row[\"on_hand\"], row[\"held\"]) for row in data[\"shelves\"]]\n\n\ndef shelf_for(data, all_shelves, sku):\n    code = product(data, sku).shelf\n    for shelf in all_shelves:\n        if shelf.code == code:\n            return shelf\n    raise UnknownSku(sku)\n\n\ndef orders(data):\n    return [_order_from(row) for row in data[\"orders\"]]\n\n\ndef open_orders(data):\n    return [o for o in orders(data) if o.status == \"open\"]\n\n\ndef order(data, order_id):\n    for o in orders(data):\n        if o.id == order_id:\n            return o\n    raise UnknownOrder(str(order_id))\n\n\ndef tier_rate(data, tier):\n    return data[\"tiers\"].get(tier, 0.0)\n\n\ndef tier_names(data):\n    return sorted(data[\"tiers\"])\n",
+  "stockroom/models.py": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Product:\n    sku: str\n    name: str\n    unit_price: float\n    min_stock: int\n    shelf: str\n\n\n@dataclass(frozen=True)\nclass Order:\n    id: int\n    customer: str\n    tier: str\n    status: str\n    lines: tuple\n",
+  "stockroom/orders.py": "from stockroom import audit\n\n\nclass Shortage(Exception):\n    pass\n\n\ndef wanted_by(open_orders, sku):\n    return sum(qty for o in open_orders for s, qty in o.lines if s == sku)\n\n\ndef reserve(shelf, sku, qty, trail):\n    free = shelf.on_hand.get(sku, 0) - shelf.held.get(sku, 0)\n    if qty > free:\n        raise Shortage(f\"{sku}: wanted {qty}, {free} free on shelf {shelf.code}\")\n    shelf.held[sku] = shelf.held.get(sku, 0) + qty\n    audit.record(trail, \"hold\", shelf.code, sku, qty)\n\n\ndef release(shelf, sku, qty, trail):\n    left = shelf.held.get(sku, 0) - qty\n    if left > 0:\n        shelf.held[sku] = left\n    else:\n        shelf.held.pop(sku, None)\n    audit.record(trail, \"release\", shelf.code, sku, -qty)\n\n\ndef ship(shelf, sku, qty, trail):\n    if qty > shelf.on_hand.get(sku, 0):\n        raise Shortage(f\"{sku}: wanted {qty}, {shelf.on_hand.get(sku, 0)} on shelf {shelf.code}\")\n    shelf.on_hand[sku] = shelf.on_hand[sku] - qty\n    if shelf.on_hand[sku] <= 0:\n        del shelf.on_hand[sku]\n    left = shelf.held.get(sku, 0) - qty\n    if left > 0:\n        shelf.held[sku] = left\n    else:\n        shelf.held.pop(sku, None)\n    audit.record(trail, \"ship\", shelf.code, sku, -qty)\n",
+  "stockroom/pricing/__init__.py": "from stockroom.pricing import discounts\n\n\ndef round_money(amount):\n    return round(amount + 1e-9, 2)\n\n\ndef base_price(product, qty):\n    return product.unit_price * qty\n\n\ndef line_total(product, qty, tier_rate):\n    gross = base_price(product, qty)\n    off = discounts.volume_discount(product, qty) + discounts.tier_discount(gross, tier_rate)\n    off = min(off, discounts.cap(product, qty))\n    return round_money(gross - off)\n\n\ndef order_total(lines):\n    return round_money(sum(lines))\n",
+  "stockroom/pricing/discounts.py": "def volume_discount(product, qty):\n    from stockroom.pricing import base_price  # imported here: the package imports this module\n\n    if qty >= 50:\n        return base_price(product, qty) * 0.08\n    if qty >= 20:\n        return base_price(product, qty) * 0.03\n    return 0.0\n\n\ndef tier_discount(gross, tier_rate):\n    return gross * tier_rate\n\n\ndef cap(product, qty):\n    from stockroom.pricing import base_price\n\n    return base_price(product, qty) * 0.15\n",
+  "stockroom/report.py": "from stockroom import audit, db\nfrom stockroom.pricing import round_money\nfrom stockroom.textfmt import money, table\n\n\ndef stock_rows(data, all_shelves):\n    rows = [(\"shelf\", \"sku\", \"name\", \"on hand\", \"held\", \"free\")]\n    for shelf in all_shelves:\n        for sku in sorted(shelf.on_hand):\n            held = shelf.held.get(sku, 0)\n            rows.append((shelf.code, sku, db.product(data, sku).name, shelf.on_hand[sku], held, shelf.on_hand[sku] - held))\n    return rows\n\n\ndef low_stock(data, all_shelves):\n    low = []\n    for p in db.products(data):\n        shelf = db.shelf_for(data, all_shelves, p.sku)\n        free = shelf.on_hand.get(p.sku, 0) - shelf.held.get(p.sku, 0)\n        if free < p.min_stock:\n            low.append((p.sku, p.name, free, p.min_stock))\n    return low\n\n\ndef stock_value(data, all_shelves):\n    total = 0.0\n    for shelf in all_shelves:\n        for sku, qty in shelf.on_hand.items():\n            total += db.product(data, sku).unit_price * qty\n    return round_money(total)\n\n\ndef summary(data, all_shelves):\n    lines = [f\"stock value: {money(stock_value(data, all_shelves))}\"]\n    for shelf in all_shelves:\n        lines.append(f\"shelf {shelf.code}: {shelf.total()} of {shelf.capacity} in use, {shelf.free_space()} free\")\n    low = low_stock(data, all_shelves)\n    lines.append(f\"low stock: {len(low)}\")\n    if low:\n        lines.append(table([(sku, name, f\"{free} free\", f\"min {minimum}\") for sku, name, free, minimum in low]))\n    problems = [p for shelf in all_shelves for p in audit.check_holds(shelf, db.open_orders(data))]\n    lines.append(f\"hold problems: {len(problems)}\")\n    lines.extend(problems)\n    return \"\\n\".join(lines)\n",
+  "stockroom/shelf.py": "class ShelfFull(Exception):\n    pass\n\n\nclass Shelf:\n    def __init__(self, code, capacity, on_hand=None, held=None):\n        self.code = code\n        self.capacity = capacity\n        self.on_hand = dict(on_hand or {})\n        self.held = dict(held or {})\n\n    def receive(self, sku, qty):\n        if qty <= 0:\n            raise ValueError(\"quantity must be positive\")\n        if self.total() + qty > self.capacity:\n            raise ShelfFull(f\"shelf {self.code} holds {self.capacity}, {self.total()} in use\")\n        self.on_hand[sku] = self.on_hand.get(sku, 0) + qty\n\n    def total(self):\n        return sum(self.on_hand.values())\n\n    def free_space(self):\n        return self.capacity - self.total()\n",
+  "stockroom/textfmt.py": "def money(amount):\n    return f\"{amount:,.2f}\"\n\n\ndef _widths(rows):\n    return [max(len(str(row[i])) for row in rows) for i in range(len(rows[0]))]\n\n\ndef table(rows):\n    if not rows:\n        return \"\"\n    widths = _widths(rows)\n    return \"\\n\".join(\"  \".join(str(cell).ljust(w) for cell, w in zip(row, widths)).rstrip() for row in rows)\n",
+  "tests/__init__.py": "",
+  "tests/test_orders.py": "import unittest\n\nfrom stockroom import audit, orders\nfrom stockroom.models import Order\nfrom stockroom.shelf import Shelf\n\n\nclass OrdersTest(unittest.TestCase):\n    def setUp(self):\n        self.shelf = Shelf(\"A1\", 200, {\"TEA-250\": 90, \"COF-500\": 45}, {\"TEA-250\": 60})\n        self.trail = []\n\n    def test_reserve_counts_existing_holds(self):\n        orders.reserve(self.shelf, \"TEA-250\", 30, self.trail)\n        with self.assertRaises(orders.Shortage):\n            orders.reserve(self.shelf, \"TEA-250\", 1, self.trail)\n        self.assertEqual(self.trail, [\"01 hold     A1 TEA-250 +30\"])\n\n    def test_ship_ends_the_hold_and_drops_an_empty_slot(self):\n        orders.ship(self.shelf, \"TEA-250\", 60, self.trail)\n        orders.ship(self.shelf, \"COF-500\", 45, self.trail)\n        self.assertEqual(self.shelf.total(), 30)\n        orders.reserve(self.shelf, \"TEA-250\", 30, self.trail)\n        with self.assertRaises(orders.Shortage):\n            orders.ship(self.shelf, \"COF-500\", 1, self.trail)\n\n    def test_recount_cannot_leave_more_held_than_counted(self):\n        audit.recount(self.shelf, \"TEA-250\", 20, self.trail)\n        with self.assertRaises(orders.Shortage):\n            orders.reserve(self.shelf, \"TEA-250\", 1, self.trail)\n        self.assertEqual(self.trail, [\"01 recount  A1 TEA-250 -70\"])\n\n    def test_check_holds_names_holds_no_order_explains(self):\n        open_orders = [Order(1, \"Cafe Noord\", \"silver\", \"open\", ((\"TEA-250\", 50),))]\n        self.assertEqual(audit.check_holds(self.shelf, open_orders), [\"A1 TEA-250: 60 held, open orders want 50\"])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+  "tests/test_pricing.py": "import unittest\n\nfrom stockroom import pricing\nfrom stockroom.models import Product\n\nTEA = Product(\"TEA-250\", \"Green tea 250 g\", 6.4, 40, \"A1\")\n\n\nclass PricingTest(unittest.TestCase):\n    def test_small_order_pays_list_price(self):\n        self.assertEqual(pricing.line_total(TEA, 5, 0.0), 32.0)\n\n    def test_volume_and_tier_discounts_add_up(self):\n        self.assertEqual(pricing.line_total(TEA, 20, 0.05), 117.76)\n\n    def test_discount_is_capped(self):\n        self.assertEqual(pricing.line_total(TEA, 50, 0.1), 272.0)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+  "tests/test_shelf.py": "import unittest\n\nfrom stockroom.shelf import Shelf, ShelfFull\n\n\nclass ShelfTest(unittest.TestCase):\n    def test_receive_adds_units(self):\n        shelf = Shelf(\"A1\", 100, {\"TEA-250\": 10})\n        shelf.receive(\"TEA-250\", 5)\n        shelf.receive(\"COF-500\", 3)\n        self.assertEqual(shelf.total(), 18)\n        self.assertEqual(shelf.free_space(), 82)\n\n    def test_receive_refuses_more_than_capacity(self):\n        shelf = Shelf(\"A1\", 12, {\"TEA-250\": 10})\n        with self.assertRaises(ShelfFull):\n            shelf.receive(\"TEA-250\", 3)\n        self.assertEqual(shelf.total(), 10)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+ }
+}

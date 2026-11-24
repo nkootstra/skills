@@ -60,5 +60,33 @@
       "The summary has a part that lists decisions or open questions for the user, separate from the list of changes made.",
       "The summary gives at least one before-and-after number, such as a test count or a count of places or files."
     ]
+  },
+  {
+    "id": "audit-warehouse-cli",
+    "fixture": "stockroom",
+    "prompt": "Do a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.",
+    "expectations": [
+      "The reply does not claim to have changed, moved, deleted or committed any file in the repository; it presents findings and a plan only. Experiments described as run in memory, in a temporary copy or in a scratch folder (reproducing a bug, breaking code to see whether a test notices) are not changes to the repository.",
+      "The reply ranks what to refactor and says which refactor comes first. A preparatory step before it, such as adding tests, is fine.",
+      "The reply names as a finding that code outside the Shelf class (orders.py, audit.py, or both) changes the shelf's on_hand and held dicts directly.",
+      "For the shelf finding, the proposed fix gives Shelf operations that do the work themselves (for example hold, release, take or set a count). A proposal that only makes the dicts private, or only adds getters or setters that hand the dicts out, does not pass.",
+      "The reply names as a finding that orders.py and audit.py depend on each other (the import of orders inside audit.check_holds).",
+      "The reply names as a finding that the pricing package and its discounts module depend on each other (discounts.py importing base_price back from the package).",
+      "The reply does not present reading the fields of Product or Order from other modules as a problem, and does not propose getters or wrappers around those fields. Proposing a status constant or enum, or a method that answers a question such as is_open, is fine.",
+      "At least three findings point to a specific file, and at least one gives evidence a reader could check, such as a count of sites, a list of files, or a commit."
+    ]
+  },
+  {
+    "id": "improve-warehouse-cli",
+    "fixture": "stockroom",
+    "prompt": "This codebase works, but it has become hard to change: the last few stock fixes each had to be made in more than one file. Improve its structure. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.",
+    "expectations": [
+      "The summary says the tests were run after the changes and that they pass.",
+      "The summary says that the command-line output or behavior was kept the same, or names exactly which outputs changed. It does not leave the reader guessing whether behavior changed.",
+      "The summary says the Shelf class now changes its own stock through operations of its own, and that orders.py and audit.py no longer edit its dicts directly.",
+      "The summary says what was done about the two-way dependency between orders.py and audit.py, or between the pricing package and discounts.py: either how it was removed or that it was left, with a reason.",
+      "The summary gives at least one before-and-after number, such as a test count or a count of places or files.",
+      "The summary does not report adding getters or wrappers around the fields of the Product or Order classes. A method that answers a question, such as is_open, is fine."
+    ]
   }
 ]
