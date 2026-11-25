@@ -72,7 +72,7 @@ Read safe-changes.md first. One cause per commit, in rank order. Before each ste
 
 A batch is the commits for one group. After each batch, rerun the evidence of every entry you marked done: if the grep still matches or the count has not dropped, the entry is still open. Then read the changed areas again as if for the first time, or hand them to a subagent that has not seen the ledger, and add what turns up. Do this at most three times in a run. Stop when a fresh read adds no FIX or REDESIGN entry in the top half by hotspot score, or when every remaining entry is LEAVE or ASK. Every FIX and REDESIGN entry must end done, or moved to LEAVE or ASK with a reason. Then run the full baseline once more and compare it with step 2.
 
-Report with the template in ledger.md: which optional passes ran, the result of every check after the last commit, what changed and why, the numbers before and after, every ASK with the decision it needs, what was left and why, and what you could not verify. Keep observed facts and judgment in separate sentences.
+Report with the template in ledger.md; read it now if it is not in context, and keep its section headings. The report says which optional passes ran, whether observable behavior is unchanged, the result of every check after the last commit, what changed and why, the numbers before and after, the check that would catch each removed cause coming back, every ASK with the decision it needs, what was left and why, and what you could not verify. Keep observed facts and judgment in separate sentences.
 
 ## Companion skills
 

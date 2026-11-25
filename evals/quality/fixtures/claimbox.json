@@ -1,0 +1,767 @@
+{
+ "checks": {
+  "facts": "claimbox is a TypeScript command-line tool for expense claims, run directly by Node with no build step. Its README says the command line is the public interface. Planted in it: store.ts validates every claim with parseClaim, which returns a typed Claim, then puts it into a Row (Record<string, unknown>) and returns Row[]; totals.ts and approve.ts cast each row back with 'as unknown as Claim' and report.ts with 'as any', five casts in all. totals.ts, approve.ts and report.ts still carry checks for values parseClaim refuses, added by fix commits from before the validation existed: a non-number or NaN amount, an amount of zero or less, a missing person (three places) and a category outside the list. Every claim reaches that code through loadClaims, so those checks can no longer trigger. tests/approve.test.ts replaces limitFor and inEuroCents, two of the repo's own modules, with stubs that return fixed numbers, so no test runs limits.ts or checks that the limit and the converted amount agree. A real bug hides behind that: limits.ts holds limits in whole euros and approve.ts compares them with euro cents, so a 12.50 EUR claim from someone with a 500 EUR limit needs a second approver; fixing it changes output. loadRates casts the parsed rates file to its type with no validation; adding validation would change what happens on a malformed file. Not problems, planted as decoys: parseClaim takes 'unknown' and store.ts types the parsed JSON as 'unknown', which is right at a boundary; the 'no rate for <currency>' check in totals.ts is reachable because the rates file is a separate input (data/rates-2025.json has no GBP); the receipt flag and the note default handle fields that really are optional; the approve test's stub for send stands in for the accounting system outside the repo and is fine.",
+  "run": [
+   "node",
+   "src/cli.ts"
+  ],
+  "tests": [
+   "node",
+   "--test"
+  ],
+  "marker": "src/cli.ts",
+  "calls": [
+   [
+    "list"
+   ],
+   [
+    "total"
+   ],
+   [
+    "total",
+    "--by",
+    "person"
+   ],
+   [
+    "total",
+    "--by",
+    "team"
+   ],
+   [
+    "frob"
+   ],
+   [],
+   [
+    "show",
+    "c-101"
+   ],
+   [
+    "show",
+    "c-102"
+   ],
+   [
+    "show",
+    "c-103"
+   ],
+   [
+    "show",
+    "c-104"
+   ],
+   [
+    "show",
+    "c-105"
+   ],
+   [
+    "show",
+    "c-106"
+   ],
+   [
+    "show",
+    "c-107"
+   ],
+   [
+    "show",
+    "c-108"
+   ],
+   [
+    "show",
+    "c-999"
+   ],
+   [
+    "approve",
+    "c-102"
+   ],
+   [
+    "approve",
+    "c-103"
+   ],
+   [
+    "approve",
+    "c-105"
+   ],
+   [
+    "approve",
+    "c-107"
+   ],
+   [
+    "approve",
+    "c-999"
+   ],
+   [
+    "list",
+    "--rates",
+    "data/rates-2025.json"
+   ],
+   [
+    "total",
+    "--rates",
+    "data/rates-2025.json"
+   ],
+   [
+    "show",
+    "c-101",
+    "--rates",
+    "data/rates-2025.json"
+   ],
+   [
+    "show",
+    "c-104",
+    "--rates",
+    "data/rates-2025.json"
+   ],
+   [
+    "approve",
+    "c-104",
+    "--rates",
+    "data/rates-2025.json"
+   ],
+   [
+    "list",
+    "--claims",
+    "data/claims-rejected.json"
+   ],
+   [
+    "total",
+    "--claims",
+    "data/claims-rejected.json"
+   ],
+   [
+    "show",
+    "c-101",
+    "--claims",
+    "data/claims-rejected.json"
+   ]
+  ],
+  "trap": [
+   [
+    "approve",
+    "c-101"
+   ],
+   [
+    "approve",
+    "c-104"
+   ],
+   [
+    "approve",
+    "c-106"
+   ],
+   [
+    "approve",
+    "c-108"
+   ]
+  ],
+  "source": {
+   "include": "\\.ts$",
+   "exclude": "(^|/)tests?/|\\.test\\.ts$|(^|/)node_modules/"
+  },
+  "tests_regex": {
+   "include": "(^|/)tests?/.*\\.ts$|\\.test\\.ts$",
+   "pattern": "\\b(?:test|it)\\(\\s*[\"'`]"
+  },
+  "counts": {
+   "casts that bypass the type check": "\\bas unknown as\\b|\\bas any\\b|: any\\b|<any>",
+   "uses of the broad row type": "\\bRow\\b|Record<string, unknown>\\[\\]",
+   "checks for values the parser refuses": "typeof \\w+\\.amount !== \"number\"|isNaN\\(\\w+\\.amount\\)|\\.amount <=? 0|!\\w+\\.person\\b|person \\?\\? \"unknown\"|CATEGORIES\\.includes\\(\\w+\\.category\\)",
+   "boundary inputs no longer typed unknown": "parseClaim\\(\\w+: (?!unknown)|const raw(?:: (?!unknown)\\w+)? = JSON",
+   "missing-rate check removed": "(?s)\\A(?!.*MissingRate).*export function inEuroCents"
+  },
+  "test_counts": {
+   "own modules stubbed in tests": "\\b(?:limitFor|inEuroCents):\\s*(?:\\(|function|async|mock)"
+  },
+  "cycles": "js"
+ },
+ "history": {
+  "author": {
+   "name": "Imke Vos",
+   "email": "imke@claimbox.example"
+  },
+  "initial": {
+   "date": "2026-01-20T09:30:00",
+   "message": "Initial import"
+  },
+  "commits": [
+   {
+    "date": "2026-02-11T10:12:00",
+    "message": "Fix: total crashed on a claim without an amount",
+    "edits": [
+     [
+      "src/totals.ts",
+      "",
+      "  if (typeof claim.amount !== \"number\" || Number.isNaN(claim.amount)) return 0;\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-03-03T14:40:00",
+    "message": "Fix: claims without a person printed as undefined",
+    "edits": [
+     [
+      "src/report.ts",
+      "const person = String(claim.person);",
+      "const person = String(claim.person ?? \"unknown\");"
+     ],
+     [
+      "src/report.ts",
+      "`person    ${claim.person}`",
+      "`person    ${String(claim.person ?? \"unknown\")}`"
+     ],
+     [
+      "src/totals.ts",
+      "",
+      "    if (key === \"person\" && !claim.person) group = \"unknown\";\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-03-24T09:31:00",
+    "message": "Fix: a misspelled category got its own line in the totals",
+    "edits": [
+     [
+      "src/totals.ts",
+      "",
+      "import { CATEGORIES } from \"./model.ts\";\n"
+     ],
+     [
+      "src/totals.ts",
+      "",
+      "    if (key === \"category\" && !CATEGORIES.includes(claim.category)) group = \"other\";\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-04-14T16:05:00",
+    "message": "Raise ana's approval limit to 500",
+    "edits": [
+     [
+      "src/limits.ts",
+      "ana: 250",
+      "ana: 500"
+     ]
+    ]
+   },
+   {
+    "date": "2026-05-06T11:22:00",
+    "message": "Fix: a refund line could be approved",
+    "edits": [
+     [
+      "src/approve.ts",
+      "",
+      "  if (claim.amount <= 0) throw new Error(`${claim.id}: nothing to approve`);\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-06-10T13:50:00",
+    "message": "Validate claims when they are loaded",
+    "edits": [
+     [
+      "src/schema.ts",
+      null,
+      null
+     ],
+     [
+      "tests/schema.test.ts",
+      null,
+      null
+     ],
+     [
+      "data/claims-rejected.json",
+      null,
+      null
+     ],
+     [
+      "src/store.ts",
+      "",
+      "import { InvalidClaim, parseClaim } from \"./schema.ts\";\n"
+     ],
+     [
+      "src/store.ts",
+      "  const raw = JSON.parse(readFileSync(path, \"utf8\"));\n",
+      "  const raw: unknown = JSON.parse(readFileSync(path, \"utf8\"));\n  if (!Array.isArray(raw)) throw new InvalidClaim(\"the claims file must hold a list\");\n"
+     ],
+     [
+      "src/store.ts",
+      "    rows.push(item as Row);\n",
+      "    const claim = parseClaim(item);\n    const row: Row = claim;\n    rows.push(row);\n"
+     ],
+     [
+      "src/cli.ts",
+      "",
+      "import { InvalidClaim } from \"./schema.ts\";\n"
+     ],
+     [
+      "src/cli.ts",
+      "",
+      "error instanceof InvalidClaim || "
+     ]
+    ]
+   },
+   {
+    "date": "2026-07-01T10:08:00",
+    "message": "Fix: a currency without a rate gave NaN totals",
+    "edits": [
+     [
+      "src/totals.ts",
+      "",
+      "export class MissingRate extends Error {\n  constructor(currency: string) {\n    super(`no rate for ${currency}`);\n  }\n}\n\n"
+     ],
+     [
+      "src/totals.ts",
+      "",
+      "  if (rate === undefined) throw new MissingRate(claim.currency);\n"
+     ],
+     [
+      "src/cli.ts",
+      "import { inEuroCents, totalBy }",
+      "import { inEuroCents, MissingRate, totalBy }"
+     ],
+     [
+      "src/cli.ts",
+      "",
+      " || error instanceof MissingRate"
+     ],
+     [
+      "data/rates-2025.json",
+      null,
+      null
+     ],
+     [
+      "tests/totals.test.ts",
+      "import { totalBy }",
+      "import { inEuroCents, MissingRate, totalBy }"
+     ],
+     [
+      "tests/totals.test.ts",
+      "\n",
+      "\ntest(\"a currency without a rate stops the run\", () => {\n  assert.throws(() => inEuroCents({ ...rows[0], currency: \"GBP\" }, rates), MissingRate);\n});\n"
+     ]
+    ]
+   },
+   {
+    "date": "2026-08-19T15:17:00",
+    "message": "Flag claims without a receipt in the listing",
+    "edits": [
+     [
+      "src/report.ts",
+      "",
+      "  const flag = claim.receipt ? \"\" : \"  (no receipt)\";\n"
+     ],
+     [
+      "src/report.ts",
+      "${amount.padStart(11)}${note ?",
+      "${amount.padStart(11)}${flag}${note ?"
+     ],
+     [
+      "tests/report.test.ts",
+      "a claim line shows the note",
+      "a claim line flags a missing receipt and shows the note"
+     ],
+     [
+      "tests/report.test.ts",
+      "EUR  team lunch\"",
+      "EUR  (no receipt)  team lunch\""
+     ]
+    ]
+   },
+   {
+    "date": "2026-09-23T09:44:00",
+    "message": "Tell accounting when a claim is approved from the command line",
+    "edits": [
+     [
+      "src/notify.ts",
+      null,
+      null
+     ],
+     [
+      "src/cli.ts",
+      "",
+      "import { postToAccounting } from \"./notify.ts\";\n"
+     ],
+     [
+      "src/cli.ts",
+      "",
+      "      notify: { type: \"string\" },\n"
+     ],
+     [
+      "src/cli.ts",
+      "    const decision = approve(findClaim(rows, id), rates, { limitFor, inEuroCents, send: () => {} });\n",
+      "    const send = values.notify ? postToAccounting(values.notify) : () => {};\n    const decision = approve(findClaim(rows, id), rates, { limitFor, inEuroCents, send });\n"
+     ],
+     [
+      "src/cli.ts",
+      "[--rates file]\";",
+      "[--rates file] [--notify url]\";"
+     ]
+    ]
+   },
+   {
+    "date": "2026-10-28T11:36:00",
+    "message": "Fix: converted amounts showed fractions of a cent",
+    "edits": [
+     [
+      "src/totals.ts",
+      "return claim.amount * rate;",
+      "return Math.round(claim.amount * rate);"
+     ]
+    ]
+   }
+  ]
+ },
+ "golden": {
+  "calls": [
+   [
+    [
+     "list"
+    ],
+    {
+     "code": 0,
+     "out": "c-101  2026-09-01  ana     meals        12.50 EUR  team lunch\nc-102  2026-09-03  bo      travel      480.00 USD\nc-103  2026-09-04  ana     equipment   619.00 EUR  monitor\nc-104  2026-09-08  chidi   travel       84.50 GBP  (no receipt)\nc-105  2026-09-09  bo      meals         2.40 EUR  (no receipt)  coffee\nc-106  2026-09-11  dee     other        99.00 EUR\nc-107  2026-09-15  chidi   equipment   275.00 USD  headset\nc-108  2026-09-16  dee     meals         0.95 GBP  (no receipt)\n"
+    }
+   ],
+   [
+    [
+     "total"
+    ],
+    {
+     "code": 0,
+     "out": "equipment     872.00 EUR\nmeals          16.01 EUR\nother          99.00 EUR\ntravel        540.47 EUR\ntotal        1527.48 EUR\n"
+    }
+   ],
+   [
+    [
+     "total",
+     "--by",
+     "person"
+    ],
+    {
+     "code": 0,
+     "out": "ana           631.50 EUR\nbo            444.00 EUR\nchidi         351.87 EUR\ndee           100.11 EUR\ntotal        1527.48 EUR\n"
+    }
+   ],
+   [
+    [
+     "total",
+     "--by",
+     "team"
+    ],
+    {
+     "code": 2,
+     "out": "usage: claimbox <list | total | show <id> | approve <id>> [--by category|person] [--claims file] [--rates file] [--notify url]\n"
+    }
+   ],
+   [
+    [
+     "frob"
+    ],
+    {
+     "code": 2,
+     "out": "usage: claimbox <list | total | show <id> | approve <id>> [--by category|person] [--claims file] [--rates file] [--notify url]\n"
+    }
+   ],
+   [
+    [],
+    {
+     "code": 2,
+     "out": "usage: claimbox <list | total | show <id> | approve <id>> [--by category|person] [--claims file] [--rates file] [--notify url]\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-101"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-101\nperson    ana\ncategory  meals\ndate      2026-09-01\namount    12.50 EUR (12.50 EUR)\nreceipt   r-8812\nnote      team lunch\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-102"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-102\nperson    bo\ncategory  travel\ndate      2026-09-03\namount    480.00 USD (441.60 EUR)\nreceipt   r-8815\nnote      -\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-103"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-103\nperson    ana\ncategory  equipment\ndate      2026-09-04\namount    619.00 EUR (619.00 EUR)\nreceipt   r-8820\nnote      monitor\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-104"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-104\nperson    chidi\ncategory  travel\ndate      2026-09-08\namount    84.50 GBP (98.87 EUR)\nreceipt   missing\nnote      -\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-105"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-105\nperson    bo\ncategory  meals\ndate      2026-09-09\namount    2.40 EUR (2.40 EUR)\nreceipt   missing\nnote      coffee\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-106"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-106\nperson    dee\ncategory  other\ndate      2026-09-11\namount    99.00 EUR (99.00 EUR)\nreceipt   r-8841\nnote      -\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-107"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-107\nperson    chidi\ncategory  equipment\ndate      2026-09-15\namount    275.00 USD (253.00 EUR)\nreceipt   r-8850\nnote      headset\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-108"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-108\nperson    dee\ncategory  meals\ndate      2026-09-16\namount    0.95 GBP (1.11 EUR)\nreceipt   missing\nnote      -\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-999"
+    ],
+    {
+     "code": 1,
+     "out": "error: no claim c-999\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-102"
+    ],
+    {
+     "code": 0,
+     "out": "c-102: needs second approver (441.60 EUR)\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-103"
+    ],
+    {
+     "code": 0,
+     "out": "c-103: needs second approver (619.00 EUR)\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-105"
+    ],
+    {
+     "code": 0,
+     "out": "c-105: approved (2.40 EUR)\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-107"
+    ],
+    {
+     "code": 0,
+     "out": "c-107: needs second approver (253.00 EUR)\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-999"
+    ],
+    {
+     "code": 1,
+     "out": "error: no claim c-999\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--rates",
+     "data/rates-2025.json"
+    ],
+    {
+     "code": 0,
+     "out": "c-101  2026-09-01  ana     meals        12.50 EUR  team lunch\nc-102  2026-09-03  bo      travel      480.00 USD\nc-103  2026-09-04  ana     equipment   619.00 EUR  monitor\nc-104  2026-09-08  chidi   travel       84.50 GBP  (no receipt)\nc-105  2026-09-09  bo      meals         2.40 EUR  (no receipt)  coffee\nc-106  2026-09-11  dee     other        99.00 EUR\nc-107  2026-09-15  chidi   equipment   275.00 USD  headset\nc-108  2026-09-16  dee     meals         0.95 GBP  (no receipt)\n"
+    }
+   ],
+   [
+    [
+     "total",
+     "--rates",
+     "data/rates-2025.json"
+    ],
+    {
+     "code": 1,
+     "out": "error: no rate for GBP\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-101",
+     "--rates",
+     "data/rates-2025.json"
+    ],
+    {
+     "code": 0,
+     "out": "claim     c-101\nperson    ana\ncategory  meals\ndate      2026-09-01\namount    12.50 EUR (12.50 EUR)\nreceipt   r-8812\nnote      team lunch\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-104",
+     "--rates",
+     "data/rates-2025.json"
+    ],
+    {
+     "code": 1,
+     "out": "error: no rate for GBP\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-104",
+     "--rates",
+     "data/rates-2025.json"
+    ],
+    {
+     "code": 1,
+     "out": "error: no rate for GBP\n"
+    }
+   ],
+   [
+    [
+     "list",
+     "--claims",
+     "data/claims-rejected.json"
+    ],
+    {
+     "code": 1,
+     "out": "error: person must be a non-empty string\n"
+    }
+   ],
+   [
+    [
+     "total",
+     "--claims",
+     "data/claims-rejected.json"
+    ],
+    {
+     "code": 1,
+     "out": "error: person must be a non-empty string\n"
+    }
+   ],
+   [
+    [
+     "show",
+     "c-101",
+     "--claims",
+     "data/claims-rejected.json"
+    ],
+    {
+     "code": 1,
+     "out": "error: person must be a non-empty string\n"
+    }
+   ]
+  ],
+  "trap": [
+   [
+    [
+     "approve",
+     "c-101"
+    ],
+    {
+     "code": 0,
+     "out": "c-101: needs second approver (12.50 EUR)\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-104"
+    ],
+    {
+     "code": 0,
+     "out": "c-104: needs second approver (98.87 EUR)\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-106"
+    ],
+    {
+     "code": 0,
+     "out": "c-106: needs second approver (99.00 EUR)\n"
+    }
+   ],
+   [
+    [
+     "approve",
+     "c-108"
+    ],
+    {
+     "code": 0,
+     "out": "c-108: needs second approver (1.11 EUR)\n"
+    }
+   ]
+  ]
+ },
+ "files": {
+  ".gitignore": "node_modules/\n",
+  "README.md": "# claimbox\n\nReads expense claims from a JSON file and answers questions about them from the command line. The command line is the public interface: other teams call it from scripts and read what it prints.\n\n```sh\nnode src/cli.ts list\nnode src/cli.ts total --by person\nnode src/cli.ts show c-103\nnode src/cli.ts approve c-101\n```\n\n- `--claims <file>` reads another claims file (default `data/claims.json`).\n- `--rates <file>` reads another table of exchange rates to euros (default `data/rates.json`).\n- `approve <id> --notify <url>` also posts the approval to the accounting system at that URL.\n\nAmounts are stored in cents of the claim's own currency. Nothing is written back to the data files.\n\n## Development\n\nNode 22.18 or newer runs the TypeScript files directly, so there is no build step and nothing to install for running or testing.\n\n```sh\nnode --test            # tests\nnpm install            # only needed for the type check\nnpm run typecheck\n```\n",
+  "data/claims-rejected.json": "[\n  {\n    \"id\": \"c-101\",\n    \"person\": \"ana\",\n    \"category\": \"meals\",\n    \"currency\": \"EUR\",\n    \"amount\": 1250,\n    \"date\": \"2026-09-01\",\n    \"note\": \"team lunch\",\n    \"receipt\": \"r-8812\"\n  },\n  {\n    \"id\": \"c-102\",\n    \"person\": \"bo\",\n    \"category\": \"travel\",\n    \"currency\": \"USD\",\n    \"amount\": 48000,\n    \"date\": \"2026-09-03\",\n    \"receipt\": \"r-8815\"\n  },\n  {\n    \"id\": \"c-900\",\n    \"person\": \"\",\n    \"category\": \"meals\",\n    \"currency\": \"EUR\",\n    \"amount\": -300,\n    \"date\": \"2026-09-20\"\n  }\n]\n",
+  "data/claims.json": "[\n  {\n    \"id\": \"c-101\",\n    \"person\": \"ana\",\n    \"category\": \"meals\",\n    \"currency\": \"EUR\",\n    \"amount\": 1250,\n    \"date\": \"2026-09-01\",\n    \"note\": \"team lunch\",\n    \"receipt\": \"r-8812\"\n  },\n  {\n    \"id\": \"c-102\",\n    \"person\": \"bo\",\n    \"category\": \"travel\",\n    \"currency\": \"USD\",\n    \"amount\": 48000,\n    \"date\": \"2026-09-03\",\n    \"receipt\": \"r-8815\"\n  },\n  {\n    \"id\": \"c-103\",\n    \"person\": \"ana\",\n    \"category\": \"equipment\",\n    \"currency\": \"EUR\",\n    \"amount\": 61900,\n    \"date\": \"2026-09-04\",\n    \"note\": \"monitor\",\n    \"receipt\": \"r-8820\"\n  },\n  {\n    \"id\": \"c-104\",\n    \"person\": \"chidi\",\n    \"category\": \"travel\",\n    \"currency\": \"GBP\",\n    \"amount\": 8450,\n    \"date\": \"2026-09-08\"\n  },\n  {\n    \"id\": \"c-105\",\n    \"person\": \"bo\",\n    \"category\": \"meals\",\n    \"currency\": \"EUR\",\n    \"amount\": 240,\n    \"date\": \"2026-09-09\",\n    \"note\": \"coffee\"\n  },\n  {\n    \"id\": \"c-106\",\n    \"person\": \"dee\",\n    \"category\": \"other\",\n    \"currency\": \"EUR\",\n    \"amount\": 9900,\n    \"date\": \"2026-09-11\",\n    \"receipt\": \"r-8841\"\n  },\n  {\n    \"id\": \"c-107\",\n    \"person\": \"chidi\",\n    \"category\": \"equipment\",\n    \"currency\": \"USD\",\n    \"amount\": 27500,\n    \"date\": \"2026-09-15\",\n    \"note\": \"headset\",\n    \"receipt\": \"r-8850\"\n  },\n  {\n    \"id\": \"c-108\",\n    \"person\": \"dee\",\n    \"category\": \"meals\",\n    \"currency\": \"GBP\",\n    \"amount\": 95,\n    \"date\": \"2026-09-16\"\n  }\n]\n",
+  "data/rates-2025.json": "{\n  \"EUR\": 1,\n  \"USD\": 0.95\n}\n",
+  "data/rates.json": "{\n  \"EUR\": 1,\n  \"USD\": 0.92,\n  \"GBP\": 1.17\n}\n",
+  "package.json": "{\n  \"name\": \"claimbox\",\n  \"version\": \"0.4.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"node --test\",\n    \"typecheck\": \"tsc --noEmit\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"typescript\": \"^5.8.0\"\n  },\n  \"engines\": {\n    \"node\": \">=22.18\"\n  }\n}\n",
+  "src/approve.ts": "import type { Claim, Rates } from \"./model.ts\";\nimport type { Row } from \"./store.ts\";\n\nexport type Notice = { id: string; person: string; euroCents: number };\n\nexport type Deps = {\n  limitFor: (person: string) => number;\n  inEuroCents: (row: Row, rates: Rates) => number;\n  send: (notice: Notice) => void;\n};\n\nexport type Decision = { id: string; outcome: \"approved\" | \"needs second approver\"; euroCents: number };\n\nexport function approve(row: Row, rates: Rates, deps: Deps): Decision {\n  const claim = row as unknown as Claim;\n  if (claim.amount <= 0) throw new Error(`${claim.id}: nothing to approve`);\n  const euroCents = deps.inEuroCents(row, rates);\n  const outcome = euroCents > deps.limitFor(claim.person) ? \"needs second approver\" : \"approved\";\n  if (outcome === \"approved\") deps.send({ id: claim.id, person: claim.person, euroCents });\n  return { id: claim.id, outcome, euroCents };\n}\n",
+  "src/cli.ts": "import { parseArgs } from \"node:util\";\nimport { approve } from \"./approve.ts\";\nimport { limitFor } from \"./limits.ts\";\nimport { postToAccounting } from \"./notify.ts\";\nimport { detail, euros, listing, totalsTable } from \"./report.ts\";\nimport { InvalidClaim } from \"./schema.ts\";\nimport { findClaim, loadClaims, loadRates, UnknownClaim } from \"./store.ts\";\nimport { inEuroCents, MissingRate, totalBy } from \"./totals.ts\";\n\nconst USAGE = \"usage: claimbox <list | total | show <id> | approve <id>> [--by category|person] [--claims file] [--rates file] [--notify url]\";\n\nfunction main(argv: string[]): void {\n  const { values, positionals } = parseArgs({\n    args: argv,\n    allowPositionals: true,\n    options: {\n      by: { type: \"string\", default: \"category\" },\n      claims: { type: \"string\", default: \"data/claims.json\" },\n      rates: { type: \"string\", default: \"data/rates.json\" },\n      notify: { type: \"string\" },\n    },\n  });\n  const [command, id] = positionals;\n  const rows = loadClaims(values.claims);\n  const rates = loadRates(values.rates);\n\n  if (command === \"list\") {\n    listing(rows).forEach((line) => console.log(line));\n  } else if (command === \"total\") {\n    if (values.by !== \"category\" && values.by !== \"person\") {\n      console.log(USAGE);\n      process.exitCode = 2;\n      return;\n    }\n    totalsTable(totalBy(rows, values.by, rates)).forEach((line) => console.log(line));\n  } else if (command === \"show\" && id !== undefined) {\n    const row = findClaim(rows, id);\n    detail(row, inEuroCents(row, rates)).forEach((line) => console.log(line));\n  } else if (command === \"approve\" && id !== undefined) {\n    const send = values.notify ? postToAccounting(values.notify) : () => {};\n    const decision = approve(findClaim(rows, id), rates, { limitFor, inEuroCents, send });\n    console.log(`${decision.id}: ${decision.outcome} (${euros(decision.euroCents)} EUR)`);\n  } else {\n    console.log(USAGE);\n    process.exitCode = 2;\n  }\n}\n\ntry {\n  main(process.argv.slice(2));\n} catch (error) {\n  if (error instanceof InvalidClaim || error instanceof UnknownClaim || error instanceof MissingRate) {\n    console.log(`error: ${error.message}`);\n    process.exitCode = 1;\n  } else {\n    throw error;\n  }\n}\n",
+  "src/limits.ts": "const LIMITS_EUR: Record<string, number> = {\n  ana: 500,\n  bo: 250,\n  chidi: 250,\n};\n\nconst DEFAULT_LIMIT_EUR = 100;\n\nexport function limitFor(person: string): number {\n  return LIMITS_EUR[person] ?? DEFAULT_LIMIT_EUR;\n}\n",
+  "src/model.ts": "export const CATEGORIES = [\"travel\", \"meals\", \"equipment\", \"other\"] as const;\nexport type Category = (typeof CATEGORIES)[number];\n\nexport const CURRENCIES = [\"EUR\", \"USD\", \"GBP\"] as const;\nexport type Currency = (typeof CURRENCIES)[number];\n\nexport type Claim = {\n  id: string;\n  person: string;\n  category: Category;\n  currency: Currency;\n  amount: number;\n  date: string;\n  note?: string;\n  receipt?: string;\n};\n\nexport type Rates = Record<string, number>;\n",
+  "src/notify.ts": "import type { Notice } from \"./approve.ts\";\n\nexport function postToAccounting(url: string): (notice: Notice) => void {\n  return (notice) => {\n    void fetch(url, {\n      method: \"POST\",\n      headers: { \"content-type\": \"application/json\" },\n      body: JSON.stringify({ claim: notice.id, person: notice.person, amount_eur_cents: notice.euroCents }),\n    }).catch(() => {\n      console.log(`warning: accounting was not told about ${notice.id}`);\n    });\n  };\n}\n",
+  "src/report.ts": "import type { Row } from \"./store.ts\";\n\nexport function euros(cents: number): string {\n  return (cents / 100).toFixed(2);\n}\n\nexport function claimLine(row: Row): string {\n  const claim = row as any;\n  const person = String(claim.person ?? \"unknown\");\n  const amount = `${euros(claim.amount)} ${claim.currency}`;\n  const flag = claim.receipt ? \"\" : \"  (no receipt)\";\n  const note = claim.note ?? \"\";\n  return `${claim.id}  ${claim.date}  ${person.padEnd(6)}  ${claim.category.padEnd(9)}  ${amount.padStart(11)}${flag}${note ? \"  \" + note : \"\"}`;\n}\n\nexport function listing(rows: Row[]): string[] {\n  return rows.map(claimLine);\n}\n\nexport function totalsTable(pairs: [string, number][]): string[] {\n  const lines = pairs.map(([name, cents]) => `${name.padEnd(9)}  ${euros(cents).padStart(9)} EUR`);\n  const sum = pairs.reduce((acc, [, cents]) => acc + cents, 0);\n  lines.push(`${\"total\".padEnd(9)}  ${euros(sum).padStart(9)} EUR`);\n  return lines;\n}\n\nexport function detail(row: Row, euroCents: number): string[] {\n  const claim = row as any;\n  return [\n    `claim     ${claim.id}`,\n    `person    ${String(claim.person ?? \"unknown\")}`,\n    `category  ${claim.category}`,\n    `date      ${claim.date}`,\n    `amount    ${euros(claim.amount)} ${claim.currency} (${euros(euroCents)} EUR)`,\n    `receipt   ${claim.receipt ?? \"missing\"}`,\n    `note      ${claim.note ?? \"-\"}`,\n  ];\n}\n",
+  "src/schema.ts": "import { CATEGORIES, CURRENCIES } from \"./model.ts\";\nimport type { Claim } from \"./model.ts\";\n\nexport class InvalidClaim extends Error {}\n\nfunction text(o: Record<string, unknown>, key: string): string {\n  const v = o[key];\n  if (typeof v !== \"string\" || v.trim() === \"\") throw new InvalidClaim(`${key} must be a non-empty string`);\n  return v;\n}\n\nfunction optionalText(o: Record<string, unknown>, key: string): string | undefined {\n  const v = o[key];\n  if (v === undefined) return undefined;\n  if (typeof v !== \"string\") throw new InvalidClaim(`${key} must be a string when present`);\n  return v;\n}\n\nfunction oneOf<T extends string>(o: Record<string, unknown>, key: string, allowed: readonly T[]): T {\n  const v = text(o, key);\n  if (!allowed.includes(v as T)) throw new InvalidClaim(`${key} must be one of ${allowed.join(\", \")}`);\n  return v as T;\n}\n\nfunction cents(o: Record<string, unknown>, key: string): number {\n  const v = o[key];\n  if (typeof v !== \"number\" || !Number.isInteger(v) || v <= 0) {\n    throw new InvalidClaim(`${key} must be a positive whole number of cents`);\n  }\n  return v;\n}\n\nfunction day(o: Record<string, unknown>, key: string): string {\n  const v = text(o, key);\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(v)) throw new InvalidClaim(`${key} must look like 2026-03-31`);\n  return v;\n}\n\nexport function parseClaim(input: unknown): Claim {\n  if (typeof input !== \"object\" || input === null || Array.isArray(input)) {\n    throw new InvalidClaim(\"a claim must be an object\");\n  }\n  const o = input as Record<string, unknown>;\n  const claim: Claim = {\n    id: text(o, \"id\"),\n    person: text(o, \"person\"),\n    category: oneOf(o, \"category\", CATEGORIES),\n    currency: oneOf(o, \"currency\", CURRENCIES),\n    amount: cents(o, \"amount\"),\n    date: day(o, \"date\"),\n  };\n  const note = optionalText(o, \"note\");\n  if (note !== undefined) claim.note = note;\n  const receipt = optionalText(o, \"receipt\");\n  if (receipt !== undefined) claim.receipt = receipt;\n  return claim;\n}\n",
+  "src/store.ts": "import { readFileSync } from \"node:fs\";\nimport type { Rates } from \"./model.ts\";\nimport { InvalidClaim, parseClaim } from \"./schema.ts\";\n\nexport type Row = Record<string, unknown>;\n\nexport class UnknownClaim extends Error {\n  constructor(id: string) {\n    super(`no claim ${id}`);\n  }\n}\n\nexport function loadClaims(path: string): Row[] {\n  const raw: unknown = JSON.parse(readFileSync(path, \"utf8\"));\n  if (!Array.isArray(raw)) throw new InvalidClaim(\"the claims file must hold a list\");\n  const rows: Row[] = [];\n  for (const item of raw) {\n    const claim = parseClaim(item);\n    const row: Row = claim;\n    rows.push(row);\n  }\n  return rows;\n}\n\nexport function findClaim(rows: Row[], id: string): Row {\n  const row = rows.find((r) => r.id === id);\n  if (row === undefined) throw new UnknownClaim(id);\n  return row;\n}\n\nexport function loadRates(path: string): Rates {\n  return JSON.parse(readFileSync(path, \"utf8\")) as Rates;\n}\n",
+  "src/totals.ts": "import { CATEGORIES } from \"./model.ts\";\nimport type { Claim, Rates } from \"./model.ts\";\nimport type { Row } from \"./store.ts\";\n\nexport class MissingRate extends Error {\n  constructor(currency: string) {\n    super(`no rate for ${currency}`);\n  }\n}\n\nexport function inEuroCents(row: Row, rates: Rates): number {\n  const claim = row as unknown as Claim;\n  if (typeof claim.amount !== \"number\" || Number.isNaN(claim.amount)) return 0;\n  const rate = rates[claim.currency];\n  if (rate === undefined) throw new MissingRate(claim.currency);\n  return Math.round(claim.amount * rate);\n}\n\nexport function totalBy(rows: Row[], key: \"category\" | \"person\", rates: Rates): [string, number][] {\n  const sums = new Map<string, number>();\n  for (const row of rows) {\n    const claim = row as unknown as Claim;\n    let group: string = key === \"category\" ? claim.category : claim.person;\n    if (key === \"category\" && !CATEGORIES.includes(claim.category)) group = \"other\";\n    if (key === \"person\" && !claim.person) group = \"unknown\";\n    sums.set(group, (sums.get(group) ?? 0) + inEuroCents(row, rates));\n  }\n  return [...sums.entries()].sort(([a], [b]) => a.localeCompare(b));\n}\n",
+  "tests/approve.test.ts": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { approve } from \"../src/approve.ts\";\nimport type { Notice } from \"../src/approve.ts\";\n\nconst row = { id: \"c-1\", person: \"ana\", category: \"meals\", currency: \"EUR\", amount: 1000, date: \"2026-03-02\" };\n\ntest(\"a claim under the limit is approved and accounting is told\", () => {\n  const sent: Notice[] = [];\n  const decision = approve(row, {}, {\n    limitFor: () => 1000,\n    inEuroCents: () => 500,\n    send: (notice) => sent.push(notice),\n  });\n  assert.equal(decision.outcome, \"approved\");\n  assert.deepEqual(sent, [{ id: \"c-1\", person: \"ana\", euroCents: 500 }]);\n});\n\ntest(\"a claim over the limit needs a second approver and nothing is sent\", () => {\n  const sent: Notice[] = [];\n  const decision = approve(row, {}, {\n    limitFor: () => 1000,\n    inEuroCents: () => 5000,\n    send: (notice) => sent.push(notice),\n  });\n  assert.equal(decision.outcome, \"needs second approver\");\n  assert.deepEqual(sent, []);\n});\n",
+  "tests/report.test.ts": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { claimLine, euros, totalsTable } from \"../src/report.ts\";\n\ntest(\"cents are printed as euros with two decimals\", () => {\n  assert.equal(euros(1250), \"12.50\");\n  assert.equal(euros(5), \"0.05\");\n});\n\ntest(\"a claim line flags a missing receipt and shows the note\", () => {\n  const row = { id: \"c-1\", person: \"ana\", category: \"meals\", currency: \"EUR\", amount: 1250, date: \"2026-03-02\", note: \"team lunch\" };\n  assert.equal(claimLine(row), \"c-1  2026-03-02  ana     meals        12.50 EUR  (no receipt)  team lunch\");\n});\n\ntest(\"the totals table ends with the sum\", () => {\n  assert.deepEqual(totalsTable([[\"meals\", 1000], [\"travel\", 2300]]), [\n    \"meals          10.00 EUR\",\n    \"travel         23.00 EUR\",\n    \"total          33.00 EUR\",\n  ]);\n});\n",
+  "tests/schema.test.ts": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { InvalidClaim, parseClaim } from \"../src/schema.ts\";\n\nconst good = { id: \"c-1\", person: \"ana\", category: \"meals\", currency: \"EUR\", amount: 1250, date: \"2026-03-02\" };\n\ntest(\"a complete claim comes back with its fields\", () => {\n  assert.deepEqual(parseClaim({ ...good, note: \"team lunch\" }), { ...good, note: \"team lunch\" });\n});\n\ntest(\"a claim without a person is refused\", () => {\n  assert.throws(() => parseClaim({ ...good, person: \"\" }), InvalidClaim);\n  assert.throws(() => parseClaim({ ...good, person: undefined }), InvalidClaim);\n});\n\ntest(\"an amount must be a positive whole number of cents\", () => {\n  for (const amount of [0, -5, 12.5, \"1250\", undefined, Number.NaN]) {\n    assert.throws(() => parseClaim({ ...good, amount }), InvalidClaim);\n  }\n});\n\ntest(\"an unknown category or currency is refused\", () => {\n  assert.throws(() => parseClaim({ ...good, category: \"gifts\" }), /category must be one of/);\n  assert.throws(() => parseClaim({ ...good, currency: \"JPY\" }), /currency must be one of/);\n});\n\ntest(\"anything that is not an object is refused\", () => {\n  for (const input of [null, \"c-1\", 7, [good]]) {\n    assert.throws(() => parseClaim(input), InvalidClaim);\n  }\n});\n",
+  "tests/totals.test.ts": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { inEuroCents, MissingRate, totalBy } from \"../src/totals.ts\";\n\nconst rates = { EUR: 1, USD: 0.9 };\nconst rows = [\n  { id: \"c-1\", person: \"ana\", category: \"meals\", currency: \"EUR\", amount: 1000, date: \"2026-03-02\" },\n  { id: \"c-2\", person: \"bo\", category: \"travel\", currency: \"USD\", amount: 2000, date: \"2026-03-03\" },\n  { id: \"c-3\", person: \"ana\", category: \"travel\", currency: \"EUR\", amount: 500, date: \"2026-03-04\" },\n];\n\ntest(\"totals are grouped by category in euro cents\", () => {\n  assert.deepEqual(totalBy(rows, \"category\", rates), [[\"meals\", 1000], [\"travel\", 2300]]);\n});\n\ntest(\"totals are grouped by person\", () => {\n  assert.deepEqual(totalBy(rows, \"person\", rates), [[\"ana\", 1500], [\"bo\", 1800]]);\n});\n\ntest(\"a currency without a rate stops the run\", () => {\n  assert.throws(() => inEuroCents({ ...rows[0], currency: \"GBP\" }, rates), MissingRate);\n});\n",
+  "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"es2023\",\n    \"module\": \"nodenext\",\n    \"moduleResolution\": \"nodenext\",\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"noEmit\": true,\n    \"allowImportingTsExtensions\": true,\n    \"erasableSyntaxOnly\": true,\n    \"skipLibCheck\": true,\n    \"types\": [\n      \"node\"\n    ]\n  },\n  \"include\": [\n    \"src\",\n    \"tests\"\n  ]\n}\n"
+ }
+}

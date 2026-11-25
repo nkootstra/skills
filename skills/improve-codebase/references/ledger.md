@@ -64,6 +64,8 @@ Entries with no shared cause stay as single FIX items.
 
 An entry is done when its evidence no longer reproduces, not when the commit that was meant to fix it has landed. After each batch, rerun the command or count recorded in the entry and write the new number next to the old one (`14 sites -> 0`). If the number has not moved, the entry is open: finish it, or change its disposition and write why. At the end no FIX or REDESIGN entry is left without one of the two.
 
+A closed entry stays closed only while something would notice it reopening. For each cause you remove, or plan to remove in an audit, name that check: a compiler setting, a lint rule, or a test, with the exact setting or rule name. If the project's existing checks now cover it, say which one. If not, propose the check in the report and leave the project's tooling as it is: switching on a rule or a stricter setting is the user's decision, because it can fail code outside the scope. A test that pins behavior is the exception and can be added as usual.
+
 ## Ranking
 
 Score each group: **commits to its files in the window × entries it resolves**. Then adjust:
@@ -139,6 +141,9 @@ One line per commit, in order: the cause it addressed and the entries it closed.
 
 Report only numbers you measured. Leave a cell out when you have no measurement for it.
 
+## Keeping it fixed
+One line per cause removed: the check that would catch it coming back, and whether it exists already, was added (tests only) or is proposed.
+
 ## Decisions for you
 Each ASK: what was found, the options, what each costs, and where the evidence is.
 
@@ -149,6 +154,6 @@ Each LEAVE with its reason.
 Areas with no checks, commands that could not be run, behavior confirmed only by reading.
 ```
 
-In audit mode, replace "What changed" with the ranked plan and drop the After column.
+In audit mode, replace "What changed" with the ranked plan, drop the After column, and write "Keeping it fixed" as proposals for the causes the plan removes.
 
 Keep facts and judgment apart. "`export.py` reads a global that three tests patch" is a fact. "This makes export hard to test" is a judgment; say it in its own sentence, after the fact it rests on.
