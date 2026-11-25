@@ -476,19 +476,21 @@ write-prose gains most on explaining and on drafts with residue to remove: tight
 
 #### improve-codebase
 
-Five cases on two fixture repos, each with planted structural problems, a commit history and a small test suite:
+Nine cases on four fixture repos, each with planted structural problems, a commit history and a small test suite:
 - **parcel**, a Python CLI for shipping quotes: the same carrier `if` chain in three files, an import cycle, a global flag one module sets for another, a discount known in three places, a rule copied four times, unused code. Four cases use it: the improvement, the improvement with all three optional passes, the improvement without saying which passes (no one answers the question), and an audit only.
 - **deskline**, a Node CLI for help-desk tickets, organised by technical layer: priorities defined in four folders, scattered status checks, code reaching into the store's internals, a global clock, an import cycle.
+- **stockroom**, a Python CLI for a small warehouse: a class whose stock is written and read from three other files, two pairs of modules that know each other, and plain records that should be left alone. An audit and an improvement use it.
+- **claimbox**, a TypeScript CLI for expense claims: validated claims handed on as a broad type and cast back, checks for values the parser already refuses, a test that stubs the repo's own modules and so hides a units bug, plus decoys (an `unknown` input at the boundary, a reachable check, a stub for an outside system). An audit and an improvement with the tests pass use it. It needs Node 22.18 or newer.
 
 The judge checks the final report: tests were run, behavior was kept or the changes are named, the planted bug is reported as a decision and not fixed, and decisions are listed apart from changes. What the judge can't check is measured afterwards by `evals/quality/score.py` on the repos the runs leave behind:
-- **Behavior:** each fixture has about 70 recorded CLI outputs the agent never sees. Any difference is a behavior change.
-- **Planted bug:** three more outputs exercise a real bug whose fix changes output. Unchanged means the run left the decision to the user.
+- **Behavior:** each fixture has 28 to 74 recorded CLI outputs the agent never sees. Any difference is a behavior change.
+- **Planted bug:** in three fixtures, a few more outputs exercise a real bug whose fix changes output. Unchanged means the run left the decision to the user.
 - **Structure:** counts of each planted problem, before and after.
 
 ```bash
 python3 evals/quality/make_cases.py
 claude plugin eval . --tag quality-improve-codebase --runs 3 --ablation none --model claude-opus-5-5 --judge-model sonnet \
-  --scaffold --allow-tools Write Edit Bash --keep-temp --trust-plugin --no-publish --threshold 0 --max-cost-usd 30 -j 3 \
+  --scaffold --allow-tools Write Edit Bash --keep-temp --trust-plugin --no-publish --threshold 0 --max-cost-usd 45 -j 4 \
   --json evals/results/improve-codebase.json
 
 # --keep-temp prints "kept /private/tmp/e-..." per run, with the chmod that opens it. Then:
@@ -498,17 +500,23 @@ python3 evals/quality/score.py score deskline run1=/private/tmp/e-CCCC
 
 `score.py` copies each repo out before running anything; never run git inside a kept directory. Each fixture is one file, `evals/quality/fixtures/<name>.json`. To change its code, unpack it with `python3 evals/quality/fixture_repo.py unpack <name> <dir>`, edit, pack it back with `fixture_repo.py pack <name> <dir>`, then run `score.py record <name>`. CI runs `score.py verify`, which fails when a fixture no longer replays its history, fails its tests or prints different outputs than recorded.
 
-Latest run, 3 runs per case (Opus 5.5, Sonnet as judge, $20.76):
+Latest run, 3 runs per case (Opus 5.5, Sonnet as judge, $37.39):
 
 | Case | Judge checks | Recorded outputs unchanged | Planted bug | Structure |
 |---|---|---|---|---|
-| improve-python-cli | 18/18 | 74/74 in all 3 | left for the user, 3/3 | carrier branches 14 → 0, import cycle and global flags gone, rule copies 4 → 1, unused code removed |
-| improve-python-cli-all-passes | 18/18 | 74/74 in 2; 72/74 in 1, from a bug fix it named | fixed, 3/3 | same as above; tests 8 → 12–22 |
+| improve-python-cli | 18/18 | 74/74 in all 3 | left for the user, 3/3 | carrier branches 14 → 0, import cycle and unused code gone, global flag uses 8 → 0–1, rule copies 4 → 1 |
+| improve-python-cli-all-passes | 17/18 | 74/74 in 1; 72/74 in 2, from a bug fix they named | fixed, 3/3 | same as above; rule copies 4 → 0–1 |
 | improve-python-cli-no-answer | 9/9 | 74/74 in all 3 | left for the user, 3/3 | same as above |
-| audit-python-cli | 17/18 | 0 files changed in all 3 | left, 3/3 | unchanged, as asked |
+| audit-python-cli | 18/18 | 0 files changed in all 3 | left, 3/3 | unchanged, as asked |
 | improve-layered-node-cli | 18/18 | 70/70 in all 3 | left for the user, 3/3 | files defining priorities 4 → 1, status checks 9 → 2–5, import cycle and swallowed errors gone |
+| audit-warehouse-cli | 24/24 | 0 files changed in all 3 | none planted | unchanged, as asked |
+| improve-warehouse-cli | 18/18 | 40/40 in all 3 | none planted | outside uses of the shelf's stock 32 → 5–7, import cycles gone, free-units rule copies 3 → 0–1 |
+| audit-typed-claims-cli | 27/27 | 0 files changed in all 3 | left, 3/3 | unchanged, as asked |
+| improve-typed-claims-cli | 27/27 | 28/28 in all 3 | left for the user, 3/3 | casts 5 → 0, broad row type gone, dead checks 7 → 0–1, stubs for the repo's own modules 4 → 0, decoys untouched |
 
-In the all-passes case, the user opted into bug fixes. One run also fixed the report's list price, which was a cent off from dividing a rounded number; it did so in its own commit and flagged that the warehouse scripts read that output. The audit's "claims no changes" check is noisy: it fails about one run in three when a reply mentions an experiment run in memory or a scratch copy. `score.py` is the reliable signal there and has shown 0 files changed in every audit run. "Recorded outputs unchanged" covers those outputs only. On deskline, all runs left the store internals, the global clock and the unused CSV export in place, each with a stated reason. That is a choice the skill allows, not a miss.
+In the all-passes case, the user opted into bug fixes. Two runs also fixed the report's list price, which was a cent off from dividing a rounded number, and named it. The audit's "claims no changes" check is noisy: it has failed when a reply mentions an experiment run in memory or a cache folder it cleaned up. `score.py` is the reliable signal there and has shown 0 files changed in every audit run. "Recorded outputs unchanged" covers those outputs only. On deskline, all runs left the store internals, the global clock and the unused CSV export in place, each with a stated reason. That is a choice the skill allows, not a miss.
+
+On claimbox, the version of the skill before the "keeping it fixed" and stand-in guidance left the test's stubs for the repo's own modules in place in 2 of 3 runs and named a check against regression in 0 of 3 summaries; with the guidance both are 3 of 3. The eval sandbox has no network, so runs cannot install TypeScript and never type-check claimbox; type-checking copies of the nine improved workspaces afterwards gave 0 errors.
 
 ## Versioning and releases
 
