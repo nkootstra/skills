@@ -96,12 +96,13 @@ Don't sweep the repo for comments. Touch them where you are already working, unl
 
 Tests are the safety net for everything above, so they never change in the commit that changes the code they cover. Two kinds of test work happen in place, each in its own commit: pinning behavior before a step, and rewriting a test that blocks a step because it watches internals. Everything else here is the tests pass, which runs last.
 
-Run two experiments on a test before judging it. Break the behavior it claims to cover: it should go red. Restructure the code without changing behavior: it should stay green.
+Run two experiments on a test before judging it. Break the behavior it claims to cover, and each of the repo's own modules it replaces with a stand-in: it, or another test, should go red. Restructure the code without changing behavior: it should stay green.
 
 | Result | Do |
 |---|---|
 | Green when the behavior is broken | It asserts nothing useful. Rewrite it to assert an outcome when the behavior matters; delete it when another test already covers that behavior. |
 | Red after a behavior-preserving restructure | It watches internals. Rewrite it against the public entry point before the refactor that would break it, then repeat the first experiment. |
+| Green when a module it replaces with a stand-in is broken, and no other test runs that module with its caller | Nothing checks that the two agree on units, shapes or order. Rewrite it to run the repo's real modules together; keep stand-ins for systems outside the repo. If the real run shows wrong behavior, assert what happens today and add an ASK: the test pass does not fix bugs. |
 | Its expected value is computed with the code's own formula | Both sides move together, so it passes whatever the formula is. Replace the computation with literal examples. |
 | Same inputs and assertions as another test | Keep the one closer to the public entry point. |
 | Skipped | Find out why from `git blame`. Re-enable it if it passes or once the cause is fixed; delete it if the behavior no longer exists; otherwise leave it and report it. |
