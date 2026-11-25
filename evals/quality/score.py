@@ -19,6 +19,7 @@ The "checks" object in fixtures/<name>.json:
   counts       name -> regex; occurrences across source files, lower is better
   file_counts  name -> regex; number of source files with a match, lower is better
   tests_regex  {"include": regex, "pattern": regex}: counts test functions
+  test_counts  name -> regex; occurrences across the test files tests_regex includes, lower is better
   cycles       "python" or "js": count modules that sit in an import cycle
   facts        what a judge needs to know about the fixture (used by make_cases.py)"""
 import ast, os, pathlib, re, shutil, subprocess, sys, tempfile
@@ -105,6 +106,8 @@ def measure(repo, spec, golden, original):
     if "tests_regex" in spec:
         t = spec["tests_regex"]
         row["test functions"] = sum(len(re.findall(t["pattern"], body)) for rel, body in everything.items() if re.search(t["include"], rel))
+    for name, pattern in spec.get("test_counts", {}).items():
+        row[name] = sum(len(re.findall(pattern, body)) for rel, body in everything.items() if re.search(spec["tests_regex"]["include"], rel))
     src = source_files(repo, spec["source"])
     for name, pattern in spec.get("file_counts", {}).items():
         row[name] = sum(1 for body in src.values() if re.search(pattern, body))

@@ -88,5 +88,37 @@
       "The summary gives at least one before-and-after number, such as a test count or a count of places or files.",
       "The summary does not report adding getters or wrappers around the fields of the Product or Order classes. A method that answers a question, such as is_open, is fine."
     ]
+  },
+  {
+    "id": "audit-typed-claims-cli",
+    "fixture": "claimbox",
+    "prompt": "Do a code quality audit of this repo and tell me what to refactor first. Don't change anything yet.",
+    "expectations": [
+      "The reply does not claim to have changed, moved, deleted or committed any file that belongs to the repository; it presents findings and a plan only. Experiments run in memory, in a temporary copy or in a scratch folder, and deleting caches or build output that the run itself created, are not changes to the repository.",
+      "The reply says that claims are validated when loaded and then handed on as a broad type (Row, Record<string, unknown>), so that other files cast them back to Claim or to any.",
+      "The reply names at least two of the checks that can no longer trigger because parseClaim refuses those values (a non-number amount, an amount of zero or less, a missing person, a category outside the list), and says why they can't trigger.",
+      "The reply says that the approve test replaces the repo's own limitFor or inEuroCents with stubs, or that no test runs limits.ts, so the tests cannot notice when those break or stop agreeing.",
+      "The reply reports that approval compares an amount in euro cents with limits written in whole euros, as a bug or a decision for the user.",
+      "The reply notes that the rates file is read and cast to its type without any validation.",
+      "The reply does not list any of these as a problem to fix: parseClaim taking an 'unknown' input, the parsed JSON being typed 'unknown' in store.ts, the 'no rate for <currency>' check, the receipt flag, the note default, or the test's stub for send.",
+      "The reply backs its ranking with evidence someone could reproduce: counts, commands or commit history, not only opinions.",
+      "The reply names at least one concrete check (a lint rule, a compiler setting or a test) that would stop one of the fixed problems from coming back, as a proposal and not as something already added."
+    ]
+  },
+  {
+    "id": "improve-typed-claims-cli",
+    "fixture": "claimbox",
+    "prompt": "This repo has become hard to change safely. Improve its structure. Also run the tests pass, but not the comments pass or the bug-fix pass. I'm away, so don't ask me questions. Finish with a summary of what you changed and anything I need to decide.",
+    "expectations": [
+      "The summary says the tests were run after the changes and that they pass.",
+      "The summary says that the command-line output or behavior was kept the same, or names exactly which outputs changed. It does not leave the reader guessing whether behavior changed.",
+      "The summary says that claims now keep their Claim type after loading, or that the casts back from the broad row type are gone.",
+      "The summary says which defensive checks were removed and that this is safe because parseClaim already refuses those values, or says they were left and why.",
+      "The summary mentions that approval compares euro cents with limits in whole euros and presents it as something left unchanged for the user to decide, not as something that was fixed.",
+      "The summary says what was done about the approve test's stubs for the repo's own modules (replaced with the real limitFor and inEuroCents, or left with a reason).",
+      "The summary has a part that lists decisions or open questions for the user, separate from the list of changes made.",
+      "The summary gives at least one before-and-after number, such as a test count or a count of places or files.",
+      "The summary names at least one concrete check (a lint rule, a compiler setting or a test) that would stop a fixed problem from coming back, and makes clear whether it was added or is only proposed."
+    ]
   }
 ]
